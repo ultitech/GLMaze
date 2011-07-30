@@ -6,27 +6,27 @@
 float camera_position[] = {0.0, 0.0, 0.0};
 float camera_angle[] = {0.0, 0.0, 0.0};
 
-void camera_set_position(float *pos)
+void camera_set_position(float pos[3])
 {
 	memcpy(camera_position, pos, sizeof(float)*3);
 }
 
-void camera_get_position(float *pos)
+void camera_get_position(float pos[3])
 {
 	memcpy(pos, camera_position, sizeof(float)*3);
 }
 
-void camera_set_rotation(float *ang)
+void camera_set_rotation(float ang[3])
 {
 	memcpy(camera_angle, ang, sizeof(float)*3);
 }
 
-void camera_get_rotation(float *ang)
+void camera_get_rotation(float ang[3])
 {
 	memcpy(ang, camera_angle, sizeof(float)*3);
 }
 
-void camera_get_matrix(float *mat)
+void camera_get_matrix(float mat[16])
 {
 	Matrix m, t;
 	mat_create_identity(&m);
