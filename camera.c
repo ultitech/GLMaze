@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "math.h"
 
 #include <string.h>
 #include <MatrixLib.h>
@@ -8,22 +9,22 @@ float camera_angle[] = {0.0, 0.0, 0.0};
 
 void camera_set_position(float pos[3])
 {
-	memcpy(camera_position, pos, sizeof(float)*3);
+	vec_set(camera_position, pos);
 }
 
 void camera_get_position(float pos[3])
 {
-	memcpy(pos, camera_position, sizeof(float)*3);
+	vec_set(pos, camera_position);
 }
 
 void camera_set_rotation(float ang[3])
 {
-	memcpy(camera_angle, ang, sizeof(float)*3);
+	vec_set(camera_angle, ang);
 }
 
 void camera_get_rotation(float ang[3])
 {
-	memcpy(ang, camera_angle, sizeof(float)*3);
+	vec_set(ang, camera_angle);
 }
 
 void camera_get_matrix(float mat[16])

@@ -1,4 +1,4 @@
-OBJ = main.o maze.o mesh.o camera.o
+OBJ = main.o maze.o mesh.o camera.o math.o
 LIB = -lGL -lGLU -lSDL -lMatrixLib
 FLAGS = -g
 
