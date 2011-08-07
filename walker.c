@@ -7,7 +7,8 @@
 
 //Prototypes:
 void walker_walk(Walker *walker);
-void walker_rotate(Walker *walker);
+void walker_rotate_right(Walker *walker);
+void walker_rotate_left(Walker *walker);
 
 int cell_passage_in_direction(Cell *cell, enum Direction dir)
 {
@@ -31,12 +32,70 @@ int cell_passage_in_direction(Cell *cell, enum Direction dir)
 	}
 }
 
+enum Direction walker_rotate_direction_right(enum Direction dir)
+{
+	switch(dir)
+	{
+		case UP:
+		return RIGHT;
+		break;
+		
+		case RIGHT:
+		return DOWN;
+		break;
+		
+		case DOWN:
+		return LEFT;
+		break;
+		
+		case LEFT:
+		return UP;
+		break;
+	}
+}
+
+enum Direction walker_rotate_direction_left(enum Direction dir)
+{
+	switch(dir)
+	{
+		case UP:
+		return LEFT;
+		break;
+		
+		case RIGHT:
+		return UP;
+		break;
+		
+		case DOWN:
+		return RIGHT;
+		break;
+		
+		case LEFT:
+		return DOWN;
+		break;
+	}
+}
+
 void walker_create_new_interpolation(Walker *walker)
 {
 	Cell *cur_cell = maze_get_cell(walker->maze, walker->cell[0], walker->cell[1]);
 	
-	if(cell_passage_in_direction(cur_cell, walker->direction)) walker_walk(walker);
-	else walker_rotate(walker);
+	if(walker->last_operation == WALKER_WALK)
+	{
+		enum Direction check_dir = walker_rotate_direction_right(walker->direction);
+		if(cell_passage_in_direction(cur_cell, check_dir)) walker_rotate_right(walker); //first look right
+		else if(cell_passage_in_direction(cur_cell, walker->direction)) walker_walk(walker); //then forward
+		else walker_rotate_left(walker); //else turn left
+	}
+	else
+	{
+		if(cell_passage_in_direction(cur_cell, walker->direction)) walker_walk(walker);
+		else
+		{
+			if(walker->last_operation == WALKER_ROTATE_RIGHT) walker_rotate_right(walker);
+			else walker_rotate_left(walker);
+		}
+	}
 }
 
 void walker_interpolate(Walker *walker, float time_step)
@@ -77,7 +136,24 @@ void walker_rotation_from_direction(float rot[3], enum Direction dir)
 		break;
 		
 		case LEFT:
-		rot[0] = 270.0;
+		rot[0] = 270.0;switch(walker->direction)
+	{
+		case UP:
+		next_direction = RIGHT;
+		break;
+		
+		case RIGHT:
+		next_direction = DOWN;
+		break;
+		
+		case DOWN:
+		next_direction = LEFT;
+		break;
+		
+		case LEFT:
+		next_direction = UP;
+		break;
+	}
 		break;
 		
 		case RIGHT:
@@ -141,9 +217,10 @@ void walker_walk(Walker *walker)
 	walker->interp_callback = walker->set_position_callback;
 	
 	memcpy(walker->cell, next_cell, sizeof(float)*2);
+	walker->last_operation = WALKER_WALK;
 }
 
-void walker_rotate(Walker *walker)
+void walker_rotate_right(Walker *walker)
 {
 	walker->interp_step = 0.0;
 	
@@ -151,24 +228,7 @@ void walker_rotate(Walker *walker)
 	walker->interp_start[0] = walker->child_pan;
 	
 	enum Direction next_direction;
-	switch(walker->direction)
-	{
-		case UP:
-		next_direction = RIGHT;
-		break;
-		
-		case RIGHT:
-		next_direction = DOWN;
-		break;
-		
-		case DOWN:
-		next_direction = LEFT;
-		break;
-		
-		case LEFT:
-		next_direction = UP;
-		break;
-	}
+	next_direction = walker_rotate_direction_right(walker->direction);
 	vec_set(walker->interp_end, walker->interp_start);
 	walker->interp_end[0] += 90.0;
 	
@@ -176,6 +236,26 @@ void walker_rotate(Walker *walker)
 	
 	walker->direction = next_direction;
 	walker->child_pan += 90.0;
+	walker->last_operation = WALKER_ROTATE_RIGHT;
+}
+
+void walker_rotate_left(Walker *walker)
+{
+	walker->interp_step = 0.0;
+	
+	memset(walker->interp_start, 0x00, sizeof(float)*3);
+	walker->interp_start[0] = walker->child_pan;
+	
+	enum Direction next_direction;
+	next_direction = walker_rotate_direction_left(walker->direction);
+	vec_set(walker->interp_end, walker->interp_start);
+	walker->interp_end[0] -= 90.0;
+	
+	walker->interp_callback = walker->set_rotation_callback;
+	
+	walker->direction = next_direction;
+	walker->child_pan -= 90.0;
+	walker->last_operation = WALKER_ROTATE_LEFT;
 }
 
 Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]))

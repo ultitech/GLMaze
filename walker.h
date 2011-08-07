@@ -3,6 +3,13 @@
 
 #include "maze.h"
 
+enum WalkerOperation
+{
+	WALKER_ROTATE_RIGHT,
+	WALKER_ROTATE_LEFT,
+	WALKER_WALK
+};
+
 typedef struct
 {
 	Maze *maze;
@@ -19,6 +26,8 @@ typedef struct
 	
 	int cell[2];
 	enum Direction direction;
+	
+	enum WalkerOperation last_operation;
 	
 	void *user_data;
 } Walker;
