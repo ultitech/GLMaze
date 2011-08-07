@@ -82,19 +82,15 @@ void walker_create_new_interpolation(Walker *walker)
 	
 	if(walker->last_operation == WALKER_WALK)
 	{
-		enum Direction check_dir = walker_rotate_direction_right(walker->direction);
-		if(cell_passage_in_direction(cur_cell, check_dir)) walker_rotate_right(walker); //first look right
+		if(cell_passage_in_direction(cur_cell, walker_rotate_direction_right(walker->direction))) walker_rotate_right(walker); //first look right
 		else if(cell_passage_in_direction(cur_cell, walker->direction)) walker_walk(walker); //then forward
-		else walker_rotate_left(walker); //else turn left
+		else if(cell_passage_in_direction(cur_cell, walker_rotate_direction_left(walker->direction))) walker_rotate_left(walker); //then left
+		else walker_rotate_right(walker); //else turn right (180 degrees)
 	}
 	else
 	{
 		if(cell_passage_in_direction(cur_cell, walker->direction)) walker_walk(walker);
-		else
-		{
-			if(walker->last_operation == WALKER_ROTATE_RIGHT) walker_rotate_right(walker);
-			else walker_rotate_left(walker);
-		}
+		else walker_rotate_right(walker);
 	}
 }
 
@@ -236,7 +232,7 @@ void walker_rotate_right(Walker *walker)
 	
 	walker->direction = next_direction;
 	walker->child_pan += 90.0;
-	walker->last_operation = WALKER_ROTATE_RIGHT;
+	walker->last_operation = WALKER_ROTATE;
 }
 
 void walker_rotate_left(Walker *walker)
@@ -255,7 +251,7 @@ void walker_rotate_left(Walker *walker)
 	
 	walker->direction = next_direction;
 	walker->child_pan -= 90.0;
-	walker->last_operation = WALKER_ROTATE_LEFT;
+	walker->last_operation = WALKER_ROTATE;
 }
 
 Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]))

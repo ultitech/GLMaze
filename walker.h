@@ -5,8 +5,7 @@
 
 enum WalkerOperation
 {
-	WALKER_ROTATE_RIGHT,
-	WALKER_ROTATE_LEFT,
+	WALKER_ROTATE,
 	WALKER_WALK
 };
 
