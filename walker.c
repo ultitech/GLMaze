@@ -62,6 +62,7 @@ void walker_position_from_cell_pos(float pos[3], int cell[2])
 	pos[2] = (float)cell[1] + 0.5;
 }
 
+/*
 void walker_rotation_from_direction(float rot[3], enum Direction dir)
 {
 	memset(rot, 0x00, sizeof(float)*3);
@@ -81,6 +82,29 @@ void walker_rotation_from_direction(float rot[3], enum Direction dir)
 		
 		case RIGHT:
 		rot[0] = 90.0;
+		break;
+	}
+}
+*/
+
+float walker_pan_from_direction(enum Direction dir)
+{
+	switch(dir)
+	{
+		case UP:
+		return 0.0;
+		break;
+		
+		case DOWN:
+		return 180.0;
+		break;
+		
+		case LEFT:
+		return 270.0;
+		break;
+		
+		case RIGHT:
+		return 90.0;
 		break;
 	}
 }
@@ -123,7 +147,8 @@ void walker_rotate(Walker *walker)
 {
 	walker->interp_step = 0.0;
 	
-	walker_rotation_from_direction(walker->interp_start, walker->direction);
+	memset(walker->interp_start, 0x00, sizeof(float)*3);
+	walker->interp_start[0] = walker->child_pan;
 	
 	enum Direction next_direction;
 	switch(walker->direction)
@@ -144,11 +169,13 @@ void walker_rotate(Walker *walker)
 		next_direction = UP;
 		break;
 	}
-	walker_rotation_from_direction(walker->interp_end, next_direction);
+	vec_set(walker->interp_end, walker->interp_start);
+	walker->interp_end[0] += 90.0;
 	
 	walker->interp_callback = walker->set_rotation_callback;
 	
 	walker->direction = next_direction;
+	walker->child_pan += 90.0;
 }
 
 Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]))
@@ -158,6 +185,7 @@ Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_di
 	memcpy(walker->cell, start_cell_pos, sizeof(float)*2);
 	walker->direction = start_dir;
 	walker->interp_speed = 1.0;
+	walker->child_pan = walker_pan_from_direction(walker->direction);
 	walker->set_position_callback = pos_callback;
 	walker->set_rotation_callback = rot_callback;
 	
