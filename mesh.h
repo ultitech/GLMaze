@@ -2,7 +2,7 @@
 #define H_MESH
 
 #include "maze.h"
-#include <GL3/gl3.h>
+#include <GL/gl.h>
 
 typedef struct
 {
@@ -14,5 +14,6 @@ typedef struct
 Mesh* mesh_create_maze(Maze *maze);
 Mesh* mesh_create_quad(float scale);
 void mesh_free(Mesh *mesh);
+void mesh_draw(Mesh *mesh);
 
 #endif //H_MESH

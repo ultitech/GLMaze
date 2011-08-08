@@ -96,3 +96,13 @@ void mesh_free(Mesh *mesh)
 	free(mesh->indices);
 	free(mesh);
 }
+
+void mesh_draw(Mesh *mesh)
+{
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*5, mesh->vertices);
+	
+	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
+}

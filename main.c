@@ -54,9 +54,6 @@ int main()
 	camera_set_rotation(cam_rot);
 	*/
 	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*5, mesh->vertices);
-	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 	char quit = 0;
@@ -85,7 +82,7 @@ int main()
 		glLoadMatrixf(m);
 		
 		glColor3f(1.0, 1.0, 1.0);
-		glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
+		mesh_draw(mesh);
 		
 		glBegin(GL_LINES);
 		glColor3f(1.0, 0.0, 0.0);
