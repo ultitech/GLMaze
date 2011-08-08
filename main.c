@@ -5,8 +5,6 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
-#include <IL/il.h>
-#include <IL/ilu.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,8 +33,6 @@ void camera_update_pos(float pos[3])
 int main()
 {
 	srand(time(NULL));
-	ilInit();
-	iluInit();
 	Maze *maze = maze_generate(10, 10);
 	maze_print(maze);
 	Mesh *mesh = mesh_create_maze(maze);
@@ -61,6 +57,7 @@ int main()
 	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
+	texture_init();
 	GLuint texture = texture_create("matrix.jpg");
 	
 	char quit = 0;

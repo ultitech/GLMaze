@@ -5,6 +5,12 @@
 
 #include <stdlib.h>
 
+void texture_init()
+{
+	ilInit();
+	iluInit();
+}
+
 GLuint texture_create(char *filename)
 {
 	ILuint image;
