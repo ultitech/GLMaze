@@ -265,6 +265,14 @@ Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_di
 	walker->set_position_callback = pos_callback;
 	walker->set_rotation_callback = rot_callback;
 	
+	float position[3];
+	walker_position_from_cell_pos(position, walker->cell);
+	walker->set_position_callback(position);
+	float rotation[3];
+	rotation[0] = walker_pan_from_direction(walker->direction);
+	rotation[1] = rotation[2] = 0.0;
+	walker->set_rotation_callback(rotation);
+	
 	walker_create_new_interpolation(walker);
 	
 	return walker;
