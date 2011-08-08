@@ -1,5 +1,5 @@
-OBJ = main.o maze.o mesh.o camera.o math.o walker.o
-LIB = -lGL -lGLU -lSDL -lMatrixLib
+OBJ = main.o maze.o mesh.o camera.o math.o walker.o texture.o
+LIB = -lGL -lGLU -lIL -lILU -lSDL -lMatrixLib
 FLAGS = -g
 
 GLMaze: $(OBJ)

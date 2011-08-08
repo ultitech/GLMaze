@@ -5,6 +5,8 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
+#include <IL/il.h>
+#include <IL/ilu.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,6 +35,8 @@ void camera_update_pos(float pos[3])
 int main()
 {
 	srand(time(NULL));
+	ilInit();
+	iluInit();
 	Maze *maze = maze_generate(10, 10);
 	maze_print(maze);
 	Mesh *mesh = mesh_create_maze(maze);
@@ -42,6 +46,7 @@ int main()
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(500, 500, 32, SDL_OPENGL);
 	
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(60.0, 1.0, 0.1, 1000.0);
@@ -54,7 +59,9 @@ int main()
 	camera_set_rotation(cam_rot);
 	*/
 	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
+	GLuint texture = texture_create("matrix.jpg");
 	
 	char quit = 0;
 	while(!quit)
@@ -67,7 +74,7 @@ int main()
 		
 		walker_step(walker, 0.02);
 		
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		/*
 		float rot[3];
@@ -82,7 +89,10 @@ int main()
 		glLoadMatrixf(m);
 		
 		glColor3f(1.0, 1.0, 1.0);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		mesh_draw(mesh);
+		glDisable(GL_TEXTURE_2D);
 		
 		glBegin(GL_LINES);
 		glColor3f(1.0, 0.0, 0.0);
