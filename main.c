@@ -58,7 +58,7 @@ int main()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	
 	texture_init();
-	GLuint texture = texture_create("matrix.jpg");
+	GLuint wall_texture = texture_create("wall.jpg");
 	
 	char quit = 0;
 	while(!quit)
@@ -87,7 +87,7 @@ int main()
 		
 		glColor3f(1.0, 1.0, 1.0);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, wall_texture);
 		mesh_draw(mesh);
 		glDisable(GL_TEXTURE_2D);
 		
