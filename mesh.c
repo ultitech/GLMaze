@@ -99,10 +99,14 @@ void mesh_free(Mesh *mesh)
 
 void mesh_draw(Mesh *mesh)
 {
+	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
 	glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*5, mesh->vertices);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(GLfloat)*5, mesh->vertices+3);
 	
 	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
 	
-	glDisableClientState(GL_VERTEX_ARRAY);
+	glPopClientAttrib();
 }
