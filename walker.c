@@ -1,9 +1,8 @@
 #include "walker.h"
 
-#include "math.h"
-
 #include <stdlib.h>
 #include <string.h>
+#include <MathLib.h>
 
 //Prototypes:
 void walker_walk(Walker *walker);
@@ -104,9 +103,7 @@ void walker_interpolate(Walker *walker, float time_step)
 		return;
 	}
 	float result[3];
-	result[0] = walker->interp_start[0] * (1.0 - walker->interp_step) + walker->interp_end[0] * walker->interp_step;
-	result[1] = walker->interp_start[1] * (1.0 - walker->interp_step) + walker->interp_end[1] * walker->interp_step;
-	result[2] = walker->interp_start[2] * (1.0 - walker->interp_step) + walker->interp_end[2] * walker->interp_step;
+	interp_v3_v3v3(result, walker->interp_start, walker->interp_end, walker->interp_step);
 	walker->interp_callback(result);
 }
 
@@ -225,7 +222,7 @@ void walker_rotate_right(Walker *walker)
 	
 	enum Direction next_direction;
 	next_direction = walker_rotate_direction_right(walker->direction);
-	vec_set(walker->interp_end, walker->interp_start);
+	copy_v3_v3(walker->interp_end, walker->interp_start);
 	walker->interp_end[0] += 90.0;
 	
 	walker->interp_callback = walker->set_rotation_callback;
@@ -244,7 +241,7 @@ void walker_rotate_left(Walker *walker)
 	
 	enum Direction next_direction;
 	next_direction = walker_rotate_direction_left(walker->direction);
-	vec_set(walker->interp_end, walker->interp_start);
+	copy_v3_v3(walker->interp_end, walker->interp_start);
 	walker->interp_end[0] -= 90.0;
 	
 	walker->interp_callback = walker->set_rotation_callback;
