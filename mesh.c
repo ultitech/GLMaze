@@ -64,25 +64,26 @@ Mesh* mesh_create_maze(Maze *maze)
 	return mesh;
 }
 
-Mesh* mesh_create_quad(float scale)
+Mesh* mesh_create_quad(float x_scale, float z_scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
-	mesh->vertices = malloc(sizeof(GLfloat) * (3+2)); //position/texcoord
+	mesh->vertices = malloc(sizeof(GLfloat) * (3+2) * 4); //position/texcoord
 	int x, z;
 	GLfloat *v = mesh->vertices;
 	for(z=0; z<2; z++) for(x=0; x<2; x++)
 	{
 		//position:
-		*v++ = (2*x)-1;
+		*v++ = x * x_scale;
 		*v++ = 0;
-		*v++ = (2*z)-1;
+		*v++ = z * z_scale;
 		//texcoord:
-		*v++ = x;
-		*v++ = -z;
+		*v++ = x * x_scale;
+		*v++ = z * z_scale;
 	}
 	
-	mesh->indices = malloc(sizeof(GLuint) * (2*3));
+	mesh->indices_count = 2*3;
+	mesh->indices = malloc(sizeof(GLuint) * mesh->indices_count);
 	GLuint *i = mesh->indices;
 	*i++ = 0; *i++ = 1; *i++ = 2;
 	*i++ = 1; *i++ = 3; *i++ = 2;

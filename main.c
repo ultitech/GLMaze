@@ -36,6 +36,7 @@ int main()
 	Maze *maze = maze_generate(10, 10);
 	maze_print(maze);
 	Mesh *mesh = mesh_create_maze(maze);
+	Mesh *plane = mesh_create_quad((float)maze->width, (float)maze->height);
 	int start[2] = {5, 5};
 	Walker *walker = walker_create(maze, start, UP, camera_update_pos, camera_set_rotation);
 	
@@ -43,6 +44,7 @@ int main()
 	SDL_SetVideoMode(500, 500, 32, SDL_OPENGL);
 	
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(60.0, 1.0, 0.1, 1000.0);
@@ -59,6 +61,8 @@ int main()
 	
 	texture_init();
 	GLuint wall_texture = texture_create("wall.jpg");
+	GLuint ceiling_texture = texture_create("ceiling.jpg");
+	GLuint floor_texture = texture_create("floor.jpg");
 	
 	char quit = 0;
 	while(!quit)
@@ -85,23 +89,17 @@ int main()
 		camera_get_matrix(m);
 		glLoadMatrixf(m);
 		
+		glPushMatrix();
+		glBindTexture(GL_TEXTURE_2D, floor_texture);
+		mesh_draw(plane);
+		glTranslatef(0.0, 1.0, 0.0);
+		glBindTexture(GL_TEXTURE_2D, ceiling_texture);
+		mesh_draw(plane);
+		glPopMatrix();
+		
 		glColor3f(1.0, 1.0, 1.0);
-		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, wall_texture);
 		mesh_draw(mesh);
-		glDisable(GL_TEXTURE_2D);
-		
-		glBegin(GL_LINES);
-		glColor3f(1.0, 0.0, 0.0);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(1.0, 0.0, 0.0);
-		glColor3f(0.0, 1.0, 0.0);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(0.0, 1.0, 0.0);
-		glColor3f(0.0, 0.0, 1.0);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(0.0, 0.0, 1.0);
-		glEnd();
 		
 		GLuint error = glGetError();
 		if(error) printf("OpenGL Error: %s\n", gluErrorString(error));

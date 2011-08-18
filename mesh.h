@@ -12,7 +12,7 @@ typedef struct
 } Mesh;
 
 Mesh* mesh_create_maze(Maze *maze);
-Mesh* mesh_create_quad(float scale);
+Mesh* mesh_create_quad(float x_scale, float z_scale);
 void mesh_free(Mesh *mesh);
 void mesh_draw(Mesh *mesh);
 
