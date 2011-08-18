@@ -26,7 +26,7 @@ void mat_print(float *mat)
 
 void camera_update_pos(float pos[3])
 {
-	pos[1] = 0.3;
+	pos[1] = 0.5;
 	camera_set_position(pos);
 }
 
