@@ -22,7 +22,6 @@ GLuint texture_create(char *filename)
 	int image_size[2];
 	image_size[0] = ilGetInteger(IL_IMAGE_WIDTH);
 	image_size[1] = ilGetInteger(IL_IMAGE_HEIGHT);
-	printf("Texture Size: %d %d\n", image_size[0], image_size[1]);
 	
 	GLfloat *image_data = malloc(sizeof(GLfloat) * image_size[0] * image_size[1] * 3);
 	ilCopyPixels(0, 0, 0, image_size[0], image_size[1], 1, IL_RGB, IL_FLOAT, image_data);

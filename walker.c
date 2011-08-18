@@ -114,48 +114,6 @@ void walker_position_from_cell_pos(float pos[3], int cell[2])
 	pos[2] = (float)cell[1] + 0.5;
 }
 
-/*
-void walker_rotation_from_direction(float rot[3], enum Direction dir)
-{
-	memset(rot, 0x00, sizeof(float)*3);
-	switch(dir)
-	{
-		case UP:
-		//rot[0] = 0.0;
-		break;
-		
-		case DOWN:
-		rot[0] = 180.0;
-		break;
-		
-		case LEFT:
-		rot[0] = 270.0;switch(walker->direction)
-	{
-		case UP:
-		next_direction = RIGHT;
-		break;
-		
-		case RIGHT:
-		next_direction = DOWN;
-		break;
-		
-		case DOWN:
-		next_direction = LEFT;
-		break;
-		
-		case LEFT:
-		next_direction = UP;
-		break;
-	}
-		break;
-		
-		case RIGHT:
-		rot[0] = 90.0;
-		break;
-	}
-}
-*/
-
 float walker_pan_from_direction(enum Direction dir)
 {
 	switch(dir)

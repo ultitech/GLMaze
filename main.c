@@ -10,20 +10,6 @@
 #include <stdio.h>
 #include <time.h>
 
-void mat_print(float *mat)
-{
-	int i, k;
-	for(i=0; i<4; i++)
-	{
-		for(k=0; k<4; k++)
-		{
-			printf("%f ", mat[k*4+i]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
-
 void camera_update_pos(float pos[3])
 {
 	pos[1] = 0.5;
@@ -50,15 +36,6 @@ int main()
 	gluPerspective(60.0, 1.0, 0.1, 1000.0);
 	glMatrixMode(GL_MODELVIEW);
 	
-	/*
-	float cam_pos[] = {5.5, 0.5, 5.5};
-	float cam_rot[] = {30.0, 0.0, 0.0};
-	camera_set_position(cam_pos);
-	camera_set_rotation(cam_rot);
-	*/
-	
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	
 	texture_init();
 	GLuint wall_texture = texture_create("wall.jpg");
 	GLuint ceiling_texture = texture_create("ceiling.jpg");
@@ -77,14 +54,6 @@ int main()
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		/*
-		float rot[3];
-		camera_get_rotation(rot);
-		rot[0]++;
-		rot[1] = sin(rot[0]/20.0)*10.0;
-		rot[2] = sin(rot[0]);
-		camera_set_rotation(rot);
-		*/
 		float m[16];
 		camera_get_matrix(m);
 		glLoadMatrixf(m);
