@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <time.h>
 
+float t = 0.0;
+
 void camera_update_pos(float pos[3])
 {
 	pos[1] = 0.5;
@@ -52,7 +54,7 @@ int main()
 			if(ev.type == SDL_QUIT) quit = 1;
 		}
 		
-		walker_step(walker, 0.02);
+		//walker_step(walker, 0.02);
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -82,6 +84,8 @@ int main()
 			{
 				glPushMatrix();
 				glTranslatef(cell->x+0.5, 0.5, cell->y+0.5);
+				glRotatef(t, 0.0, 1.0, 0.0);
+				glRotatef(t*0.7, 1.0, 0.0, 0.0);
 				mesh_draw(pyramid);
 				glPopMatrix();
 			}
@@ -93,6 +97,7 @@ int main()
 		
 		SDL_GL_SwapBuffers();
 		SDL_Delay(20);
+		t++;
 	}
 	
 	SDL_Quit();
