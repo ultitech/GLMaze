@@ -6,7 +6,8 @@
 
 typedef struct
 {
-	GLfloat *vertices; //data array as position/texcoord
+	GLenum vertex_format;
+	GLfloat *vertices;
 	GLuint *indices;
 	GLuint indices_count;
 } Mesh;

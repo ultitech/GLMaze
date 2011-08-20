@@ -7,18 +7,19 @@ Mesh* mesh_create_maze(Maze *maze)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
+	mesh->vertex_format = GL_T2F_V3F;
 	mesh->vertices = malloc(sizeof(GLfloat) * ((maze->width+1)*(maze->height+1)*2) * (3+2));
 	int x, y, z;
 	GLfloat *v = mesh->vertices;
 	for(y=0; y<2; y++) for(z=0; z<(maze->height+1); z++) for(x=0; x<(maze->width+1); x++)
 	{
+		//texcoord:
+		*v++ = x+z;
+		*v++ = y;
 		//position:
 		*v++ = x;
 		*v++ = y;
 		*v++ = z;
-		//texcoord:
-		*v++ = x+z;
-		*v++ = y;
 	}
 	
 	mesh->indices_count = (maze->width*(maze->height+1)+(maze->width+1)*maze->height) * (2*3);
@@ -69,17 +70,18 @@ Mesh* mesh_create_quad(float x_scale, float z_scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
+	mesh->vertex_format = GL_T2F_V3F;
 	mesh->vertices = malloc(sizeof(GLfloat) * (3+2) * 4); //position/texcoord
 	int x, z;
 	GLfloat *v = mesh->vertices;
 	for(z=0; z<2; z++) for(x=0; x<2; x++)
 	{
+		//texcoord:
+		*v++ = x * x_scale;
+		*v++ = z * z_scale;
 		//position:
 		*v++ = x * x_scale;
 		*v++ = 0;
-		*v++ = z * z_scale;
-		//texcoord:
-		*v++ = x * x_scale;
 		*v++ = z * z_scale;
 	}
 	
@@ -96,24 +98,25 @@ Mesh* mesh_create_pyramid(float scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
+	mesh->vertex_format = GL_T2F_V3F;
 	mesh->vertices = malloc(sizeof(GLfloat) * (3+2) * 4);
 	int a;
 	GLfloat *v = mesh->vertices;
 	for(a=0; a<3; a++)
 	{
+		//texcoord:
+		*v++ = 0.0;
+		*v++ = 0.0;
 		//position:
 		*v++ = sinf(a*(M_2PI/3.0)) * scale;
 		*v++ = -(M_SQRT2/2.0) * scale;
 		*v++ = cosf(a*(M_2PI/3.0)) * scale;
-		//texcoord:
-		*v++ = 0.0;
-		*v++ = 0.0;
 	}
 	//top vertex
 	*v++ = 0.0;
+	*v++ = 0.0;
+	*v++ = 0.0;
 	*v++ = (M_SQRT2/2.0) * scale;
-	*v++ = 0.0;
-	*v++ = 0.0;
 	*v++ = 0.0;
 	
 	mesh->indices_count = 4*3;
@@ -137,11 +140,8 @@ void mesh_free(Mesh *mesh)
 void mesh_draw(Mesh *mesh)
 {
 	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
-	glVertexPointer(3, GL_FLOAT, sizeof(GLfloat)*5, mesh->vertices);
-	glTexCoordPointer(2, GL_FLOAT, sizeof(GLfloat)*5, mesh->vertices+3);
+	glInterleavedArrays(mesh->vertex_format, 0, mesh->vertices);
 	
 	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
 	
