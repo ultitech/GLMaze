@@ -35,6 +35,7 @@ int main()
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective(60.0, 1.0, 0.1, 1000.0);
 	glMatrixMode(GL_MODELVIEW);
+	glPointSize(10.0);
 	
 	texture_init();
 	GLuint wall_texture = texture_create("wall.jpg");
@@ -69,6 +70,20 @@ int main()
 		glColor3f(1.0, 1.0, 1.0);
 		glBindTexture(GL_TEXTURE_2D, wall_texture);
 		mesh_draw(mesh);
+		
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_POINTS);
+		int x, y;
+		for(y=0; y<maze->height; y++) for(x=0; x<maze->width; x++)
+		{
+			Cell *cell = maze_get_cell(maze, x, y);
+			if(cell->object == OBJ_TWISTER)
+			{
+				glVertex3f(cell->x+0.5, 0.5, cell->y+0.5);
+			}
+		}
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
 		
 		GLuint error = glGetError();
 		if(error) printf("OpenGL Error: %s\n", gluErrorString(error));

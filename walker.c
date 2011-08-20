@@ -8,6 +8,7 @@
 void walker_walk(Walker *walker);
 void walker_rotate_right(Walker *walker);
 void walker_rotate_left(Walker *walker);
+void walker_twist(Walker *walker);
 
 int cell_passage_in_direction(Cell *cell, enum Direction dir)
 {
@@ -78,6 +79,13 @@ enum Direction walker_rotate_direction_left(enum Direction dir)
 void walker_create_new_interpolation(Walker *walker)
 {
 	Cell *cur_cell = maze_get_cell(walker->maze, walker->cell[0], walker->cell[1]);
+	
+	if(cur_cell->object == OBJ_TWISTER)
+	{
+		walker_twist(walker);
+		cur_cell->object = OBJ_NONE;
+		return;
+	}
 	
 	if(walker->last_operation == WALKER_WALK)
 	{
@@ -177,6 +185,7 @@ void walker_rotate_right(Walker *walker)
 	
 	memset(walker->interp_start, 0x00, sizeof(float)*3);
 	walker->interp_start[0] = walker->child_pan;
+	walker->interp_start[2] = walker->child_roll;
 	
 	enum Direction next_direction;
 	next_direction = walker_rotate_direction_right(walker->direction);
@@ -196,6 +205,7 @@ void walker_rotate_left(Walker *walker)
 	
 	memset(walker->interp_start, 0x00, sizeof(float)*3);
 	walker->interp_start[0] = walker->child_pan;
+	walker->interp_start[2] = walker->child_roll;
 	
 	enum Direction next_direction;
 	next_direction = walker_rotate_direction_left(walker->direction);
@@ -209,6 +219,22 @@ void walker_rotate_left(Walker *walker)
 	walker->last_operation = WALKER_ROTATE;
 }
 
+void walker_twist(Walker *walker)
+{
+	walker->interp_step = 0.0;
+	
+	memset(walker->interp_start, 0x00, sizeof(float)*3);
+	walker->interp_start[0] = walker->child_pan;
+	walker->interp_start[2] = walker->child_roll;
+	
+	copy_v3_v3(walker->interp_end, walker->interp_start);
+	walker->interp_end[2] += 180.0;
+	
+	walker->interp_callback = walker->set_rotation_callback;
+	
+	walker->child_roll += 180.0;
+}
+
 Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]))
 {
 	Walker *walker = malloc(sizeof(Walker));
@@ -217,6 +243,7 @@ Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_di
 	walker->direction = start_dir;
 	walker->interp_speed = 1.0;
 	walker->child_pan = walker_pan_from_direction(walker->direction);
+	walker->child_roll = 0.0;
 	walker->set_position_callback = pos_callback;
 	walker->set_rotation_callback = rot_callback;
 	

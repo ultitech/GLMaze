@@ -1,6 +1,12 @@
 #ifndef H_MAZE
 #define H_MAZE
 
+enum CellObject
+{
+	OBJ_NONE,
+	OBJ_TWISTER
+};
+
 typedef struct
 {
 	unsigned up:1;
@@ -9,6 +15,7 @@ typedef struct
 	unsigned right:1;
 	unsigned int x;
 	unsigned int y;
+	enum CellObject object;
 } Cell;
 
 typedef struct

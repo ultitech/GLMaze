@@ -80,6 +80,17 @@ Maze* maze_generate(unsigned int width, unsigned int height)
 	
 	Cell *cell = maze_get_cell(maze, rand() % width, rand() % height);
 	maze_generate_cell(maze, cell);
+	
+	//create twisters
+	int i;
+	for(i=0; i<10; i++)
+	{
+		Cell *cell;
+		do cell = maze_get_cell(maze, rand()%maze->width, rand()%maze->height);
+		while(cell->object != OBJ_NONE);
+		cell->object = OBJ_TWISTER;
+	}
+	
 	return maze;
 }
 
@@ -112,7 +123,8 @@ void maze_print(Maze *maze)
 		for(x=0; x<maze->width; x++)
 		{
 			Cell *cell = maze_get_cell(maze, x, y);
-			strcat(buf, " ");
+			if(cell->object == OBJ_TWISTER) strcat(buf, "T");
+			else strcat(buf, " ");
 			if(cell->right) strcat(buf, " ");
 			else strcat(buf, "|");
 		}

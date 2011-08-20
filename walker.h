@@ -18,7 +18,7 @@ typedef struct
 	float interp_step, interp_speed;
 	void(*interp_callback)(float val[3]);
 	
-	float child_pan;
+	float child_pan, child_roll;
 	
 	void(*set_position_callback)(float pos[3]);
 	void(*set_rotation_callback)(float rot[3]);
