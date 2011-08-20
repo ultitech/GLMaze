@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 #include <stdlib.h>
+#include <MathLib.h>
 
 Mesh* mesh_create_maze(Maze *maze)
 {
@@ -87,6 +88,41 @@ Mesh* mesh_create_quad(float x_scale, float z_scale)
 	GLuint *i = mesh->indices;
 	*i++ = 0; *i++ = 1; *i++ = 2;
 	*i++ = 1; *i++ = 3; *i++ = 2;
+	
+	return mesh;
+}
+
+Mesh* mesh_create_pyramid(float scale)
+{
+	Mesh *mesh = malloc(sizeof(Mesh));
+	
+	mesh->vertices = malloc(sizeof(GLfloat) * (3+2) * 4);
+	int a;
+	GLfloat *v = mesh->vertices;
+	for(a=0; a<3; a++)
+	{
+		//position:
+		*v++ = sinf(a*(M_2PI/3.0)) * scale;
+		*v++ = -(M_SQRT2/2.0) * scale;
+		*v++ = cosf(a*(M_2PI/3.0)) * scale;
+		//texcoord:
+		*v++ = 0.0;
+		*v++ = 0.0;
+	}
+	//top vertex
+	*v++ = 0.0;
+	*v++ = (M_SQRT2/2.0) * scale;
+	*v++ = 0.0;
+	*v++ = 0.0;
+	*v++ = 0.0;
+	
+	mesh->indices_count = 4*3;
+	mesh->indices = malloc(sizeof(GLuint) * mesh->indices_count);
+	GLuint *i = mesh->indices;
+	*i++ = 0; *i++ = 1; *i++ = 2;
+	*i++ = 0; *i++ = 1; *i++ = 3;
+	*i++ = 1; *i++ = 2; *i++ = 3;
+	*i++ = 2; *i++ = 0; *i++ = 3;
 	
 	return mesh;
 }

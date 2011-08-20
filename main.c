@@ -23,6 +23,7 @@ int main()
 	maze_print(maze);
 	Mesh *mesh = mesh_create_maze(maze);
 	Mesh *plane = mesh_create_quad((float)maze->width, (float)maze->height);
+	Mesh *pyramid = mesh_create_pyramid(0.3);
 	int start[2] = {5, 5};
 	Walker *walker = walker_create(maze, start, UP, camera_update_pos, camera_set_rotation);
 	
@@ -71,19 +72,21 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, wall_texture);
 		mesh_draw(mesh);
 		
+		glPushAttrib(GL_ENABLE_BIT);
 		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_POINTS);
 		int x, y;
 		for(y=0; y<maze->height; y++) for(x=0; x<maze->width; x++)
 		{
 			Cell *cell = maze_get_cell(maze, x, y);
 			if(cell->object == OBJ_TWISTER)
 			{
-				glVertex3f(cell->x+0.5, 0.5, cell->y+0.5);
+				glPushMatrix();
+				glTranslatef(cell->x+0.5, 0.5, cell->y+0.5);
+				mesh_draw(pyramid);
+				glPopMatrix();
 			}
 		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
+		glPopAttrib();
 		
 		GLuint error = glGetError();
 		if(error) printf("OpenGL Error: %s\n", gluErrorString(error));
