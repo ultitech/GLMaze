@@ -24,6 +24,7 @@ int main()
 	Maze *maze = maze_generate(10, 10);
 	maze_print(maze);
 	Mesh *mesh = mesh_create_maze(maze);
+	mesh_save_maze(maze, mesh, "Maze.obj");
 	Mesh *plane = mesh_create_quad((float)maze->width, (float)maze->height);
 	Mesh *pyramid = mesh_create_pyramid(0.2);
 	int start[2] = {5, 5};

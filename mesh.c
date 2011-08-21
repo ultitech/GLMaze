@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <MathLib.h>
 
+#include <stdio.h>
+
 Mesh* mesh_create_maze(Maze *maze)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
@@ -141,4 +143,21 @@ void mesh_draw(Mesh *mesh)
 	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
 	
 	glPopClientAttrib();
+}
+
+void mesh_save_maze(Maze *maze, Mesh *mesh, char *filename)
+{
+	FILE *file = fopen(filename, "w");
+	int i;
+	for(i=0; i<((maze->width+1)*(maze->height+1)*2); i++)
+	{
+		GLfloat *v = &mesh->vertices[i*(2+3)];
+		fprintf(file, "v %f %f %f\n", v[2], v[3], v[4]);
+	}
+	for(i=0; i<(mesh->indices_count/3.0); i++)
+	{
+		GLuint *in = &mesh->indices[i*3];
+		fprintf(file, "f %d %d %d\n", in[0]+1, in[1]+1, in[2]+1);
+	}
+	fclose(file);
 }
