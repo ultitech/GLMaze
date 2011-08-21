@@ -98,35 +98,33 @@ Mesh* mesh_create_pyramid(float scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
-	mesh->vertex_format = GL_T2F_V3F;
-	mesh->vertices = malloc(sizeof(GLfloat) * (3+2) * 4);
-	const GLfloat y_offset = -0.35 * scale;
-	int a;
+	mesh->vertex_format = GL_V3F;
+	mesh->vertices = malloc(sizeof(GLfloat) * (3) * 4);
 	GLfloat *v = mesh->vertices;
-	for(a=0; a<3; a++)
-	{
-		//texcoord:
-		*v++ = 0.0;
-		*v++ = 0.0;
-		//position:
-		*v++ = sinf(a*(M_2PI/3.0)) * scale;
-		*v++ = y_offset;
-		*v++ = cosf(a*(M_2PI/3.0)) * scale;
-	}
-	//top vertex
-	*v++ = 0.0;
-	*v++ = 0.0;
-	*v++ = 0.0;
-	*v++ = (M_SQRT2 * scale) + y_offset;
-	*v++ = 0.0;
+	//left down front
+	*v++ = -scale;
+	*v++ = -scale;
+	*v++ = scale;
+	//right down back
+	*v++ = scale;
+	*v++ = -scale;
+	*v++ = -scale;
+	//left top back
+	*v++ = -scale;
+	*v++ = scale;
+	*v++ = -scale;
+	//right top front
+	*v++ = scale;
+	*v++ = scale;
+	*v++ = scale;
 	
 	mesh->indices_count = 4*3;
 	mesh->indices = malloc(sizeof(GLuint) * mesh->indices_count);
 	GLuint *i = mesh->indices;
-	*i++ = 0; *i++ = 1; *i++ = 2;
 	*i++ = 0; *i++ = 1; *i++ = 3;
+	*i++ = 0; *i++ = 3; *i++ = 2;
 	*i++ = 1; *i++ = 2; *i++ = 3;
-	*i++ = 2; *i++ = 0; *i++ = 3;
+	*i++ = 0; *i++ = 1; *i++ = 2;
 	
 	return mesh;
 }

@@ -25,7 +25,7 @@ int main()
 	maze_print(maze);
 	Mesh *mesh = mesh_create_maze(maze);
 	Mesh *plane = mesh_create_quad((float)maze->width, (float)maze->height);
-	Mesh *pyramid = mesh_create_pyramid(0.3);
+	Mesh *pyramid = mesh_create_pyramid(0.2);
 	int start[2] = {5, 5};
 	Walker *walker = walker_create(maze, start, UP, camera_update_pos, camera_set_rotation);
 	
@@ -54,7 +54,7 @@ int main()
 			if(ev.type == SDL_QUIT) quit = 1;
 		}
 		
-		//walker_step(walker, 0.02);
+		walker_step(walker, 0.02);
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
