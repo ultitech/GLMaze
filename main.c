@@ -40,6 +40,14 @@ int main()
 	glMatrixMode(GL_MODELVIEW);
 	glPointSize(10.0);
 	
+	glEnable(GL_LIGHT0);
+	GLfloat light_pos[] = {0.0, 1.0, 0.0, 0.0};
+	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+	GLfloat light_ambient[] = {1.0, 1.0, 1.0, 1.0};
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	GLfloat mat_ambient[] = {0.3, 0.3, 0.3, 1.0};
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+	
 	texture_init();
 	GLuint wall_texture = texture_create("wall.jpg");
 	GLuint ceiling_texture = texture_create("ceiling.jpg");
@@ -76,6 +84,7 @@ int main()
 		
 		glPushAttrib(GL_ENABLE_BIT);
 		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_LIGHTING);
 		int x, y;
 		for(y=0; y<maze->height; y++) for(x=0; x<maze->width; x++)
 		{

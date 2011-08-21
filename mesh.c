@@ -98,25 +98,21 @@ Mesh* mesh_create_pyramid(float scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
-	mesh->vertex_format = GL_V3F;
-	mesh->vertices = malloc(sizeof(GLfloat) * (3) * 4);
+	mesh->vertex_format = GL_N3F_V3F;
+	mesh->vertices = malloc(sizeof(GLfloat) * (3+3) * 4);
 	GLfloat *v = mesh->vertices;
+	const GLfloat n = 0.577349;
+	
+	#define V(a,b,c) *v++ = a n; *v++ = b n; *v++ = c n; *v++ = a scale; *v++ = b scale; *v++ = c scale;
 	//left down front
-	*v++ = -scale;
-	*v++ = -scale;
-	*v++ = scale;
+	V(-,-,+)
 	//right down back
-	*v++ = scale;
-	*v++ = -scale;
-	*v++ = -scale;
+	V(+,-,-)
 	//left top back
-	*v++ = -scale;
-	*v++ = scale;
-	*v++ = -scale;
+	V(-,+,-)
 	//right top front
-	*v++ = scale;
-	*v++ = scale;
-	*v++ = scale;
+	V(+,+,+)
+	#undef V
 	
 	mesh->indices_count = 4*3;
 	mesh->indices = malloc(sizeof(GLuint) * mesh->indices_count);
