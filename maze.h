@@ -4,7 +4,9 @@
 enum CellObject
 {
 	OBJ_NONE,
-	OBJ_TWISTER
+	OBJ_TWISTER,
+	OBJ_START,
+	OBJ_FINISH
 };
 
 typedef struct

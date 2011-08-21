@@ -23,6 +23,8 @@ typedef struct
 	void(*set_position_callback)(float pos[3]);
 	void(*set_rotation_callback)(float rot[3]);
 	
+	void(*finish_callback)();
+	
 	int cell[2];
 	enum Direction direction;
 	
@@ -31,7 +33,7 @@ typedef struct
 	void *user_data;
 } Walker;
 
-Walker* walker_create(Maze *maze, int start_cell[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]));
+Walker* walker_create(Maze *maze, int start_cell[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]), void(*fin_callback)());
 Walker* walker_create_random(Maze *maze);
 void walker_step(Walker *walker, float time_step);
 

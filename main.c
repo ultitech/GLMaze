@@ -18,6 +18,12 @@ void camera_update_pos(float pos[3])
 	camera_set_position(pos);
 }
 
+void finish()
+{
+	printf("Finish!\n");
+	exit(0);
+}
+
 int main()
 {
 	srand(time(NULL));
@@ -27,8 +33,8 @@ int main()
 	mesh_save_maze(maze, mesh, "Maze.obj");
 	Mesh *plane = mesh_create_quad((float)maze->width, (float)maze->height);
 	Mesh *pyramid = mesh_create_pyramid(0.2);
-	int start[2] = {5, 5};
-	Walker *walker = walker_create(maze, start, UP, camera_update_pos, camera_set_rotation);
+	int start[2] = {0, 0};
+	Walker *walker = walker_create(maze, start, UP, camera_update_pos, camera_set_rotation, finish);
 	
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(500, 500, 32, SDL_OPENGL);

@@ -86,6 +86,11 @@ void walker_create_new_interpolation(Walker *walker)
 		cur_cell->object = OBJ_NONE;
 		return;
 	}
+	if(cur_cell->object == OBJ_FINISH)
+	{
+		walker->finish_callback();
+		return;
+	}
 	
 	if(walker->last_operation == WALKER_WALK)
 	{
@@ -235,7 +240,7 @@ void walker_twist(Walker *walker)
 	walker->child_roll += 180.0;
 }
 
-Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]))
+Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]), void(*fin_callback)())
 {
 	Walker *walker = malloc(sizeof(Walker));
 	walker->maze = maze;
@@ -246,6 +251,7 @@ Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_di
 	walker->child_roll = 0.0;
 	walker->set_position_callback = pos_callback;
 	walker->set_rotation_callback = rot_callback;
+	walker->finish_callback = fin_callback;
 	
 	float position[3];
 	walker_position_from_cell_pos(position, walker->cell);
