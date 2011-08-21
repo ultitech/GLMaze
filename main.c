@@ -11,6 +11,18 @@
 #include <time.h>
 
 float t = 0.0;
+float t_endgame;
+Maze *maze;
+Mesh *maze_mesh;
+Walker *walker;
+Mesh *plane;
+
+enum
+{
+	GAME_STARTING,
+	GAME_RUNNING,
+	GAME_ENDING
+} game_state;
 
 void camera_update_pos(float pos[3])
 {
@@ -20,21 +32,34 @@ void camera_update_pos(float pos[3])
 
 void finish()
 {
-	printf("Finish!\n");
-	exit(0);
+	t_endgame = t;
+	game_state = GAME_ENDING;
+}
+
+void clean_up()
+{
+	if(maze) maze_free(maze);
+	if(maze_mesh) mesh_free(maze_mesh);
+	if(walker) free(walker);
+	if(plane) mesh_free(plane);
+}
+
+void new_game()
+{
+	clean_up();
+	maze = maze_generate(10, 10);
+	maze_print(maze);
+	maze_mesh = mesh_create_maze(maze);
+	plane = mesh_create_quad((float)maze->width, (float)maze->height);
+	int start[2] = {0, 0};
+	walker = walker_create(maze, start, DOWN, camera_update_pos, camera_set_rotation, finish);
+	game_state = GAME_STARTING;
+	t_endgame = t = 0.0;
 }
 
 int main()
 {
 	srand(time(NULL));
-	Maze *maze = maze_generate(10, 10);
-	maze_print(maze);
-	Mesh *mesh = mesh_create_maze(maze);
-	mesh_save_maze(maze, mesh, "Maze.obj");
-	Mesh *plane = mesh_create_quad((float)maze->width, (float)maze->height);
-	Mesh *pyramid = mesh_create_pyramid(0.2);
-	int start[2] = {0, 0};
-	Walker *walker = walker_create(maze, start, UP, camera_update_pos, camera_set_rotation, finish);
 	
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(500, 500, 32, SDL_OPENGL);
@@ -60,6 +85,10 @@ int main()
 	GLuint ceiling_texture = texture_create("ceiling.jpg");
 	GLuint floor_texture = texture_create("floor.jpg");
 	
+	new_game();
+	
+	Mesh *pyramid = mesh_create_pyramid(0.2);
+	
 	char quit = 0;
 	while(!quit)
 	{
@@ -69,7 +98,12 @@ int main()
 			if(ev.type == SDL_QUIT) quit = 1;
 		}
 		
-		walker_step(walker, 0.02);
+		t++;
+		
+		if(t > 100.0 && game_state == GAME_STARTING) game_state = GAME_RUNNING;
+		if((t-t_endgame) > 100.0 && game_state == GAME_ENDING) new_game();
+		
+		if(game_state == GAME_RUNNING) walker_step(walker, 0.02);
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
@@ -87,7 +121,11 @@ int main()
 		
 		glColor3f(1.0, 1.0, 1.0);
 		glBindTexture(GL_TEXTURE_2D, wall_texture);
-		mesh_draw(mesh);
+		glPushMatrix();
+		if(game_state == GAME_STARTING) glScalef(1.0, t/100.0, 1.0);
+		if(game_state == GAME_ENDING) glScalef(1.0, 1.0-((t-t_endgame)/100.0), 1.0);
+		mesh_draw(maze_mesh);
+		glPopMatrix();
 		
 		glPushAttrib(GL_ENABLE_BIT);
 		glDisable(GL_TEXTURE_2D);
@@ -113,7 +151,6 @@ int main()
 		
 		SDL_GL_SwapBuffers();
 		SDL_Delay(20);
-		t++;
 	}
 	
 	SDL_Quit();
