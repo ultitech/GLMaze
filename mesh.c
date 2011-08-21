@@ -31,7 +31,7 @@ Mesh* mesh_create_maze(Maze *maze)
 	//horizontal walls
 	for(y=0; y<maze->height+1; y++) for(x=0; x<maze->width; x++)
 	{
-		if(y <= maze->height)
+		if(y < maze->height)
 		{
 			Cell *cell = maze_get_cell(maze, x, y);
 			if(cell->up) continue;
