@@ -68,7 +68,7 @@ int main()
 	glEnable(GL_TEXTURE_2D);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glMatrixMode(GL_PROJECTION);
-	gluPerspective(60.0, 1.0, 0.1, 1000.0);
+	gluPerspective(90.0, 1.0, 0.1, 1000.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPointSize(10.0);
 	
