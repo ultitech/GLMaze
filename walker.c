@@ -5,10 +5,13 @@
 #include <MathLib.h>
 
 //Prototypes:
-void walker_walk(Walker *walker);
-void walker_rotate_right(Walker *walker);
-void walker_rotate_left(Walker *walker);
+void walker_straight(Walker *walker);
+void walker_right(Walker *walker);
+void walker_left(Walker *walker);
+void walker_turn(Walker *walker);
 void walker_twist(Walker *walker);
+
+#define copy_cell(target, source) memcpy(target, source, sizeof(float)*2)
 
 int cell_passage_in_direction(Cell *cell, enum Direction dir)
 {
@@ -92,18 +95,10 @@ void walker_create_new_interpolation(Walker *walker)
 		return;
 	}
 	
-	if(walker->last_operation == WALKER_WALK)
-	{
-		if(cell_passage_in_direction(cur_cell, walker_rotate_direction_right(walker->direction))) walker_rotate_right(walker); //first look right
-		else if(cell_passage_in_direction(cur_cell, walker->direction)) walker_walk(walker); //then forward
-		else if(cell_passage_in_direction(cur_cell, walker_rotate_direction_left(walker->direction))) walker_rotate_left(walker); //then left
-		else walker_rotate_right(walker); //else turn right (180 degrees)
-	}
-	else
-	{
-		if(cell_passage_in_direction(cur_cell, walker->direction)) walker_walk(walker);
-		else walker_rotate_right(walker);
-	}
+	if(cell_passage_in_direction(cur_cell, walker_rotate_direction_right(walker->direction))) walker_right(walker); //first look right
+	else if(cell_passage_in_direction(cur_cell, walker->direction)) walker_straight(walker); //then forward
+	else if(cell_passage_in_direction(cur_cell, walker_rotate_direction_left(walker->direction))) walker_left(walker); //then left
+	else walker_turn(walker); //else turn right (180 degrees)
 }
 
 void walker_interpolate(Walker *walker, float time_step)
@@ -111,20 +106,17 @@ void walker_interpolate(Walker *walker, float time_step)
 	walker->interp_step += time_step * walker->interp_speed;
 	if(walker->interp_step >= 1.0)
 	{
-		walker->interp_callback(walker->interp_end);
+		copy_v3_v3(walker->pos_interp_start, walker->pos_interp_end);
+		copy_v3_v3(walker->rot_interp_start, walker->rot_interp_end);
+		walker->interp_step -= 1.0;
 		walker_create_new_interpolation(walker);
 		return;
 	}
 	float result[3];
-	interp_v3_v3v3(result, walker->interp_start, walker->interp_end, walker->interp_step);
-	walker->interp_callback(result);
-}
-
-void walker_position_from_cell_pos(float pos[3], int cell[2])
-{
-	pos[0] = (float)cell[0] + 0.5;
-	pos[1] = 0.0;
-	pos[2] = (float)cell[1] + 0.5;
+	interp_v3_v3v3(result, walker->pos_interp_start, walker->pos_interp_end, walker->interp_step);
+	walker->set_position_callback(result);
+	interp_v3_v3v3(result, walker->rot_interp_start, walker->rot_interp_end, walker->interp_step);
+	walker->set_rotation_callback(result);
 }
 
 float walker_pan_from_direction(enum Direction dir)
@@ -149,116 +141,123 @@ float walker_pan_from_direction(enum Direction dir)
 	}
 }
 
-void walker_walk(Walker *walker)
+void walker_get_global_position(Walker *walker, float pos[3])
 {
-	walker->interp_step = 0.0;
-	
-	walker_position_from_cell_pos(walker->interp_start, walker->cell);
-	
-	int next_cell[2];
-	next_cell[0] = walker->cell[0];
-	next_cell[1] = walker->cell[1];
+	pos[0] = (float)walker->cell[0] + 0.5;
+	pos[1] = 0.0;
+	pos[2] = (float)walker->cell[1] + 0.5;
 	switch(walker->direction)
 	{
 		case UP:
-		next_cell[1]--;
+		pos[2] += 0.5;
 		break;
 		
 		case DOWN:
-		next_cell[1]++;
-		break;
-		
-		case RIGHT:
-		next_cell[0]++;
+		pos[2] -= 0.5;
 		break;
 		
 		case LEFT:
-		next_cell[0]--;
+		pos[0] += 0.5;
+		break;
+		
+		case RIGHT:
+		pos[0] -= 0.5;
 		break;
 	}
-	walker_position_from_cell_pos(walker->interp_end, next_cell);
-	
-	walker->interp_callback = walker->set_position_callback;
-	
-	memcpy(walker->cell, next_cell, sizeof(float)*2);
-	walker->last_operation = WALKER_WALK;
 }
 
-void walker_rotate_right(Walker *walker)
+void walker_straight(Walker *walker)
 {
-	walker->interp_step = 0.0;
-	
-	memset(walker->interp_start, 0x00, sizeof(float)*3);
-	walker->interp_start[0] = walker->child_pan;
-	walker->interp_start[2] = walker->child_roll;
-	
-	enum Direction next_direction;
-	next_direction = walker_rotate_direction_right(walker->direction);
-	copy_v3_v3(walker->interp_end, walker->interp_start);
-	walker->interp_end[0] += 90.0;
-	
-	walker->interp_callback = walker->set_rotation_callback;
-	
-	walker->direction = next_direction;
-	walker->child_pan += 90.0;
-	walker->last_operation = WALKER_ROTATE;
+	switch(walker->direction)
+	{
+		case UP:
+		walker->cell[1]--;
+		break;
+		
+		case DOWN:
+		walker->cell[1]++;
+		break;
+		
+		case RIGHT:
+		walker->cell[0]++;
+		break;
+		
+		case LEFT:
+		walker->cell[0]--;
+		break;
+	}
+	walker_get_global_position(walker, walker->pos_interp_end);
 }
 
-void walker_rotate_left(Walker *walker)
+void walker_right(Walker *walker)
 {
-	walker->interp_step = 0.0;
+	walker->direction = walker_rotate_direction_right(walker->direction);
+	walker_straight(walker);
 	
-	memset(walker->interp_start, 0x00, sizeof(float)*3);
-	walker->interp_start[0] = walker->child_pan;
-	walker->interp_start[2] = walker->child_roll;
+	walker->rot_interp_end[0] += 90.0;
+}
+
+void walker_left(Walker *walker)
+{
+	walker->direction = walker_rotate_direction_left(walker->direction);
+	walker_straight(walker);
 	
-	enum Direction next_direction;
-	next_direction = walker_rotate_direction_left(walker->direction);
-	copy_v3_v3(walker->interp_end, walker->interp_start);
-	walker->interp_end[0] -= 90.0;
+	walker->rot_interp_end[0] -= 90.0;
+}
+
+void walker_turn(Walker *walker)
+{
+	walker->direction = walker_rotate_direction_right(walker->direction);
+	walker->direction = walker_rotate_direction_right(walker->direction);
+	switch(walker->direction)
+	{
+		case UP:
+		walker->cell[1]--;
+		break;
+		
+		case DOWN:
+		walker->cell[1]++;
+		break;
+		
+		case RIGHT:
+		walker->cell[0]++;
+		break;
+		
+		case LEFT:
+		walker->cell[0]--;
+		break;
+	}
 	
-	walker->interp_callback = walker->set_rotation_callback;
-	
-	walker->direction = next_direction;
-	walker->child_pan -= 90.0;
-	walker->last_operation = WALKER_ROTATE;
+	walker->rot_interp_end[0] += 180.0;
 }
 
 void walker_twist(Walker *walker)
 {
-	walker->interp_step = 0.0;
-	
-	memset(walker->interp_start, 0x00, sizeof(float)*3);
-	walker->interp_start[0] = walker->child_pan;
-	walker->interp_start[2] = walker->child_roll;
-	
-	copy_v3_v3(walker->interp_end, walker->interp_start);
-	walker->interp_end[2] += 180.0;
-	
-	walker->interp_callback = walker->set_rotation_callback;
-	
-	walker->child_roll += 180.0;
+	walker->rot_interp_end[2] += 180.0;
 }
 
 Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]), void(*fin_callback)())
 {
 	Walker *walker = malloc(sizeof(Walker));
 	walker->maze = maze;
-	memcpy(walker->cell, start_cell_pos, sizeof(float)*2);
+	copy_cell(walker->cell, start_cell_pos);
 	walker->direction = start_dir;
+	walker->interp_step = 0.0;
 	walker->interp_speed = 1.0;
-	walker->child_pan = walker_pan_from_direction(walker->direction);
-	walker->child_roll = 0.0;
 	walker->set_position_callback = pos_callback;
 	walker->set_rotation_callback = rot_callback;
 	walker->finish_callback = fin_callback;
 	
 	float position[3];
-	walker_position_from_cell_pos(position, walker->cell);
-	walker->set_position_callback(position);
+	walker_get_global_position(walker, position);
+	copy_v3_v3(walker->pos_interp_start, position);
+	copy_v3_v3(walker->pos_interp_end, position);
+	walker->set_position_callback(walker->pos_interp_start);
 	float rotation[3];
 	rotation[0] = walker_pan_from_direction(walker->direction);
 	rotation[1] = rotation[2] = 0.0;
+	copy_v3_v3(walker->rot_interp_start, rotation);
+	copy_v3_v3(walker->rot_interp_end, rotation);
 	walker->set_rotation_callback(rotation);
 	
 	walker_create_new_interpolation(walker);
