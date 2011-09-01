@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <time.h>
 
+int screen_size[2] = {1000, 1000};
+
 float t = 0.0;
 float t_endgame;
 Maze *maze;
@@ -25,6 +27,13 @@ enum
 	GAME_RUNNING,
 	GAME_ENDING
 } game_state;
+
+enum
+{
+	RENDER_NORMAL,
+	RENDER_ANAGLYPH,
+	RENDER_SIDEBYSIDE
+} render_mode = RENDER_NORMAL;
 
 void camera_update_pos(float pos[3])
 {
@@ -81,9 +90,7 @@ void initGL()
 }
 
 void draw_scene()
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+{	
 	float m[16];
 	camera_get_matrix(m);
 	glLoadMatrixf(m);
@@ -123,12 +130,41 @@ void draw_scene()
 	glPopAttrib();
 }
 
+void render()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	if(render_mode == RENDER_ANAGLYPH) glColorMask(1.0, 0.0, 0.0, 0.0);
+	if(render_mode == RENDER_SIDEBYSIDE) glViewport(0.0, 0.0, screen_size[0]/2, screen_size[1]);
+	
+	draw_scene();
+	
+	if(render_mode == RENDER_NORMAL) return;
+	
+	float vec1[3], vec2[3];
+	camera_get_rotation(vec1);
+	copy_v3_v3(vec2, vec1);
+	vec1[0] += 5.0;
+	camera_set_rotation(vec1);
+	
+	if(render_mode == RENDER_ANAGLYPH)
+	{
+		glColorMask(0.0, 0.0, 1.0, 0.0);
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+	if(render_mode == RENDER_SIDEBYSIDE) glViewport(screen_size[0]/2, 0.0, screen_size[0]/2, screen_size[1]);
+	
+	draw_scene();
+	
+	camera_set_rotation(vec2);
+}
+
 int main()
 {
 	srand(time(NULL));
 	
 	SDL_Init(SDL_INIT_VIDEO);
-	SDL_SetVideoMode(500, 500, 32, SDL_OPENGL);
+	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
 	
 	initGL();
 	
@@ -157,7 +193,7 @@ int main()
 		
 		if(game_state == GAME_RUNNING) walker_step(walker, 0.02);
 		
-		draw_scene();
+		render();
 		
 		SDL_GL_SwapBuffers();
 		SDL_Delay(20);
