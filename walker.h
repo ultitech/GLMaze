@@ -23,7 +23,6 @@ typedef struct
 } Walker;
 
 Walker* walker_create(Maze *maze, int start_cell[2], enum Direction start_dir, void(*pos_callback)(float pos[3]), void(*rot_callback)(float rot[3]), void(*fin_callback)());
-Walker* walker_create_random(Maze *maze);
 void walker_step(Walker *walker, float time_step);
 
 #endif //H_MAZE

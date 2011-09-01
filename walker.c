@@ -265,8 +265,6 @@ Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_di
 	return walker;
 }
 
-Walker* walker_create_random(Maze *maze);
-
 void walker_step(Walker *walker, float time_step)
 {
 	walker_interpolate(walker, time_step);
