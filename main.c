@@ -134,8 +134,8 @@ void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	if(render_mode == RENDER_ANAGLYPH) glColorMask(1.0, 0.0, 0.0, 0.0);
-	if(render_mode == RENDER_SIDEBYSIDE) glViewport(0.0, 0.0, screen_size[0]/2, screen_size[1]);
+	if(render_mode == RENDER_ANAGLYPH) glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+	if(render_mode == RENDER_SIDEBYSIDE) glViewport(0, 0, screen_size[0]/2, screen_size[1]);
 	
 	draw_scene();
 	
@@ -149,14 +149,17 @@ void render()
 	
 	if(render_mode == RENDER_ANAGLYPH)
 	{
-		glColorMask(0.0, 0.0, 1.0, 0.0);
+		glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_FALSE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
-	if(render_mode == RENDER_SIDEBYSIDE) glViewport(screen_size[0]/2, 0.0, screen_size[0]/2, screen_size[1]);
+	if(render_mode == RENDER_SIDEBYSIDE) glViewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
 	
 	draw_scene();
 	
 	camera_set_rotation(vec2);
+	
+	if(render_mode == RENDER_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	if(render_mode == RENDER_SIDEBYSIDE) glViewport(0, 0, screen_size[0], screen_size[1]);
 }
 
 int main()
