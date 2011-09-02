@@ -36,6 +36,7 @@ GLuint texture_create(char *filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
 	ilDeleteImages(1, &image);
+	free(image_data);
 	
 	return texture;
 }
