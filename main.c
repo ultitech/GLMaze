@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <time.h>
 
-int screen_size[2] = {1000, 1000};
+int screen_size[2] = {1280, 800};
 
 float t = 0.0;
 float t_endgame;
@@ -76,7 +76,7 @@ void initGL()
 	glEnable(GL_TEXTURE_2D);
 	
 	glMatrixMode(GL_PROJECTION);
-	gluPerspective(90.0, 1.0, 0.1, 1000.0);
+	gluPerspective(90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 1000.0);
 	glMatrixMode(GL_MODELVIEW);
 	
 	glEnable(GL_LIGHT0);
