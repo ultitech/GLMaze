@@ -141,11 +141,11 @@ void render()
 	
 	if(render_mode == RENDER_NORMAL) return;
 	
-	float vec1[3], vec2[3];
-	camera_get_rotation(vec1);
-	copy_v3_v3(vec2, vec1);
-	vec1[0] += 5.0;
-	camera_set_rotation(vec1);
+	float temp_rotation[3], camera_rotation[3];
+	camera_get_rotation(camera_rotation);
+	copy_v3_v3(temp_rotation, camera_rotation);
+	temp_rotation[0] += 5.0;
+	camera_set_rotation(temp_rotation);
 	
 	if(render_mode == RENDER_ANAGLYPH)
 	{
@@ -156,7 +156,7 @@ void render()
 	
 	draw_scene();
 	
-	camera_set_rotation(vec2);
+	camera_set_rotation(camera_rotation);
 	
 	if(render_mode == RENDER_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	if(render_mode == RENDER_SIDEBYSIDE) glViewport(0, 0, screen_size[0], screen_size[1]);
