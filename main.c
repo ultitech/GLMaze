@@ -32,7 +32,8 @@ enum
 {
 	RENDER_NORMAL,
 	RENDER_ANAGLYPH,
-	RENDER_SIDEBYSIDE
+	RENDER_SIDEBYSIDE,
+	RENDER_MODES_COUNT
 } render_mode = RENDER_NORMAL;
 
 void camera_update_pos(float pos[3])
@@ -187,6 +188,10 @@ int main()
 		while(SDL_PollEvent(&ev))
 		{
 			if(ev.type == SDL_QUIT) quit = 1;
+			if(ev.type == SDL_KEYDOWN)
+			{
+				if(ev.key.keysym.sym == SDLK_r) render_mode = (render_mode+1)%RENDER_MODES_COUNT;
+			}
 		}
 		
 		t++;
