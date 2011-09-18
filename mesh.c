@@ -76,7 +76,7 @@ Mesh* mesh_create_quad(float x_scale, float z_scale)
 	mesh->vertices = malloc(sizeof(float) * (3+2) * 4); //position/texcoord
 	int x, z;
 	float *v = mesh->vertices;
-	for(z=0; z<2; z++) for(x=0; x<2; x++)
+	for(x=0; x<2; x++) for(z=0; z<2; z++)
 	{
 		//position:
 		*v++ = x * x_scale;
