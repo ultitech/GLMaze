@@ -9,25 +9,25 @@ Mesh* mesh_create_maze(Maze *maze)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
-	mesh->vertex_format = GL_T2F_V3F;
-	mesh->vertices = malloc(sizeof(GLfloat) * ((maze->width+1)*(maze->height+1)*2) * (3+2));
+	mesh->vertex_format = VERTEX_POSITION | VERTEX_TEXCOORD;
+	mesh->vertices = malloc(sizeof(float) * ((maze->width+1)*(maze->height+1)*2) * (3+2));
 	int x, y, z;
-	GLfloat *v = mesh->vertices;
+	float *v = mesh->vertices;
 	for(y=0; y<2; y++) for(z=0; z<(maze->height+1); z++) for(x=0; x<(maze->width+1); x++)
 	{
-		//texcoord:
-		*v++ = x+z;
-		*v++ = y;
 		//position:
 		*v++ = x;
 		*v++ = y;
 		*v++ = z;
+		//texcoord:
+		*v++ = x+z;
+		*v++ = y;
 	}
 	
 	mesh->indices_count = (maze->width*(maze->height+1)+(maze->width+1)*maze->height) * (2*3);
 	mesh->indices_count -= ((maze->width*maze->height) - 1) * (2*3); //passages
-	mesh->indices = malloc(sizeof(GLuint) * mesh->indices_count);
-	GLuint *i = mesh->indices;
+	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
+	unsigned int *i = mesh->indices;
 	//horizontal walls
 	for(y=0; y<maze->height+1; y++) for(x=0; x<maze->width; x++)
 	{
@@ -37,7 +37,7 @@ Mesh* mesh_create_maze(Maze *maze)
 			if(cell->up) continue;
 		}
 		
-		GLuint origin = y*(maze->width+1)+x;
+		unsigned int origin = y*(maze->width+1)+x;
 		*i++ = origin;
 		*i++ = origin + 1;
 		*i++ = origin + (maze->height+1) * (maze->width+1);
@@ -55,7 +55,7 @@ Mesh* mesh_create_maze(Maze *maze)
 			if(cell->left) continue;
 		}
 		
-		GLuint origin = y*(maze->width+1)+x;
+		unsigned int origin = y*(maze->width+1)+x;
 		*i++ = origin;
 		*i++ = origin + (maze->width+1);
 		*i++ = origin + (maze->height+1) * (maze->width+1);
@@ -72,24 +72,24 @@ Mesh* mesh_create_quad(float x_scale, float z_scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
-	mesh->vertex_format = GL_T2F_V3F;
-	mesh->vertices = malloc(sizeof(GLfloat) * (3+2) * 4); //position/texcoord
+	mesh->vertex_format = VERTEX_POSITION | VERTEX_TEXCOORD;
+	mesh->vertices = malloc(sizeof(float) * (3+2) * 4); //position/texcoord
 	int x, z;
-	GLfloat *v = mesh->vertices;
+	float *v = mesh->vertices;
 	for(z=0; z<2; z++) for(x=0; x<2; x++)
 	{
-		//texcoord:
-		*v++ = x * x_scale;
-		*v++ = z * z_scale;
 		//position:
 		*v++ = x * x_scale;
 		*v++ = 0;
 		*v++ = z * z_scale;
+		//texcoord:
+		*v++ = x * x_scale;
+		*v++ = z * z_scale;
 	}
 	
 	mesh->indices_count = 2*3;
-	mesh->indices = malloc(sizeof(GLuint) * mesh->indices_count);
-	GLuint *i = mesh->indices;
+	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
+	unsigned int *i = mesh->indices;
 	*i++ = 0; *i++ = 1; *i++ = 2;
 	*i++ = 1; *i++ = 3; *i++ = 2;
 	
@@ -100,12 +100,12 @@ Mesh* mesh_create_pyramid(float scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
-	mesh->vertex_format = GL_N3F_V3F;
-	mesh->vertices = malloc(sizeof(GLfloat) * (3+3) * 4);
-	GLfloat *v = mesh->vertices;
-	const GLfloat n = 0.577349;
+	mesh->vertex_format = VERTEX_POSITION | VERTEX_NORMAL;
+	mesh->vertices = malloc(sizeof(float) * (3+3) * 4);
+	float *v = mesh->vertices;
+	const float n = 0.577349;
 	
-	#define V(a,b,c) *v++ = a n; *v++ = b n; *v++ = c n; *v++ = a scale; *v++ = b scale; *v++ = c scale;
+	#define V(a,b,c) *v++ = a scale; *v++ = b scale; *v++ = c scale; *v++ = a n; *v++ = b n; *v++ = c n; 
 	//left down front
 	V(-,-,+)
 	//right down back
@@ -117,8 +117,8 @@ Mesh* mesh_create_pyramid(float scale)
 	#undef V
 	
 	mesh->indices_count = 4*3;
-	mesh->indices = malloc(sizeof(GLuint) * mesh->indices_count);
-	GLuint *i = mesh->indices;
+	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
+	unsigned int *i = mesh->indices;
 	*i++ = 0; *i++ = 1; *i++ = 3;
 	*i++ = 0; *i++ = 3; *i++ = 2;
 	*i++ = 1; *i++ = 2; *i++ = 3;
@@ -140,12 +140,12 @@ void mesh_save_maze(Maze *maze, Mesh *mesh, char *filename)
 	int i;
 	for(i=0; i<((maze->width+1)*(maze->height+1)*2); i++)
 	{
-		GLfloat *v = &mesh->vertices[i*(2+3)];
+		float *v = &mesh->vertices[i*(2+3)];
 		fprintf(file, "v %f %f %f\n", v[2], v[3], v[4]);
 	}
 	for(i=0; i<(mesh->indices_count/3.0); i++)
 	{
-		GLuint *in = &mesh->indices[i*3];
+		unsigned int *in = &mesh->indices[i*3];
 		fprintf(file, "f %d %d %d\n", in[0]+1, in[1]+1, in[2]+1);
 	}
 	fclose(file);

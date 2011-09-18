@@ -2,14 +2,20 @@
 #define H_MESH
 
 #include "maze.h"
-#include <GL/gl.h>
+
+enum VertexFormatBits
+{
+	VERTEX_POSITION = (1<<0),
+	VERTEX_NORMAL = (1<<1),
+	VERTEX_TEXCOORD = (1<<2)
+};
 
 typedef struct
 {
-	GLenum vertex_format;
-	GLfloat *vertices;
-	GLuint *indices;
-	GLuint indices_count;
+	unsigned int vertex_format;
+	float *vertices;
+	unsigned int *indices;
+	unsigned int indices_count;
 } Mesh;
 
 Mesh* mesh_create_maze(Maze *maze);

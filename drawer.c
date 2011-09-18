@@ -87,24 +87,49 @@ void drawer_use_program(Program program)
 
 void drawer_draw_mesh(Mesh *mesh)
 {
-	if(mesh->vertex_format != GL_T2F_V3F)
-	{
-		printf("Error: Vertex-Format is not T2F_V3F\n");
-		exit(0);
-	}
-	
 	GLuint program;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 	
+	GLuint stride = 0;
+	int position_offset=0, normal_offset=0, texcoord_offset=0;
+	if(mesh->vertex_format & VERTEX_POSITION)
+	{
+		position_offset = stride;
+		stride += 3;
+	}
+	if(mesh->vertex_format & VERTEX_NORMAL)
+	{
+		normal_offset = stride;
+		stride += 3;
+	}
+	if(mesh->vertex_format & VERTEX_TEXCOORD)
+	{
+		texcoord_offset = stride;
+		stride += 2;
+	}
+	stride *= sizeof(GLfloat);
+	
 	GLuint location;
+	if(mesh->vertex_format & VERTEX_POSITION)
+	{
+		location = glGetAttribLocation(program, "in_position");
+		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, mesh->vertices+position_offset);
+		glEnableVertexAttribArray(location);
+	}
 	
-	location = glGetAttribLocation(program, "in_position");
-	glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, mesh->vertices+2);
-	glEnableVertexAttribArray(location);
+	if(mesh->vertex_format & VERTEX_NORMAL)
+	{
+		location = glGetAttribLocation(program, "in_normal");
+		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, mesh->vertices+normal_offset);
+		glEnableVertexAttribArray(location);
+	}
 	
-	location = glGetAttribLocation(program, "in_texcoord");
-	glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*5, mesh->vertices);
-	glEnableVertexAttribArray(location);
+	if(mesh->vertex_format & VERTEX_TEXCOORD)
+	{
+		location = glGetAttribLocation(program, "in_texcoord");
+		glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, stride, mesh->vertices+texcoord_offset);
+		glEnableVertexAttribArray(location);
+	}
 	
 	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
 }
