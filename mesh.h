@@ -16,6 +16,5 @@ Mesh* mesh_create_maze(Maze *maze);
 Mesh* mesh_create_quad(float x_scale, float z_scale);
 Mesh* mesh_create_pyramid(float scale);
 void mesh_free(Mesh *mesh);
-void mesh_draw(Mesh *mesh);
 
 #endif //H_MESH

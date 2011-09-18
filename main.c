@@ -2,24 +2,23 @@
 #include "mesh.h"
 #include "camera.h"
 #include "walker.h"
-
-#include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+#include "drawer.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-
-int screen_size[2] = {1280, 800};
+#include <MatrixLib.h>
 
 float t = 0.0;
 float t_endgame;
 Maze *maze;
 Mesh *maze_mesh, *plane, *pyramid;
 Walker *walker;
-GLuint wall_texture;
-GLuint ceiling_texture;
-GLuint floor_texture;
+Texture wall_texture;
+Texture ceiling_texture;
+Texture floor_texture;
+Program textured_program;
+Program twister_program;
 
 enum
 {
@@ -27,14 +26,6 @@ enum
 	GAME_RUNNING,
 	GAME_ENDING
 } game_state;
-
-enum
-{
-	RENDER_NORMAL,
-	RENDER_ANAGLYPH,
-	RENDER_SIDEBYSIDE,
-	RENDER_MODES_COUNT
-} render_mode = RENDER_NORMAL;
 
 void camera_update_pos(float pos[3])
 {
@@ -69,131 +60,83 @@ void new_game()
 	t_endgame = t = 0.0;
 }
 
-void initGL()
-{
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	
-	glMatrixMode(GL_PROJECTION);
-	gluPerspective(90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 1000.0);
-	glMatrixMode(GL_MODELVIEW);
-	
-	glEnable(GL_LIGHT0);
-	GLfloat light_pos[] = {0.0, 1.0, 0.0, 0.0};
-	glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-	GLfloat light_ambient[] = {1.0, 1.0, 1.0, 1.0};
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	GLfloat mat_ambient[] = {0.3, 0.3, 0.3, 1.0};
-	
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
-}
-
 void draw_scene()
 {	
 	float m[16];
+	Matrix t1, t2;
 	camera_get_matrix(m);
-	glLoadMatrixf(m);
+	drawer_modelview_set(m);
 	
-	glBindTexture(GL_TEXTURE_2D, floor_texture);
-	mesh_draw(plane);
-	glBindTexture(GL_TEXTURE_2D, ceiling_texture);
-	glPushMatrix();
-	glTranslatef(0.0, 1.0, 0.0);
-	mesh_draw(plane);
-	glPopMatrix();
+	drawer_use_program(textured_program);
+	drawer_use_texture(floor_texture);
+	drawer_draw_mesh(plane);
+	drawer_use_texture(ceiling_texture);
+	mat_set_elements(&t1, m);
+	mat_create_translate(&t2, 0.0, 1.0, 0.0);
+	mat_multiply(&t1, &t2);
+	drawer_modelview_set(mat_elements_pointer(&t1));
+	drawer_draw_mesh(plane);
 	
-	glBindTexture(GL_TEXTURE_2D, wall_texture);
-	glPushMatrix();
-	if(game_state == GAME_STARTING) glScalef(1.0, t/100.0, 1.0);
-	if(game_state == GAME_ENDING) glScalef(1.0, 1.0-((t-t_endgame)/100.0), 1.0);
-	mesh_draw(maze_mesh);
-	glPopMatrix();
+	drawer_use_texture(wall_texture);
+	mat_set_elements(&t1, m);
+	if(game_state == GAME_STARTING) mat_create_scale(&t2, 1.0, t/100.0, 1.0);
+	else if(game_state == GAME_ENDING) mat_create_scale(&t2, 1.0, 1.0-((t-t_endgame)/100.0), 1.0);
+	else mat_create_identity(&t2);
+	mat_multiply(&t1, &t2);
+	drawer_modelview_set(mat_elements_pointer(&t1));
+	drawer_draw_mesh(maze_mesh);
 	
-	glPushAttrib(GL_ENABLE_BIT);
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_LIGHTING);
+	/*
+	drawer_use_program(twister_program);
 	int i;
 	for(i=0; i<maze->height*maze->width; i++)
 	{
 		Cell *cell = &maze->cells[i];
 		if(cell->object == OBJ_TWISTER)
 		{
-			glPushMatrix();
-			glTranslatef(cell->x+0.5, 0.5, cell->y+0.5);
-			glRotatef(t, 0.0, 1.0, 0.0);
-			glRotatef(t*0.7, 1.0, 0.0, 0.0);
-			mesh_draw(pyramid);
-			glPopMatrix();
+			mat_set_elements(&t1, m);
+			mat_create_translate(&t2, cell->x+0.5, 0.5, cell->y+0.5);
+			mat_multiply(&t1, &t2);
+			mat_create_rotate(&t2, t, 0.0, 1.0, 0.0);
+			mat_multiply(&t1, &t2);
+			mat_create_rotate(&t2, t*0.7, 1.0, 0.0, 0.0);
+			mat_multiply(&t1, &t2);
+			drawer_modelview_set(mat_elements_pointer(&t1));
+			drawer_draw_mesh(pyramid);
 		}
 	}
-	glPopAttrib();
+	*/
 }
 
 void render()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	if(render_mode == RENDER_ANAGLYPH) glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-	if(render_mode == RENDER_SIDEBYSIDE) glViewport(0, 0, screen_size[0]/2, screen_size[1]);
+	drawer_begin_scene();
 	
 	draw_scene();
 	
-	if(render_mode == RENDER_NORMAL) return;
-	
-	float temp_rotation[3], camera_rotation[3];
-	camera_get_rotation(camera_rotation);
-	copy_v3_v3(temp_rotation, camera_rotation);
-	temp_rotation[0] += 5.0;
-	camera_set_rotation(temp_rotation);
-	
-	if(render_mode == RENDER_ANAGLYPH)
-	{
-		glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_FALSE);
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-	if(render_mode == RENDER_SIDEBYSIDE) glViewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
-	
-	draw_scene();
-	
-	camera_set_rotation(camera_rotation);
-	
-	if(render_mode == RENDER_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	if(render_mode == RENDER_SIDEBYSIDE) glViewport(0, 0, screen_size[0], screen_size[1]);
+	drawer_end_scene();
 }
 
 int main()
 {
 	srand(time(NULL));
 	
-	SDL_Init(SDL_INIT_VIDEO);
-	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
+	drawer_init();
 	
-	initGL();
+	wall_texture = drawer_load_texture("wall.jpg");
+	ceiling_texture = drawer_load_texture("ceiling.jpg");
+	floor_texture = drawer_load_texture("floor.jpg");
 	
-	texture_init();
-	wall_texture = texture_create("wall.jpg");
-	ceiling_texture = texture_create("ceiling.jpg");
-	floor_texture = texture_create("floor.jpg");
+	textured_program = drawer_create_program("textured.glslv", "textured.glslf");
+	//twister_program = drawer_create_program("twister.glslv", "twister.glslf");
 	
 	pyramid = mesh_create_pyramid(0.2);
 	
 	new_game();
 	
 	char quit = 0;
-	while(!quit)
-	{
-		SDL_Event ev;
-		while(SDL_PollEvent(&ev))
-		{
-			if(ev.type == SDL_QUIT) quit = 1;
-			if(ev.type == SDL_KEYDOWN)
-			{
-				if(ev.key.keysym.sym == SDLK_r) render_mode = (render_mode+1)%RENDER_MODES_COUNT;
-			}
-		}
-		
+	while(drawer_do_events())
+	{	
 		t++;
 		
 		if(t > 100.0 && game_state == GAME_STARTING) game_state = GAME_RUNNING;
@@ -203,10 +146,9 @@ int main()
 		
 		render();
 		
-		SDL_GL_SwapBuffers();
-		SDL_Delay(20);
+		usleep(20000);
 	}
 	
-	SDL_Quit();
+	drawer_quit();
 	return 0;
 }

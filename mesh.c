@@ -134,17 +134,6 @@ void mesh_free(Mesh *mesh)
 	free(mesh);
 }
 
-void mesh_draw(Mesh *mesh)
-{
-	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-	
-	glInterleavedArrays(mesh->vertex_format, 0, mesh->vertices);
-	
-	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
-	
-	glPopClientAttrib();
-}
-
 void mesh_save_maze(Maze *maze, Mesh *mesh, char *filename)
 {
 	FILE *file = fopen(filename, "w");
