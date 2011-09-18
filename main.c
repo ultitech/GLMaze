@@ -86,7 +86,6 @@ void draw_scene()
 	drawer_modelview_set(mat_elements_pointer(&t1));
 	drawer_draw_mesh(maze_mesh);
 	
-	/*
 	drawer_use_program(twister_program);
 	int i;
 	for(i=0; i<maze->height*maze->width; i++)
@@ -105,7 +104,6 @@ void draw_scene()
 			drawer_draw_mesh(pyramid);
 		}
 	}
-	*/
 }
 
 void render()
@@ -128,7 +126,7 @@ int main()
 	floor_texture = drawer_load_texture("floor.jpg");
 	
 	textured_program = drawer_create_program("textured.glslv", "textured.glslf");
-	//twister_program = drawer_create_program("twister.glslv", "twister.glslf");
+	twister_program = drawer_create_program("twister.glslv", "twister.glslf");
 	
 	pyramid = mesh_create_pyramid(0.2);
 	

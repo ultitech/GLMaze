@@ -100,12 +100,11 @@ Mesh* mesh_create_pyramid(float scale)
 {
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
-	mesh->vertex_format = VERTEX_POSITION | VERTEX_NORMAL;
-	mesh->vertices = malloc(sizeof(float) * (3+3) * 4);
+	mesh->vertex_format = VERTEX_POSITION;
+	mesh->vertices = malloc(sizeof(float) * (3) * 4);
 	float *v = mesh->vertices;
-	const float n = 0.577349;
 	
-	#define V(a,b,c) *v++ = a scale; *v++ = b scale; *v++ = c scale; *v++ = a n; *v++ = b n; *v++ = c n; 
+	#define V(a,b,c) *v++ = a scale; *v++ = b scale; *v++ = c scale;
 	//left down front
 	V(-,-,+)
 	//right down back
@@ -122,7 +121,7 @@ Mesh* mesh_create_pyramid(float scale)
 	*i++ = 0; *i++ = 1; *i++ = 3;
 	*i++ = 0; *i++ = 3; *i++ = 2;
 	*i++ = 1; *i++ = 2; *i++ = 3;
-	*i++ = 0; *i++ = 1; *i++ = 2;
+	*i++ = 0; *i++ = 2; *i++ = 1;
 	
 	return mesh;
 }

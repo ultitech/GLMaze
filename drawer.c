@@ -35,6 +35,8 @@ void drawer_init()
 	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	mat_create_perspective(&mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 1000.0);
 }
