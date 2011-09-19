@@ -22,8 +22,12 @@ void update_matrices()
 	GLuint program;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 	if(program == 0) return;
-	GLuint location = glGetUniformLocation(program, "MVP");
-	glUniformMatrix4fv(location, 1, GL_FALSE, mat_elements_pointer(&temp));
+	
+	GLint location;
+	location = glGetUniformLocation(program, "MVMatrix");
+	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mat_elements_pointer(&mat_modelview));
+	location = glGetUniformLocation(program, "MVPMatrix");
+	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mat_elements_pointer(&temp));
 }
 
 void drawer_init()
