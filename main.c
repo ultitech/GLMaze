@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <MatrixLib.h>
+#include <MathLib.h>
 
 float t = 0.0;
 float t_endgame;
@@ -63,7 +63,7 @@ void new_game()
 void draw_scene()
 {	
 	float m[16];
-	Matrix t1, t2;
+	float temp[16];
 	camera_get_matrix(m);
 	drawer_modelview_set(m);
 	
@@ -71,19 +71,16 @@ void draw_scene()
 	drawer_use_texture(floor_texture);
 	drawer_draw_mesh(plane);
 	drawer_use_texture(ceiling_texture);
-	mat_set_elements(&t1, m);
-	mat_create_translate(&t2, 0.0, 1.0, 0.0);
-	mat_multiply(&t1, &t2);
-	drawer_modelview_set(mat_elements_pointer(&t1));
+	copy_m4_m4(temp, m);
+	translate_m4(temp, 0.0, 1.0, 0.0);
+	drawer_modelview_set(temp);
 	drawer_draw_mesh(plane);
 	
 	drawer_use_texture(wall_texture);
-	mat_set_elements(&t1, m);
-	if(game_state == GAME_STARTING) mat_create_scale(&t2, 1.0, t/100.0, 1.0);
-	else if(game_state == GAME_ENDING) mat_create_scale(&t2, 1.0, 1.0-((t-t_endgame)/100.0), 1.0);
-	else mat_create_identity(&t2);
-	mat_multiply(&t1, &t2);
-	drawer_modelview_set(mat_elements_pointer(&t1));
+	copy_m4_m4(temp, m);
+	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, t/100.0, 1.0);
+	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((t-t_endgame)/100.0), 1.0);
+	drawer_modelview_set(temp);
 	drawer_draw_mesh(maze_mesh);
 	
 	drawer_use_program(twister_program);
@@ -93,14 +90,11 @@ void draw_scene()
 		Cell *cell = &maze->cells[i];
 		if(cell->object == OBJ_TWISTER)
 		{
-			mat_set_elements(&t1, m);
-			mat_create_translate(&t2, cell->x+0.5, 0.5, cell->y+0.5);
-			mat_multiply(&t1, &t2);
-			mat_create_rotate(&t2, t, 0.0, 1.0, 0.0);
-			mat_multiply(&t1, &t2);
-			mat_create_rotate(&t2, t*0.7, 1.0, 0.0, 0.0);
-			mat_multiply(&t1, &t2);
-			drawer_modelview_set(mat_elements_pointer(&t1));
+			copy_m4_m4(temp, m);
+			translate_m4(temp, cell->x+0.5, 0.5, cell->y+0.5);
+			rotate_m4(temp, t, 0.0, 1.0, 0.0);
+			rotate_m4(temp, t*0.7, 1.0, 0.0, 0.0);
+			drawer_modelview_set(temp);
 			drawer_draw_mesh(pyramid);
 		}
 	}

@@ -4,20 +4,20 @@
 #include <SDL/SDL_opengl.h>
 #include <IL/il.h>
 #include <IL/ilu.h>
-#include <MatrixLib.h>
+#include <MathLib.h>
 #include <ShaderLib.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 
-Matrix mat_projection, mat_modelview;
+float mat_projection[16], mat_modelview[16];
 int screen_size[2] = {1280, 800};
 
 void update_matrices()
 {
-	Matrix temp;
-	mat_set(&temp, &mat_projection);
-	mat_multiply(&temp, &mat_modelview);
+	float mvp[16];
+	copy_m4_m4(mvp, mat_projection);
+	mul_m4_m4(mvp, mat_modelview);
 	
 	GLuint program;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -25,9 +25,9 @@ void update_matrices()
 	
 	GLint location;
 	location = glGetUniformLocation(program, "MVMatrix");
-	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mat_elements_pointer(&mat_modelview));
+	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mat_modelview);
 	location = glGetUniformLocation(program, "MVPMatrix");
-	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mat_elements_pointer(&temp));
+	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
 }
 
 void drawer_init()
@@ -42,7 +42,7 @@ void drawer_init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	mat_create_perspective(&mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
+	create_perspective_m4(mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
 }
 
 void drawer_quit()
@@ -177,13 +177,13 @@ void drawer_use_texture(Texture texture)
 
 void drawer_modelview_set(float matrix[16])
 {
-	mat_set_elements(&mat_modelview, matrix);
+	copy_m4_m4(mat_modelview, matrix);
 	update_matrices();
 }
 
 void drawer_modelview_get(float matrix[16])
 {
-	memcpy(matrix, mat_elements_pointer(&mat_modelview), sizeof(float)*16);
+	copy_m4_m4(matrix, mat_modelview);
 }
 
 int drawer_do_events()
