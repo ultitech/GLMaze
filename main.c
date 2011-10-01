@@ -84,6 +84,7 @@ void draw_scene()
 	drawer_draw_mesh(maze_mesh);
 	
 	drawer_use_program(twister_program);
+	drawer_depth_mask(0);
 	int i;
 	for(i=0; i<maze->height*maze->width; i++)
 	{
@@ -98,6 +99,7 @@ void draw_scene()
 			drawer_draw_mesh(pyramid);
 		}
 	}
+	drawer_depth_mask(1);
 }
 
 void render()

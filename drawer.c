@@ -186,6 +186,11 @@ void drawer_modelview_get(float matrix[16])
 	copy_m4_m4(matrix, mat_modelview);
 }
 
+void drawer_depth_mask(unsigned char mask)
+{
+	glDepthMask(mask);
+}
+
 int drawer_do_events()
 {
 	SDL_Event ev;

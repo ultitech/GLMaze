@@ -15,6 +15,7 @@ Texture drawer_load_texture(char *filename);
 void drawer_use_texture(Texture texture);
 void drawer_modelview_set(float matrix[16]);
 void drawer_modelview_get(float matrix[16]);
+void drawer_depth_mask(unsigned char mask);
 int drawer_do_events();
 void drawer_begin_scene();
 void drawer_end_scene();
