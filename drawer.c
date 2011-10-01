@@ -12,6 +12,7 @@
 
 float mat_projection[16], mat_modelview[16];
 int screen_size[2] = {1280, 800};
+enum Render3DMode render_3d_mode = RENDER_3D_OFF;
 
 void update_matrices()
 {
@@ -189,6 +190,37 @@ void drawer_modelview_get(float matrix[16])
 void drawer_depth_mask(unsigned char mask)
 {
 	glDepthMask(mask);
+}
+
+void drawer_3d_reset()
+{
+	if(render_3d_mode == RENDER_3D_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0], screen_size[1]);
+}
+
+void drawer_3d_left()
+{
+	if(render_3d_mode == RENDER_3D_ANAGLYPH)
+	{
+		glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0]/2, screen_size[1]);
+}
+
+void drawer_3d_right()
+{
+	if(render_3d_mode == RENDER_3D_ANAGLYPH)
+	{
+		glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_FALSE);
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
+}
+
+enum Render3DMode drawer_get_3d_mode()
+{
+	return render_3d_mode;
 }
 
 int drawer_do_events()

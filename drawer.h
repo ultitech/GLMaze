@@ -3,6 +3,14 @@
 
 #include "mesh.h"
 
+enum Render3DMode
+{
+	RENDER_3D_OFF,
+	RENDER_3D_ANAGLYPH,
+	RENDER_3D_SIDEBYSIDE,
+	RENDER_3D_MODES_COUNT
+};
+
 typedef unsigned int Texture;
 typedef unsigned int Program;
 
@@ -16,6 +24,10 @@ void drawer_use_texture(Texture texture);
 void drawer_modelview_set(float matrix[16]);
 void drawer_modelview_get(float matrix[16]);
 void drawer_depth_mask(unsigned char mask);
+void drawer_3d_reset();
+void drawer_3d_left();
+void drawer_3d_right();
+enum Render3DMode drawer_get_3d_mode();
 int drawer_do_events();
 void drawer_begin_scene();
 void drawer_end_scene();

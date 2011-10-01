@@ -106,8 +106,28 @@ void render()
 {
 	drawer_begin_scene();
 	
-	draw_scene();
-	
+	if(drawer_get_3d_mode() == RENDER_3D_OFF) draw_scene();
+	else
+	{
+		float camera_rot[3], temp[3];
+		camera_get_rotation(camera_rot);
+		
+		drawer_3d_left();
+		copy_v3_v3(temp, camera_rot);
+		temp[0] -= 2.5;
+		camera_set_rotation(temp);
+		draw_scene();
+		
+		drawer_3d_right();
+		copy_v3_v3(temp, camera_rot);
+		temp[0] += 2.5;
+		camera_set_rotation(temp);
+		draw_scene();
+		
+		camera_set_rotation(camera_rot);
+		drawer_3d_reset();
+	}
+
 	drawer_end_scene();
 }
 
