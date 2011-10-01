@@ -21,6 +21,7 @@ typedef struct
 Mesh* mesh_create_maze(Maze *maze);
 Mesh* mesh_create_quad(float x_scale, float z_scale);
 Mesh* mesh_create_pyramid(float scale);
+Mesh* mesh_create_screen_square();
 void mesh_free(Mesh *mesh);
 
 #endif //H_MESH

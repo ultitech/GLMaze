@@ -126,6 +126,27 @@ Mesh* mesh_create_pyramid(float scale)
 	return mesh;
 }
 
+Mesh* mesh_create_screen_square()
+{
+	Mesh *mesh = malloc(sizeof(Mesh));
+	
+	mesh->vertex_format = VERTEX_POSITION;
+	mesh->vertices = malloc(sizeof(float) * (3) * 4);
+	float *v = mesh->vertices;
+	*v++ = -1.0; *v++ = -1.0; *v++ = 0.0;
+	*v++ = 1.0; *v++ = -1.0; *v++ = 0.0;
+	*v++ = 1.0; *v++ = 1.0; *v++ = 0.0;
+	*v++ = -1.0; *v++ = 1.0; *v++ = 0.0;
+	
+	mesh->indices_count = 2*3;
+	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
+	unsigned int *i = mesh->indices;
+	*i++ = 0; *i++ = 1; *i++ = 2;
+	*i++ = 0; *i++ = 2; *i++ = 3;
+	
+	return mesh;
+}
+
 void mesh_free(Mesh *mesh)
 {
 	free(mesh->vertices);

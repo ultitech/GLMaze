@@ -1,4 +1,5 @@
 #include "drawer.h"
+#include "mesh.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
@@ -13,6 +14,10 @@
 float mat_projection[16], mat_modelview[16];
 int screen_size[2] = {1280, 800};
 enum Render3DMode render_3d_mode = RENDER_3D_OFF;
+GLuint pp_program;
+GLuint pp_draw_buffer;
+GLuint pp_screen_texture;
+Mesh *screen_square_mesh;
 
 void update_matrices()
 {
@@ -44,6 +49,24 @@ void drawer_init()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	create_perspective_m4(mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
+	
+	glGenFramebuffers(1, &pp_draw_buffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_buffer);
+	
+	glGenTextures(1, &pp_screen_texture);
+	glBindTexture(GL_TEXTURE_RECTANGLE, pp_screen_texture);
+	GLfloat *img_buffer = malloc(sizeof(GLfloat)*screen_size[0]*screen_size[1]*3);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, img_buffer);
+	free(img_buffer);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, pp_screen_texture, 0);
+	
+	GLuint depth_buffer;
+	glGenRenderbuffers(1, &depth_buffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screen_size[0], screen_size[1]);
+	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+	
+	screen_square_mesh = mesh_create_screen_square();
 }
 
 void drawer_quit()
@@ -223,6 +246,11 @@ enum Render3DMode drawer_get_3d_mode()
 	return render_3d_mode;
 }
 
+void drawer_postprocess_program_set(Program program)
+{
+	pp_program = program;
+}
+
 int drawer_do_events()
 {
 	SDL_Event ev;
@@ -239,7 +267,17 @@ int drawer_do_events()
 
 void drawer_begin_scene()
 {
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_buffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void drawer_do_postprocess()
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(pp_program);
+	glBindTexture(GL_TEXTURE_RECTANGLE, pp_screen_texture);
+	drawer_draw_mesh(screen_square_mesh);
 }
 
 void drawer_end_scene()

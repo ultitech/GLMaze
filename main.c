@@ -127,6 +127,8 @@ void render()
 		camera_set_rotation(camera_rot);
 		drawer_3d_reset();
 	}
+	
+	drawer_do_postprocess();
 
 	drawer_end_scene();
 }
@@ -143,6 +145,8 @@ int main()
 	
 	textured_program = drawer_create_program("Shader/textured.glslv", "Shader/textured.glslf");
 	twister_program = drawer_create_program("Shader/twister.glslv", "Shader/twister.glslf");
+	Program pp_program = drawer_create_program("Shader/pp.glslv", "Shader/pp.glslf");
+	drawer_postprocess_program_set(pp_program);
 	
 	pyramid = mesh_create_pyramid(0.2);
 	
