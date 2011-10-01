@@ -3,10 +3,8 @@
 
 #include "mesh.h"
 
-#include <GL/gl.h>
-
-typedef GLuint Texture;
-typedef GLuint Program;
+typedef unsigned int Texture;
+typedef unsigned int Program;
 
 void drawer_init();
 void drawer_quit();
