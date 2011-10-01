@@ -229,6 +229,10 @@ int drawer_do_events()
 	while(SDL_PollEvent(&ev))
 	{
 		if(ev.type == SDL_QUIT) return 0;
+		if(ev.type == SDL_KEYDOWN)
+		{
+			if(ev.key.keysym.sym == SDLK_r) render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
+		}
 	}
 	return 1;
 }
