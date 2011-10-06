@@ -14,10 +14,19 @@
 float mat_projection[16], mat_modelview[16];
 int screen_size[2] = {1280, 800};
 enum Render3DMode render_3d_mode = RENDER_3D_OFF;
-GLuint pp_program;
-GLuint pp_draw_buffer;
-GLuint pp_screen_texture;
+
+GLuint pp_passes[16];
+GLuint pp_passes_count = 0;
+struct Rendertarget
+{
+	GLuint buffer;
+	GLuint image;
+} pp_draw_targets[2];
+GLuint pp_vertex_shader;
+
 Mesh *screen_square_mesh;
+
+static GLuint create_shader(GLenum type, char *filename);
 
 void update_matrices()
 {
@@ -36,6 +45,25 @@ void update_matrices()
 	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
 }
 
+static void create_rendertarget(struct Rendertarget *target)
+{
+	glGenFramebuffers(1, &target->buffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target->buffer);
+	
+	glGenTextures(1, &target->image);
+	glBindTexture(GL_TEXTURE_RECTANGLE, target->image);
+	GLfloat *img_buffer = malloc(sizeof(GLfloat)*screen_size[0]*screen_size[1]*3);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, img_buffer);
+	free(img_buffer);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, target->image, 0);
+	
+	GLuint depth_buffer;
+	glGenRenderbuffers(1, &depth_buffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screen_size[0], screen_size[1]);
+	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+}
+
 void drawer_init()
 {
 	ilInit();
@@ -50,21 +78,10 @@ void drawer_init()
 	
 	create_perspective_m4(mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
 	
-	glGenFramebuffers(1, &pp_draw_buffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_buffer);
+	create_rendertarget(&pp_draw_targets[0]);
+	create_rendertarget(&pp_draw_targets[1]);
 	
-	glGenTextures(1, &pp_screen_texture);
-	glBindTexture(GL_TEXTURE_RECTANGLE, pp_screen_texture);
-	GLfloat *img_buffer = malloc(sizeof(GLfloat)*screen_size[0]*screen_size[1]*3);
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, img_buffer);
-	free(img_buffer);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, pp_screen_texture, 0);
-	
-	GLuint depth_buffer;
-	glGenRenderbuffers(1, &depth_buffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screen_size[0], screen_size[1]);
-	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+	pp_vertex_shader = create_shader(GL_VERTEX_SHADER, "Shader/pp.glslv");
 	
 	screen_square_mesh = mesh_create_screen_square();
 }
@@ -249,9 +266,11 @@ enum Render3DMode drawer_get_3d_mode()
 	return render_3d_mode;
 }
 
-void drawer_postprocess_program_set(Program program)
+void drawer_postprocess_pass_add(char *filename)
 {
-	pp_program = program;
+	GLuint fragment_shader = create_shader(GL_FRAGMENT_SHADER, filename);
+	GLuint program = create_program(pp_vertex_shader, fragment_shader);
+	pp_passes[pp_passes_count++] = program;
 }
 
 int drawer_do_events()
@@ -270,17 +289,31 @@ int drawer_do_events()
 
 void drawer_begin_scene()
 {
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_buffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_targets[0].buffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void drawer_do_postprocess()
 {
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(pp_program);
-	glBindTexture(GL_TEXTURE_RECTANGLE, pp_screen_texture);
-	drawer_draw_mesh(screen_square_mesh);
+	struct Rendertarget read = pp_draw_targets[0], draw = pp_draw_targets[1];
+	struct Rendertarget window = {0, 0};
+	int pass;
+	for(pass=0; pass<pp_passes_count; pass++)
+	{
+		if(pass != 0) //do not swap on first pass
+		{
+			struct Rendertarget temp;
+			temp = draw;
+			draw = read;
+			read = temp;
+		}
+		if(pass == pp_passes_count-1) draw = window;
+		glUseProgram(pp_passes[pass]);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.buffer);
+		glBindTexture(GL_TEXTURE_RECTANGLE, read.image);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		drawer_draw_mesh(screen_square_mesh);
+	}
 }
 
 void drawer_end_scene()

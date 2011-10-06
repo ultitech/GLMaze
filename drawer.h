@@ -28,7 +28,7 @@ void drawer_3d_reset();
 void drawer_3d_left();
 void drawer_3d_right();
 enum Render3DMode drawer_get_3d_mode();
-void drawer_postprocess_program_set(Program program);
+void drawer_postprocess_pass_add(char *filename);
 int drawer_do_events();
 void drawer_begin_scene();
 void drawer_do_postprocess();

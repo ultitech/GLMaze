@@ -145,8 +145,7 @@ int main()
 	
 	textured_program = drawer_create_program("Shader/textured.glslv", "Shader/textured.glslf");
 	twister_program = drawer_create_program("Shader/twister.glslv", "Shader/twister.glslf");
-	Program pp_program = drawer_create_program("Shader/pp.glslv", "Shader/pp.glslf");
-	drawer_postprocess_program_set(pp_program);
+	drawer_postprocess_pass_add("Shader/pp.glslf");
 	
 	pyramid = mesh_create_pyramid(0.2);
 	
