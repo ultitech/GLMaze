@@ -74,28 +74,21 @@ void drawer_quit()
 	SDL_Quit();
 }
 
-Program drawer_create_program(char *vertex_filename, char *fragment_filename)
+static GLuint create_shader(GLenum type, char *filename)
 {
-	GLuint vertex_shader, fragment_shader;
-	
-	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	Shader_SetSourceFile(vertex_shader, vertex_filename);
-	glCompileShader(vertex_shader);
-	if(!SHADER_COMPILED(vertex_shader))
+	GLuint shader = glCreateShader(type);
+	Shader_SetSourceFile(shader, filename);
+	glCompileShader(shader);
+	if(!SHADER_COMPILED(shader))
 	{
-		printf("Failed to compile %s:\n", vertex_filename);
-		SHADER_PRINTLOG(vertex_shader);
+		printf("Failed to compile %s:\n", filename);
+		SHADER_PRINTLOG(shader);
 	}
-	
-	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	Shader_SetSourceFile(fragment_shader, fragment_filename);
-	glCompileShader(fragment_shader);
-	if(!SHADER_COMPILED(fragment_shader))
-	{
-		printf("Failed to compile %s:\n", fragment_filename);
-		SHADER_PRINTLOG(fragment_shader);
-	}
-	
+	return shader;
+}
+
+static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
+{
 	GLuint program = glCreateProgram();
 	glAttachShader(program, vertex_shader);
 	glAttachShader(program, fragment_shader);
@@ -105,6 +98,16 @@ Program drawer_create_program(char *vertex_filename, char *fragment_filename)
 		printf("Failed to link program:\n");
 		PROGRAM_PRINTLOG(program);
 	}
+	return program;
+}
+
+Program drawer_create_program(char *vertex_filename, char *fragment_filename)
+{
+	GLuint vertex_shader, fragment_shader, program;
+	
+	vertex_shader = create_shader(GL_VERTEX_SHADER, vertex_filename);
+	fragment_shader = create_shader(GL_FRAGMENT_SHADER, fragment_filename);
+	program = create_program(vertex_shader, fragment_shader);
 	
 	return program;
 }
