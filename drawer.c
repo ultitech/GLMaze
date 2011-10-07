@@ -140,7 +140,7 @@ void drawer_draw_mesh(Mesh *mesh)
 	GLuint program;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 	
-	GLuint stride = 0;
+	GLsizei stride = 0;
 	int position_offset=0, normal_offset=0, texcoord_offset=0;
 	if(mesh->vertex_format & VERTEX_POSITION)
 	{
@@ -159,7 +159,7 @@ void drawer_draw_mesh(Mesh *mesh)
 	}
 	stride *= sizeof(GLfloat);
 	
-	GLuint location;
+	GLint location;
 	if(mesh->vertex_format & VERTEX_POSITION)
 	{
 		location = glGetAttribLocation(program, "in_position");
