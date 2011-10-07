@@ -266,11 +266,33 @@ enum Render3DMode drawer_get_3d_mode()
 	return render_3d_mode;
 }
 
+void calc_gauss_values(GLint location)
+{
+	const float sigma = 4.0;
+	float values[11][2];
+	int i;
+	for(i=0; i<11; i++)
+	{
+		float x = i-5.0;
+		values[i][0] = x;
+		values[i][1] = (1.0/sqrtf(2.0*M_PI*sigma*sigma))*powf(M_E,-((x*x)/(2.0*sigma*sigma)));
+		printf("[%f,%f] ", values[i][0], values[i][1]);
+	}
+	printf("\n");
+	glUniform2fv(location, 11, values);
+}
+
 void drawer_postprocess_pass_add(char *filename)
 {
 	GLuint fragment_shader = create_shader(GL_FRAGMENT_SHADER, filename);
 	GLuint program = create_program(pp_vertex_shader, fragment_shader);
 	pp_passes[pp_passes_count++] = program;
+	
+	glUseProgram(program);
+	
+	GLint location;
+	location = glGetUniformLocation(program, "gaussValues");
+	if(location != -1) calc_gauss_values(location);
 }
 
 int drawer_do_events()
