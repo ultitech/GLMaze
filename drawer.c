@@ -293,6 +293,8 @@ void drawer_postprocess_pass_add(char *filename)
 	GLint location;
 	location = glGetUniformLocation(program, "gaussValues");
 	if(location != -1) calc_gauss_values(location);
+	location = glGetUniformLocation(program, "screen_size");
+	if(location != -1) glUniform2iv(location, 1, screen_size);
 }
 
 int drawer_do_events()
