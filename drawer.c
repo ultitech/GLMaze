@@ -4,7 +4,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 #include <IL/il.h>
-#include <IL/ilu.h>
 #include <MathLib.h>
 #include <ShaderLib.h>
 
@@ -67,7 +66,6 @@ static void create_rendertarget(struct Rendertarget *target)
 void drawer_init()
 {
 	ilInit();
-	iluInit();
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
 	
@@ -190,7 +188,6 @@ Texture drawer_load_texture(char *filename)
 	ilGenImages(1, &image);
 	ilBindImage(image);
 	ilLoadImage(filename);
-	iluFlipImage();
 	
 	int image_size[2];
 	image_size[0] = ilGetInteger(IL_IMAGE_WIDTH);

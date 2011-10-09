@@ -21,7 +21,7 @@ Mesh* mesh_create_maze(Maze *maze)
 		*v++ = z;
 		//texcoord:
 		*v++ = x+z;
-		*v++ = y;
+		*v++ = 1.0 - y;
 	}
 	
 	mesh->indices_count = (maze->width*(maze->height+1)+(maze->width+1)*maze->height) * (2*3);
