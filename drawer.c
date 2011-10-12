@@ -14,7 +14,13 @@ float mat_projection[16], mat_modelview[16];
 int screen_size[2] = {1280, 800};
 enum Render3DMode render_3d_mode = RENDER_3D_OFF;
 
-GLuint pp_passes[16];
+struct PostProcessPass
+{
+	GLuint shader;
+	GLuint program;
+	int key;
+	unsigned enabled:1;
+} pp_passes[16];
 GLuint pp_passes_count = 0;
 struct Rendertarget
 {
@@ -280,18 +286,20 @@ void calc_gauss_values(GLint location)
 	glUniform2fv(location, 11, values);
 }
 
-void drawer_postprocess_pass_add(char *filename)
+void drawer_postprocess_pass_add(char *filename, int toggle_key)
 {
-	GLuint fragment_shader = create_shader(GL_FRAGMENT_SHADER, filename);
-	GLuint program = create_program(pp_vertex_shader, fragment_shader);
-	pp_passes[pp_passes_count++] = program;
+	struct PostProcessPass *pass = &pp_passes[pp_passes_count++];
+	pass->key = toggle_key;
+	pass->enabled = 1;
+	pass->shader = create_shader(GL_FRAGMENT_SHADER, filename);
+	pass->program = create_program(pp_vertex_shader, pass->shader);
 	
-	glUseProgram(program);
+	glUseProgram(pass->program);
 	
 	GLint location;
-	location = glGetUniformLocation(program, "gaussValues");
+	location = glGetUniformLocation(pass->program, "gaussValues");
 	if(location != -1) calc_gauss_values(location);
-	location = glGetUniformLocation(program, "screen_size");
+	location = glGetUniformLocation(pass->program, "screen_size");
 	if(location != -1) glUniform2iv(location, 1, screen_size);
 }
 
@@ -304,6 +312,16 @@ int drawer_do_events()
 		if(ev.type == SDL_KEYDOWN)
 		{
 			if(ev.key.keysym.sym == SDLK_r) render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
+			else
+			{
+				int key = ev.key.keysym.sym;
+				int i;
+				for(i=0; i<pp_passes_count; i++)
+				{
+					struct PostProcessPass *p = &pp_passes[i];
+					if(p->key == key) p->enabled ^= 1;
+				}
+			}
 		}
 	}
 	return 1;
@@ -319,18 +337,28 @@ void drawer_do_postprocess()
 {
 	struct Rendertarget read = pp_draw_targets[0], draw = pp_draw_targets[1];
 	struct Rendertarget window = {0, 0};
+	int first_pass, last_pass;
+	
+	for(first_pass=0; !pp_passes[first_pass].enabled; first_pass++);
+	for(last_pass=pp_passes_count; !pp_passes[last_pass].enabled; last_pass--);
+	
 	int pass;
-	for(pass=0; pass<pp_passes_count; pass++)
+	for(pass=first_pass; pass<=last_pass; pass++)
 	{
-		if(pass != 0) //do not swap on first pass
+		struct PostProcessPass *p = &pp_passes[pass];
+		if(!p->enabled) continue;
+		
+		if(pass != first_pass) //do not swap on first pass
 		{
 			struct Rendertarget temp;
 			temp = draw;
 			draw = read;
 			read = temp;
 		}
-		if(pass == pp_passes_count-1) draw = window;
-		glUseProgram(pp_passes[pass]);
+		if(pass == last_pass) draw = window;
+		
+		glUseProgram(p->program);
+		
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.buffer);
 		glBindTexture(GL_TEXTURE_RECTANGLE, read.image);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
