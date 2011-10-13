@@ -14,11 +14,8 @@ float t_endgame;
 Maze *maze;
 Mesh *maze_mesh, *plane, *pyramid;
 Walker *walker;
-Texture wall_texture;
-Texture ceiling_texture;
-Texture floor_texture;
-Program textured_program;
-Program twister_program;
+Texture wall_texture, ceiling_texture, floor_texture;
+Program textured_program, twister_program;
 
 enum
 {
