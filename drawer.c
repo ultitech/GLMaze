@@ -27,11 +27,12 @@ struct Rendertarget
 	GLuint buffer;
 	GLuint image;
 } pp_draw_targets[2];
-GLuint pp_vertex_shader;
+GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
 Mesh *screen_square_mesh;
 
 static GLuint create_shader(GLenum type, char *filename);
+static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
 
 void update_matrices()
 {
@@ -87,6 +88,8 @@ void drawer_init()
 	create_rendertarget(&pp_draw_targets[1]);
 	
 	pp_vertex_shader = create_shader(GL_VERTEX_SHADER, "Shader/pp.glslv");
+	pp_fragment_shader = create_shader(GL_FRAGMENT_SHADER, "Shader/pp.glslf");
+	pp_program = create_program(pp_vertex_shader, pp_fragment_shader);
 	
 	screen_square_mesh = mesh_create_screen_square();
 }
@@ -337,27 +340,34 @@ void drawer_do_postprocess()
 {
 	struct Rendertarget read = pp_draw_targets[0], draw = pp_draw_targets[1];
 	struct Rendertarget window = {0, 0};
-	int first_pass, last_pass;
-	
-	for(first_pass=0; !pp_passes[first_pass].enabled; first_pass++);
-	for(last_pass=pp_passes_count; !pp_passes[last_pass].enabled; last_pass--);
-	
+	GLuint enabled_passes[pp_passes_count];
+	int enabled_passes_count = 0;
 	int pass;
-	for(pass=first_pass; pass<=last_pass; pass++)
+	
+	for(pass=0; pass<pp_passes_count; pass++)
 	{
 		struct PostProcessPass *p = &pp_passes[pass];
-		if(!p->enabled) continue;
-		
-		if(pass != first_pass) //do not swap on first pass
+		if(p->enabled) enabled_passes[enabled_passes_count++] = p->program;
+	}
+	
+	if(enabled_passes_count == 0)
+	{
+		enabled_passes[0] = pp_program;
+		enabled_passes_count = 1;
+	}
+	
+	for(pass=0; pass<enabled_passes_count; pass++)
+	{
+		if(pass != 0) //do not swap on first pass
 		{
 			struct Rendertarget temp;
 			temp = draw;
 			draw = read;
 			read = temp;
 		}
-		if(pass == last_pass) draw = window;
+		if(pass == enabled_passes_count-1) draw = window;
 		
-		glUseProgram(p->program);
+		glUseProgram(enabled_passes[pass]);
 		
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.buffer);
 		glBindTexture(GL_TEXTURE_RECTANGLE, read.image);
