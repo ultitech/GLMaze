@@ -41,6 +41,8 @@ static void calc_gauss_values(GLint location);
 void drawer_init()
 {
 	ilInit();
+	ilEnable(IL_ORIGIN_SET);
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
 	
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
