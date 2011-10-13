@@ -37,10 +37,12 @@ static void create_rendertarget(struct Rendertarget *target);
 static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
 static void calc_gauss_values(GLint location);
+static void screenshot();
 
 void drawer_init()
 {
 	ilInit();
+	ilEnable(IL_FILE_OVERWRITE);
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
 	
@@ -250,6 +252,7 @@ int drawer_do_events()
 		{
 			SDLKey key = ev.key.keysym.sym;
 			if(key == SDLK_r) render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
+			else if(key == SDLK_F12) screenshot();
 			else
 			{
 				int i;
@@ -381,4 +384,31 @@ static void update_matrices()
 	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mat_modelview);
 	location = glGetUniformLocation(current_program, "MVPMatrix");
 	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
+}
+
+static void screenshot()
+{
+	const unsigned int w = screen_size[0], h = screen_size[1];
+	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
+	
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	GLuint read;
+	glGetIntegerv(GL_READ_BUFFER, &read);
+	glReadBuffer(GL_FRONT);
+	
+	glReadPixels(0, 0, w, h, GL_RGB, GL_FLOAT, data);
+	
+	glReadBuffer(read);
+	
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+	ilTexImage(w, h, 1, 3, IL_RGB, IL_FLOAT, data);
+	
+	ilDisable(IL_ORIGIN_SET);
+	ilSaveImage("Screenshot.jpg");
+	ilEnable(IL_ORIGIN_SET);
+	
+	ilDeleteImages(1, &image);
+	free(data);
 }
