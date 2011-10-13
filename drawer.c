@@ -400,13 +400,23 @@ static void screenshot()
 	
 	glReadBuffer(read);
 	
+	char filename[32];
+	int index;
+	for(index=0;;index++)
+	{
+		sprintf(filename, "Screenshot%d.jpg", index);
+		FILE *f;
+		if((f = fopen(filename, "r")) == NULL) break;
+		else fclose(f);
+	}
+	
 	ILuint image;
 	ilGenImages(1, &image);
 	ilBindImage(image);
 	ilTexImage(w, h, 1, 3, IL_RGB, IL_FLOAT, data);
 	
 	ilDisable(IL_ORIGIN_SET);
-	ilSaveImage("Screenshot.jpg");
+	ilSaveImage(filename);
 	ilEnable(IL_ORIGIN_SET);
 	
 	ilDeleteImages(1, &image);
