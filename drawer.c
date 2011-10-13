@@ -3,7 +3,7 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
-#include <SDL/SDL_image.h>
+#include <IL/il.h>
 #include <MathLib.h>
 #include <ShaderLib.h>
 
@@ -40,9 +40,9 @@ static void calc_gauss_values(GLint location);
 
 void drawer_init()
 {
-	SDL_Init(SDL_INIT_VIDEO);
-	IMG_Init(IMG_INIT_JPG);
+	ilInit();
 	
+	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
 	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -98,29 +98,29 @@ void drawer_use_program(Program program)
 
 Texture drawer_load_texture(char *filename)
 {
-	SDL_Surface *img = IMG_Load(filename);
-	unsigned int rmask, gmask, bmask, amask;
+	ILuint image;
+	ilGenImages(1, &image);
+	ilBindImage(image);
+	ilLoadImage(filename);
 	
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	rmask = 0xff000000; gmask = 0x00ff0000; bmask = 0x0000ff00; amask = 0x000000ff;
-#else
-	rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
-#endif
+	int image_size[2];
+	image_size[0] = ilGetInteger(IL_IMAGE_WIDTH);
+	image_size[1] = ilGetInteger(IL_IMAGE_HEIGHT);
 	
-	SDL_Surface *tex = SDL_CreateRGBSurface(SDL_SWSURFACE, img->w, img->h, 32, rmask, gmask, bmask, amask);
-	SDL_BlitSurface(img, NULL, tex, NULL);
+	GLfloat *image_data = malloc(sizeof(GLfloat) * image_size[0] * image_size[1] * 3);
+	ilCopyPixels(0, 0, 0, image_size[0], image_size[1], 1, IL_RGB, IL_FLOAT, image_data);
 	
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex->w, tex->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_size[0], image_size[1], 0, GL_RGB, GL_FLOAT, image_data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	
-	SDL_FreeSurface(img);
-	SDL_FreeSurface(tex);
+	ilDeleteImages(1, &image);
+	free(image_data);
 	
 	return texture;
 }
