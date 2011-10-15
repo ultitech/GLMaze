@@ -10,7 +10,8 @@ Mesh* mesh_create_maze(Maze *maze)
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
 	mesh->vertex_format = VERTEX_POSITION | VERTEX_TEXCOORD;
-	mesh->vertices = malloc(sizeof(float) * ((maze->width+1)*(maze->height+1)*2) * (3+2));
+	mesh->vertices_count = ((maze->width+1)*(maze->height+1)*2);
+	mesh->vertices = malloc(sizeof(float) * mesh->vertices_count * (3+2));
 	int x, y, z;
 	float *v = mesh->vertices;
 	for(y=0; y<2; y++) for(z=0; z<(maze->height+1); z++) for(x=0; x<(maze->width+1); x++)
@@ -73,7 +74,8 @@ Mesh* mesh_create_quad(float x_scale, float z_scale)
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
 	mesh->vertex_format = VERTEX_POSITION | VERTEX_TEXCOORD;
-	mesh->vertices = malloc(sizeof(float) * (3+2) * 4); //position/texcoord
+	mesh->vertices_count = 4;
+	mesh->vertices = malloc(sizeof(float) * (3+2) * mesh->vertices_count); //position/texcoord
 	int x, z;
 	float *v = mesh->vertices;
 	for(x=0; x<2; x++) for(z=0; z<2; z++)
@@ -101,7 +103,8 @@ Mesh* mesh_create_pyramid(float scale)
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
 	mesh->vertex_format = VERTEX_POSITION;
-	mesh->vertices = malloc(sizeof(float) * (3) * 4);
+	mesh->vertices_count = 4;
+	mesh->vertices = malloc(sizeof(float) * (3) * mesh->vertices_count);
 	float *v = mesh->vertices;
 	
 	#define V(a,b,c) *v++ = a scale; *v++ = b scale; *v++ = c scale;
@@ -131,7 +134,8 @@ Mesh* mesh_create_screen_square()
 	Mesh *mesh = malloc(sizeof(Mesh));
 	
 	mesh->vertex_format = VERTEX_POSITION;
-	mesh->vertices = malloc(sizeof(float) * (3) * 4);
+	mesh->vertices_count = 4;
+	mesh->vertices = malloc(sizeof(float) * (3) * mesh->vertices_count);
 	float *v = mesh->vertices;
 	*v++ = -1.0; *v++ = -1.0; *v++ = 0.0;
 	*v++ = 1.0; *v++ = -1.0; *v++ = 0.0;
@@ -147,26 +151,39 @@ Mesh* mesh_create_screen_square()
 	return mesh;
 }
 
-void mesh_free(Mesh *mesh)
+int mesh_get_vertex_size(Mesh *mesh)
 {
-	free(mesh->vertices);
-	free(mesh->indices);
-	free(mesh);
+	int size = 0;
+	if(mesh->vertex_format & VERTEX_POSITION) size += 3;
+	if(mesh->vertex_format & VERTEX_NORMAL) size += 3;
+	if(mesh->vertex_format & VERTEX_TEXCOORD) size += 2;
+	return size;
 }
 
-void mesh_save_maze(Maze *maze, Mesh *mesh, char *filename)
+void mesh_save(Mesh *mesh, char *filename)
 {
 	FILE *file = fopen(filename, "w");
+	int vertex_size = mesh_get_vertex_size(mesh);
 	int i;
-	for(i=0; i<((maze->width+1)*(maze->height+1)*2); i++)
+	if(mesh->vertex_format & VERTEX_POSITION)
 	{
-		float *v = &mesh->vertices[i*(2+3)];
-		fprintf(file, "v %f %f %f\n", v[2], v[3], v[4]);
+		for(i=0; i<mesh->vertices_count; i++)
+		{
+			float *v = &mesh->vertices[i*vertex_size];
+			fprintf(file, "v %f %f %f\n", v[0], v[1], v[2]);
+		}
 	}
-	for(i=0; i<(mesh->indices_count/3.0); i++)
+	for(i=0; i<(mesh->indices_count/3); i++)
 	{
 		unsigned int *in = &mesh->indices[i*3];
 		fprintf(file, "f %d %d %d\n", in[0]+1, in[1]+1, in[2]+1);
 	}
 	fclose(file);
+}
+
+void mesh_free(Mesh *mesh)
+{
+	free(mesh->vertices);
+	free(mesh->indices);
+	free(mesh);
 }
