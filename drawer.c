@@ -30,7 +30,7 @@ struct Rendertarget
 } pp_draw_targets[2];
 GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
-Mesh *screen_square_mesh;
+MeshVBO *screen_square_mesh;
 
 static void update_matrices();
 static void create_rendertarget(struct Rendertarget *target);
@@ -63,7 +63,9 @@ void drawer_init()
 	pp_fragment_shader = create_shader(GL_FRAGMENT_SHADER, "Shader/pp.glslf");
 	pp_program = create_program(pp_vertex_shader, pp_fragment_shader);
 	
-	screen_square_mesh = mesh_create_screen_square();
+	Mesh *m = mesh_create_screen_square();
+	screen_square_mesh = drawer_create_mesh_vbo(m);
+	mesh_free(m);
 }
 
 void drawer_quit()
@@ -238,7 +240,7 @@ void drawer_do_postprocess()
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.buffer);
 		glBindTexture(GL_TEXTURE_RECTANGLE, read.image);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		drawer_draw_mesh(screen_square_mesh);
+		drawer_draw_mesh_vbo(screen_square_mesh);
 	}
 }
 
@@ -307,6 +309,80 @@ void drawer_3d_right()
 enum Render3DMode drawer_get_3d_mode()
 {
 	return render_3d_mode;
+}
+
+MeshVBO* drawer_create_mesh_vbo(Mesh *mesh)
+{
+	MeshVBO *vbo = malloc(sizeof(MeshVBO));
+	vbo->vertex_format = mesh->vertex_format;
+	vbo->vertices_count = mesh->vertices_count;
+	vbo->indices_count = mesh->indices_count;
+	
+	glGenBuffers(1, &vbo->vertex_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo->vertex_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mesh_get_vertex_size(vbo->vertex_format) * vbo->vertices_count, mesh->vertices, GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &vbo->index_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->index_buffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * vbo->indices_count, mesh->indices, GL_STATIC_DRAW);
+	
+	return vbo;
+}
+
+void drawer_draw_mesh_vbo(MeshVBO *vbo)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vbo->vertex_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->index_buffer);
+	
+	GLsizei stride = 0;
+	int position_offset=0, normal_offset=0, texcoord_offset=0;
+	if(vbo->vertex_format & VERTEX_POSITION)
+	{
+		position_offset = stride;
+		stride += 3;
+	}
+	if(vbo->vertex_format & VERTEX_NORMAL)
+	{
+		normal_offset = stride;
+		stride += 3;
+	}
+	if(vbo->vertex_format & VERTEX_TEXCOORD)
+	{
+		texcoord_offset = stride;
+		stride += 2;
+	}
+	stride *= sizeof(GLfloat);
+	
+	GLint location;
+	if(vbo->vertex_format & VERTEX_POSITION)
+	{
+		location = glGetAttribLocation(current_program, "in_position");
+		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, ((GLfloat*)NULL)+position_offset);
+		glEnableVertexAttribArray(location);
+	}
+	
+	if(vbo->vertex_format & VERTEX_NORMAL)
+	{
+		location = glGetAttribLocation(current_program, "in_normal");
+		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, ((GLfloat*)NULL)+normal_offset);
+		glEnableVertexAttribArray(location);
+	}
+	
+	if(vbo->vertex_format & VERTEX_TEXCOORD)
+	{
+		location = glGetAttribLocation(current_program, "in_texcoord");
+		glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, stride, ((GLfloat*)NULL)+texcoord_offset);
+		glEnableVertexAttribArray(location);
+	}
+	
+	glDrawElements(GL_TRIANGLES, vbo->indices_count, GL_UNSIGNED_INT, ((GLuint*)NULL));
+}
+
+void drawer_free_mesh_vbo(MeshVBO *vbo)
+{
+	glDeleteBuffers(1, vbo->vertex_buffer);
+	glDeleteBuffers(1, vbo->index_buffer);
+	free(vbo);
 }
 
 static void create_rendertarget(struct Rendertarget *target)

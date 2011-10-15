@@ -14,6 +14,13 @@ enum Render3DMode
 typedef unsigned int Texture;
 typedef unsigned int Program;
 
+typedef struct
+{
+	unsigned int vertex_format;
+	unsigned int vertex_buffer, index_buffer;
+	unsigned int vertices_count, indices_count;
+} MeshVBO;
+
 void drawer_init();
 void drawer_quit();
 void drawer_modelview_set(float matrix[16]);
@@ -33,5 +40,8 @@ void drawer_3d_reset();
 void drawer_3d_left();
 void drawer_3d_right();
 enum Render3DMode drawer_get_3d_mode();
+MeshVBO* drawer_create_mesh_vbo(Mesh *mesh);
+void drawer_draw_mesh_vbo(MeshVBO *vbo);
+void drawer_free_mesh_vbo(MeshVBO *vbo);
 
 #endif //H_DRAWER

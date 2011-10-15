@@ -12,7 +12,7 @@
 float t = 0.0;
 float t_endgame;
 Maze *maze;
-Mesh *maze_mesh, *plane, *pyramid;
+MeshVBO *maze_mesh, *plane, *pyramid;
 Walker *walker;
 Texture wall_texture, ceiling_texture, floor_texture;
 Program textured_program, twister_program;
@@ -39,9 +39,9 @@ void finish()
 void clean_up()
 {
 	if(maze) maze_free(maze);
-	if(maze_mesh) mesh_free(maze_mesh);
+	if(maze_mesh) drawer_free_mesh_vbo(maze_mesh);
 	if(walker) free(walker);
-	if(plane) mesh_free(plane);
+	if(plane) drawer_free_mesh_vbo(plane);
 }
 
 void new_game()
@@ -49,8 +49,13 @@ void new_game()
 	clean_up();
 	maze = maze_generate(10, 10);
 	maze_print(maze);
-	maze_mesh = mesh_create_maze(maze);
-	plane = mesh_create_quad((float)maze->width, (float)maze->height);
+	Mesh *m;
+	m = mesh_create_maze(maze);
+	maze_mesh = drawer_create_mesh_vbo(m);
+	mesh_free(m);
+	m = mesh_create_quad((float)maze->width, (float)maze->height);
+	plane = drawer_create_mesh_vbo(m);
+	mesh_free(m);
 	int start[2] = {0, 0};
 	walker = walker_create(maze, start, DOWN, camera_update_pos, camera_set_rotation, finish);
 	game_state = GAME_STARTING;
@@ -66,19 +71,19 @@ void draw_scene()
 	
 	drawer_use_program(textured_program);
 	drawer_use_texture(floor_texture);
-	drawer_draw_mesh(plane);
+	drawer_draw_mesh_vbo(plane);
 	drawer_use_texture(ceiling_texture);
 	copy_m4_m4(temp, m);
 	translate_m4(temp, 0.0, 1.0, 0.0);
 	drawer_modelview_set(temp);
-	drawer_draw_mesh(plane);
+	drawer_draw_mesh_vbo(plane);
 	
 	drawer_use_texture(wall_texture);
 	copy_m4_m4(temp, m);
 	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, t/100.0, 1.0);
 	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((t-t_endgame)/100.0), 1.0);
 	drawer_modelview_set(temp);
-	drawer_draw_mesh(maze_mesh);
+	drawer_draw_mesh_vbo(maze_mesh);
 	
 	drawer_use_program(twister_program);
 	drawer_depth_mask(0);
@@ -93,7 +98,7 @@ void draw_scene()
 			rotate_m4(temp, t, 0.0, 1.0, 0.0);
 			rotate_m4(temp, t*0.7, 1.0, 0.0, 0.0);
 			drawer_modelview_set(temp);
-			drawer_draw_mesh(pyramid);
+			drawer_draw_mesh_vbo(pyramid);
 		}
 	}
 	drawer_depth_mask(1);
@@ -145,7 +150,9 @@ int main()
 	drawer_postprocess_pass_add("Shader/pp_radialblur.glslf", 'b');
 	drawer_postprocess_pass_add("Shader/pp_nightvision.glslf", 'n');
 	
-	pyramid = mesh_create_pyramid(0.2);
+	Mesh *m = mesh_create_pyramid(0.2);
+	pyramid = drawer_create_mesh_vbo(m);
+	mesh_free(m);
 	
 	new_game();
 	
