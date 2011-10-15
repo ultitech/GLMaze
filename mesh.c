@@ -151,19 +151,19 @@ Mesh* mesh_create_screen_square()
 	return mesh;
 }
 
-int mesh_get_vertex_size(Mesh *mesh)
+int mesh_get_vertex_size(unsigned int vertex_format)
 {
 	int size = 0;
-	if(mesh->vertex_format & VERTEX_POSITION) size += 3;
-	if(mesh->vertex_format & VERTEX_NORMAL) size += 3;
-	if(mesh->vertex_format & VERTEX_TEXCOORD) size += 2;
+	if(vertex_format & VERTEX_POSITION) size += 3;
+	if(vertex_format & VERTEX_NORMAL) size += 3;
+	if(vertex_format & VERTEX_TEXCOORD) size += 2;
 	return size;
 }
 
 void mesh_save(Mesh *mesh, char *filename)
 {
 	FILE *file = fopen(filename, "w");
-	int vertex_size = mesh_get_vertex_size(mesh);
+	int vertex_size = mesh_get_vertex_size(mesh->vertex_format);
 	int i, offset=0;
 	if(mesh->vertex_format & VERTEX_POSITION)
 	{

@@ -23,7 +23,7 @@ Mesh* mesh_create_maze(Maze *maze);
 Mesh* mesh_create_quad(float x_scale, float z_scale);
 Mesh* mesh_create_pyramid(float scale);
 Mesh* mesh_create_screen_square();
-int mesh_get_vertex_size(Mesh *mesh);
+int mesh_get_vertex_size(unsigned int vertex_format);
 void mesh_save(Mesh *mesh, char *filename);
 void mesh_free(Mesh *mesh);
 
