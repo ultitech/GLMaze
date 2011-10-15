@@ -141,52 +141,6 @@ void drawer_depth_mask(unsigned char mask)
 	glDepthMask(mask);
 }
 
-void drawer_draw_mesh(Mesh *mesh)
-{
-	GLsizei stride = 0;
-	int position_offset=0, normal_offset=0, texcoord_offset=0;
-	if(mesh->vertex_format & VERTEX_POSITION)
-	{
-		position_offset = stride;
-		stride += 3;
-	}
-	if(mesh->vertex_format & VERTEX_NORMAL)
-	{
-		normal_offset = stride;
-		stride += 3;
-	}
-	if(mesh->vertex_format & VERTEX_TEXCOORD)
-	{
-		texcoord_offset = stride;
-		stride += 2;
-	}
-	stride *= sizeof(GLfloat);
-	
-	GLint location;
-	if(mesh->vertex_format & VERTEX_POSITION)
-	{
-		location = glGetAttribLocation(current_program, "in_position");
-		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, mesh->vertices+position_offset);
-		glEnableVertexAttribArray(location);
-	}
-	
-	if(mesh->vertex_format & VERTEX_NORMAL)
-	{
-		location = glGetAttribLocation(current_program, "in_normal");
-		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, mesh->vertices+normal_offset);
-		glEnableVertexAttribArray(location);
-	}
-	
-	if(mesh->vertex_format & VERTEX_TEXCOORD)
-	{
-		location = glGetAttribLocation(current_program, "in_texcoord");
-		glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, stride, mesh->vertices+texcoord_offset);
-		glEnableVertexAttribArray(location);
-	}
-	
-	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, mesh->indices);
-}
-
 void drawer_postprocess_pass_add(char *filename, int toggle_key)
 {
 	struct PostProcessPass *pass = &pp_passes[pp_passes_count++];
