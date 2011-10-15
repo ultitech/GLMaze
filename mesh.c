@@ -164,14 +164,33 @@ void mesh_save(Mesh *mesh, char *filename)
 {
 	FILE *file = fopen(filename, "w");
 	int vertex_size = mesh_get_vertex_size(mesh);
-	int i;
+	int i, offset=0;
 	if(mesh->vertex_format & VERTEX_POSITION)
 	{
 		for(i=0; i<mesh->vertices_count; i++)
 		{
 			float *v = &mesh->vertices[i*vertex_size];
-			fprintf(file, "v %f %f %f\n", v[0], v[1], v[2]);
+			fprintf(file, "v %f %f %f\n", v[offset+0], v[offset+1], v[offset+2]);
 		}
+		offset += 3;
+	}
+	if(mesh->vertex_format & VERTEX_NORMAL)
+	{
+		for(i=0; i<mesh->vertices_count; i++)
+		{
+			float *v = &mesh->vertices[i*vertex_size];
+			fprintf(file, "vn %f %f %f\n", v[offset+0], v[offset+1], v[offset+2]);
+		}
+		offset += 3;
+	}
+	if(mesh->vertex_format & VERTEX_TEXCOORD)
+	{
+		for(i=0; i<mesh->vertices_count; i++)
+		{
+			float *v = &mesh->vertices[i*vertex_size];
+			fprintf(file, "vt %f %f\n", v[offset+0], v[offset+1]);
+		}
+		offset += 2;
 	}
 	for(i=0; i<(mesh->indices_count/3); i++)
 	{
