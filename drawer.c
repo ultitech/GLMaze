@@ -364,8 +364,8 @@ static GLuint create_shader(GLenum type, char *filename)
 {
 	GLuint shader = glCreateShader(type);
 	
-	char *shader_source = file_text(filename);
-	glShaderSource(shader, 1, &shader_source, NULL);
+	GLchar *shader_source = file_text(filename);
+	glShaderSource(shader, 1, (const GLchar**)&shader_source, NULL);
 	free(shader_source);
 	
 	glCompileShader(shader);
@@ -420,7 +420,7 @@ static void calc_gauss_values(GLint location)
 		printf("[%f,%f] ", values[i][0], values[i][1]);
 	}
 	printf("\n");
-	glUniform2fv(location, 11, values);
+	glUniform2fv(location, 11, (const GLfloat*)values);
 }
 
 static void update_matrices()
