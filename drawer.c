@@ -417,9 +417,7 @@ static void calc_gauss_values(GLint location)
 		float x = i-5.0;
 		values[i][0] = x;
 		values[i][1] = (1.0/sqrtf(2.0*M_PI*sigma*sigma))*powf(M_E,-((x*x)/(2.0*sigma*sigma)));
-		printf("[%f,%f] ", values[i][0], values[i][1]);
 	}
-	printf("\n");
 	glUniform2fv(location, 11, (const GLfloat*)values);
 }
 
