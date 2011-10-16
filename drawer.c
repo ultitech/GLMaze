@@ -336,8 +336,8 @@ void drawer_draw_mesh_vbo(MeshVBO *vbo)
 
 void drawer_free_mesh_vbo(MeshVBO *vbo)
 {
-	glDeleteBuffers(1, vbo->vertex_buffer);
-	glDeleteBuffers(1, vbo->index_buffer);
+	glDeleteBuffers(1, &vbo->vertex_buffer);
+	glDeleteBuffers(1, &vbo->index_buffer);
 	free(vbo);
 }
 
