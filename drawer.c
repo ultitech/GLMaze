@@ -2,9 +2,8 @@
 #include "mesh.h"
 #include "file.h"
 
+#include <GL/glew.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
-#include <GL3/gl3.h>
 #include <IL/il.h>
 #include <MathLib.h>
 
@@ -49,6 +48,8 @@ void drawer_init()
 	
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
+	
+	glewInit();
 	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
