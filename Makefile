@@ -1,6 +1,6 @@
 TARGET = GLMaze
-OBJ = main.o maze.o mesh.o camera.o walker.o drawer.o
-LIB = -lGL -lGLU -lIL -lSDL -lMathLib -lShaderLib
+OBJ = main.o maze.o mesh.o camera.o walker.o drawer.o file.o
+LIB = -lGL -lGLU -lIL -lSDL -lMathLib
 FLAGS = -g
 
 $(TARGET): $(OBJ)

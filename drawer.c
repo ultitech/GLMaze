@@ -1,11 +1,12 @@
 #include "drawer.h"
 #include "mesh.h"
+#include "file.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
+#include <GL3/gl3.h>
 #include <IL/il.h>
 #include <MathLib.h>
-#include <ShaderLib.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -361,12 +362,24 @@ static void create_rendertarget(struct Rendertarget *target)
 static GLuint create_shader(GLenum type, char *filename)
 {
 	GLuint shader = glCreateShader(type);
-	Shader_SetSourceFile(shader, filename);
+	
+	char *shader_source = file_text(filename);
+	glShaderSource(shader, 1, &shader_source, NULL);
+	free(shader_source);
+	
 	glCompileShader(shader);
-	if(!SHADER_COMPILED(shader))
+	
+	GLint compiled;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+	if(compiled == GL_FALSE)
 	{
 		printf("Failed to compile %s:\n", filename);
-		SHADER_PRINTLOG(shader);
+		GLint log_length;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_length);
+		GLchar *log = malloc(log_length+1);
+		glGetShaderInfoLog(shader, log_length, NULL, log);
+		printf("%s\n", log);
+		free(log);
 	}
 	return shader;
 }
@@ -377,10 +390,18 @@ static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
 	glAttachShader(program, vertex_shader);
 	glAttachShader(program, fragment_shader);
 	glLinkProgram(program);
-	if(!PROGRAM_LINKED(program))
+	
+	GLint linked;
+	glGetProgramiv(program, GL_LINK_STATUS, &linked);
+	if(linked == GL_FALSE)
 	{
 		printf("Failed to link program:\n");
-		PROGRAM_PRINTLOG(program);
+		GLint log_length;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_length);
+		GLchar *log = malloc(log_length+1);
+		glGetProgramInfoLog(program, log_length, NULL, log);
+		printf("%s\n", log);
+		free(log);
 	}
 	return program;
 }
