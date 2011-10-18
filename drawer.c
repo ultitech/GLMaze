@@ -38,6 +38,7 @@ static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
 static void calc_gauss_values(GLint location);
 static void screenshot();
+static void write_glinfo();
 
 void drawer_init()
 {
@@ -210,6 +211,7 @@ int drawer_do_events()
 		{
 			SDLKey key = ev.key.keysym.sym;
 			if(key == SDLK_r) render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
+			else if(key == SDLK_F5) write_glinfo();
 			else if(key == SDLK_F12) screenshot();
 			else
 			{
@@ -471,4 +473,16 @@ static void screenshot()
 	
 	ilDeleteImages(1, &image);
 	free(data);
+}
+
+static void write_glinfo()
+{
+	FILE *file = fopen("glinfo.txt", "w");
+	fprintf(file, "OpenGL Info\n");
+	fprintf(file, "Version: %s\n", glGetString(GL_VERSION));
+	fprintf(file, "GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	fprintf(file, "Renderer: %s\n", glGetString(GL_RENDERER));
+	fprintf(file, "Vendor: %s\n", glGetString(GL_VENDOR));
+	fprintf(file, "Extensions: %s\n", glGetString(GL_EXTENSIONS));
+	fclose(file);
 }
