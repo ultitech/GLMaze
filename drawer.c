@@ -38,6 +38,7 @@ static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
 static void calc_gauss_values(GLint location);
 static void screenshot();
+static void print_glinfo();
 static void write_glinfo();
 
 void drawer_init()
@@ -51,6 +52,8 @@ void drawer_init()
 	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
 	
 	glewInit();
+	
+	print_glinfo();
 	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
@@ -473,6 +476,12 @@ static void screenshot()
 	
 	ilDeleteImages(1, &image);
 	free(data);
+}
+
+static void print_glinfo()
+{
+	printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+	printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
 static void write_glinfo()
