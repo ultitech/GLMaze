@@ -31,8 +31,6 @@ struct Rendertarget
 GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
 MeshVBO *screen_square_mesh;
-char *texture_prefix = "Textures/";
-char *shader_prefix = "Shader/";
 
 static void update_matrices();
 static void create_rendertarget(struct Rendertarget *target);
@@ -115,11 +113,7 @@ Texture drawer_load_texture(char *filename)
 	ILuint image;
 	ilGenImages(1, &image);
 	ilBindImage(image);
-	
-	char file[strlen(texture_prefix)+strlen(filename)+1];
-	strcpy(file, texture_prefix);
-	strcat(file, filename);
-	ilLoadImage(file);
+	ilLoadImage(file_prefix(filename, PREFIX_TEXTURE));
 	
 	int image_size[2];
 	image_size[0] = ilGetInteger(IL_IMAGE_WIDTH);
@@ -374,12 +368,7 @@ static void create_rendertarget(struct Rendertarget *target)
 static GLuint create_shader(GLenum type, char *filename)
 {
 	GLuint shader = glCreateShader(type);
-	
-	char file[strlen(shader_prefix)+strlen(filename)+1];
-	strcpy(file, shader_prefix);
-	strcat(file, filename);
-	GLchar *shader_source = file_text(file);
-	
+	GLchar *shader_source = file_text(file_prefix(filename, PREFIX_SHADER));
 	glShaderSource(shader, 1, (const GLchar**)&shader_source, NULL);
 	free(shader_source);
 	
