@@ -213,7 +213,8 @@ int drawer_do_events()
 		if(ev.type == SDL_KEYDOWN)
 		{
 			SDLKey key = ev.key.keysym.sym;
-			if(key == SDLK_r) render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
+			if(key == SDLK_ESCAPE) return 0;
+			else if(key == SDLK_r) render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
 			else if(key == SDLK_F5) write_glinfo();
 			else if(key == SDLK_F12) screenshot();
 			else
