@@ -31,6 +31,8 @@ struct Rendertarget
 GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
 MeshVBO *screen_square_mesh;
+char *texture_prefix = "Textures/";
+char *shader_prefix = "Shader/";
 
 static void update_matrices();
 static void create_rendertarget(struct Rendertarget *target);
@@ -65,8 +67,8 @@ void drawer_init()
 	create_rendertarget(&pp_draw_targets[0]);
 	create_rendertarget(&pp_draw_targets[1]);
 	
-	pp_vertex_shader = create_shader(GL_VERTEX_SHADER, "Shader/pp.glslv");
-	pp_fragment_shader = create_shader(GL_FRAGMENT_SHADER, "Shader/pp.glslf");
+	pp_vertex_shader = create_shader(GL_VERTEX_SHADER, "pp.glslv");
+	pp_fragment_shader = create_shader(GL_FRAGMENT_SHADER, "pp.glslf");
 	pp_program = create_program(pp_vertex_shader, pp_fragment_shader);
 	
 	Mesh *m = mesh_create_screen_square();
@@ -113,7 +115,11 @@ Texture drawer_load_texture(char *filename)
 	ILuint image;
 	ilGenImages(1, &image);
 	ilBindImage(image);
-	ilLoadImage(filename);
+	
+	char file[strlen(texture_prefix)+strlen(filename)+1];
+	strcpy(file, texture_prefix);
+	strcat(file, filename);
+	ilLoadImage(file);
 	
 	int image_size[2];
 	image_size[0] = ilGetInteger(IL_IMAGE_WIDTH);
@@ -369,7 +375,11 @@ static GLuint create_shader(GLenum type, char *filename)
 {
 	GLuint shader = glCreateShader(type);
 	
-	GLchar *shader_source = file_text(filename);
+	char file[strlen(shader_prefix)+strlen(filename)+1];
+	strcpy(file, shader_prefix);
+	strcat(file, filename);
+	GLchar *shader_source = file_text(file);
+	
 	glShaderSource(shader, 1, (const GLchar**)&shader_source, NULL);
 	free(shader_source);
 	

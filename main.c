@@ -141,14 +141,14 @@ int main()
 	
 	drawer_init();
 	
-	wall_texture = drawer_load_texture("Textures/wall.jpg");
-	ceiling_texture = drawer_load_texture("Textures/ceiling.jpg");
-	floor_texture = drawer_load_texture("Textures/floor.jpg");
+	wall_texture = drawer_load_texture("wall.jpg");
+	ceiling_texture = drawer_load_texture("ceiling.jpg");
+	floor_texture = drawer_load_texture("floor.jpg");
 	
-	textured_program = drawer_create_program("Shader/textured.glslv", "Shader/textured.glslf");
-	twister_program = drawer_create_program("Shader/twister.glslv", "Shader/twister.glslf");
-	drawer_postprocess_pass_add("Shader/pp_radialblur.glslf", 'b');
-	drawer_postprocess_pass_add("Shader/pp_nightvision.glslf", 'n');
+	textured_program = drawer_create_program("textured.glslv", "textured.glslf");
+	twister_program = drawer_create_program("twister.glslv", "twister.glslf");
+	drawer_postprocess_pass_add("pp_radialblur.glslf", 'b');
+	drawer_postprocess_pass_add("pp_nightvision.glslf", 'n');
 	
 	Mesh *m = mesh_create_pyramid(0.2);
 	pyramid = drawer_create_mesh_vbo(m);
