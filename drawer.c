@@ -56,6 +56,9 @@ void drawer_init()
 	
 	print_glinfo();
 	
+	if(GLEW_ARB_vertex_buffer_object) mesh_generate_vbos(1);
+	else mesh_generate_vbos(0);
+	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -505,6 +508,8 @@ static void print_glinfo()
 {
 	printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
 	printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	if(GLEW_ARB_vertex_buffer_object) printf("VBOs are supported. Yeah!\n");
+	else printf("VBOs are not supported.\n");
 }
 
 static void write_glinfo()

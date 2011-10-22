@@ -175,6 +175,11 @@ int mesh_get_vertex_size(unsigned int vertex_format)
 	return size;
 }
 
+void mesh_generate_vbos(char value)
+{
+	generate_vbo = value;
+}
+
 void mesh_free_data(MeshData *data)
 {
 	free(data->vertices);
