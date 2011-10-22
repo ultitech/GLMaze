@@ -1,19 +1,27 @@
 #include "mesh.h"
+#include "drawer.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <MathLib.h>
 
-#include <stdio.h>
+char generate_vbo = 0;
+
+static Mesh* allocate_mesh();
+static void allocate_data(Mesh *mesh);
 
 Mesh* mesh_create_maze(Maze *maze)
 {
-	Mesh *mesh = malloc(sizeof(Mesh));
+	Mesh *mesh = allocate_mesh();
 	
 	mesh->vertex_format = VERTEX_POSITION | VERTEX_TEXCOORD;
 	mesh->vertices_count = ((maze->width+1)*(maze->height+1)*2);
-	mesh->vertices = malloc(sizeof(float) * mesh->vertices_count * (3+2));
+	mesh->indices_count = ((maze->width*(maze->height+1)+(maze->width+1)*maze->height)-((maze->width*maze->height) - 1)) * (2*3);
+	
+	allocate_data(mesh);
+	
 	int x, y, z;
-	float *v = mesh->vertices;
+	float *v = mesh->data->vertices;
 	for(y=0; y<2; y++) for(z=0; z<(maze->height+1); z++) for(x=0; x<(maze->width+1); x++)
 	{
 		//position:
@@ -25,10 +33,7 @@ Mesh* mesh_create_maze(Maze *maze)
 		*v++ = y;
 	}
 	
-	mesh->indices_count = (maze->width*(maze->height+1)+(maze->width+1)*maze->height) * (2*3);
-	mesh->indices_count -= ((maze->width*maze->height) - 1) * (2*3); //passages
-	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
-	unsigned int *i = mesh->indices;
+	unsigned int *i = mesh->data->indices;
 	//horizontal walls
 	for(y=0; y<maze->height+1; y++) for(x=0; x<maze->width; x++)
 	{
@@ -66,18 +71,23 @@ Mesh* mesh_create_maze(Maze *maze)
 		*i++ = origin + (maze->height+1) * (maze->width+1);
 	}
 	
+	if(generate_vbo) drawer_create_mesh_vbo(mesh);
+	
 	return mesh;
 }
 
 Mesh* mesh_create_quad(float x_scale, float z_scale)
 {
-	Mesh *mesh = malloc(sizeof(Mesh));
+	Mesh *mesh = allocate_mesh();
 	
 	mesh->vertex_format = VERTEX_POSITION | VERTEX_TEXCOORD;
 	mesh->vertices_count = 4;
-	mesh->vertices = malloc(sizeof(float) * (3+2) * mesh->vertices_count); //position/texcoord
+	mesh->indices_count = 2*3;
+	
+	allocate_data(mesh);
+	
 	int x, z;
-	float *v = mesh->vertices;
+	float *v = mesh->data->vertices;
 	for(x=0; x<2; x++) for(z=0; z<2; z++)
 	{
 		//position:
@@ -89,24 +99,26 @@ Mesh* mesh_create_quad(float x_scale, float z_scale)
 		*v++ = z * z_scale;
 	}
 	
-	mesh->indices_count = 2*3;
-	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
-	unsigned int *i = mesh->indices;
+	unsigned int *i = mesh->data->indices;
 	*i++ = 0; *i++ = 1; *i++ = 2;
 	*i++ = 1; *i++ = 3; *i++ = 2;
+	
+	if(generate_vbo) drawer_create_mesh_vbo(mesh);
 	
 	return mesh;
 }
 
 Mesh* mesh_create_pyramid(float scale)
 {
-	Mesh *mesh = malloc(sizeof(Mesh));
+	Mesh *mesh = allocate_mesh();
 	
 	mesh->vertex_format = VERTEX_POSITION;
 	mesh->vertices_count = 4;
-	mesh->vertices = malloc(sizeof(float) * (3) * mesh->vertices_count);
-	float *v = mesh->vertices;
+	mesh->indices_count = 4*3;
 	
+	allocate_data(mesh);
+	
+	float *v = mesh->data->vertices;
 	#define V(a,b,c) *v++ = a scale; *v++ = b scale; *v++ = c scale;
 	//left down front
 	V(-,-,+)
@@ -118,35 +130,38 @@ Mesh* mesh_create_pyramid(float scale)
 	V(+,+,+)
 	#undef V
 	
-	mesh->indices_count = 4*3;
-	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
-	unsigned int *i = mesh->indices;
+	unsigned int *i = mesh->data->indices;
 	*i++ = 0; *i++ = 1; *i++ = 3;
 	*i++ = 0; *i++ = 3; *i++ = 2;
 	*i++ = 1; *i++ = 2; *i++ = 3;
 	*i++ = 0; *i++ = 2; *i++ = 1;
+	
+	if(generate_vbo) drawer_create_mesh_vbo(mesh);
 	
 	return mesh;
 }
 
 Mesh* mesh_create_screen_square()
 {
-	Mesh *mesh = malloc(sizeof(Mesh));
+	Mesh *mesh = allocate_mesh();
 	
 	mesh->vertex_format = VERTEX_POSITION;
 	mesh->vertices_count = 4;
-	mesh->vertices = malloc(sizeof(float) * (3) * mesh->vertices_count);
-	float *v = mesh->vertices;
+	mesh->indices_count = 2*3;
+	
+	allocate_data(mesh);
+	
+	float *v = mesh->data->vertices;
 	*v++ = -1.0; *v++ = -1.0; *v++ = 0.0;
 	*v++ = 1.0; *v++ = -1.0; *v++ = 0.0;
 	*v++ = 1.0; *v++ = 1.0; *v++ = 0.0;
 	*v++ = -1.0; *v++ = 1.0; *v++ = 0.0;
 	
-	mesh->indices_count = 2*3;
-	mesh->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
-	unsigned int *i = mesh->indices;
+	unsigned int *i = mesh->data->indices;
 	*i++ = 0; *i++ = 1; *i++ = 2;
 	*i++ = 0; *i++ = 2; *i++ = 3;
+	
+	if(generate_vbo) drawer_create_mesh_vbo(mesh);
 	
 	return mesh;
 }
@@ -160,49 +175,38 @@ int mesh_get_vertex_size(unsigned int vertex_format)
 	return size;
 }
 
-void mesh_save(Mesh *mesh, char *filename)
+void mesh_free_data(MeshData *data)
 {
-	FILE *file = fopen(filename, "w");
-	int vertex_size = mesh_get_vertex_size(mesh->vertex_format);
-	int i, offset=0;
-	if(mesh->vertex_format & VERTEX_POSITION)
-	{
-		for(i=0; i<mesh->vertices_count; i++)
-		{
-			float *v = &mesh->vertices[i*vertex_size];
-			fprintf(file, "v %f %f %f\n", v[offset+0], v[offset+1], v[offset+2]);
-		}
-		offset += 3;
-	}
-	if(mesh->vertex_format & VERTEX_NORMAL)
-	{
-		for(i=0; i<mesh->vertices_count; i++)
-		{
-			float *v = &mesh->vertices[i*vertex_size];
-			fprintf(file, "vn %f %f %f\n", v[offset+0], v[offset+1], v[offset+2]);
-		}
-		offset += 3;
-	}
-	if(mesh->vertex_format & VERTEX_TEXCOORD)
-	{
-		for(i=0; i<mesh->vertices_count; i++)
-		{
-			float *v = &mesh->vertices[i*vertex_size];
-			fprintf(file, "vt %f %f\n", v[offset+0], v[offset+1]);
-		}
-		offset += 2;
-	}
-	for(i=0; i<(mesh->indices_count/3); i++)
-	{
-		unsigned int *in = &mesh->indices[i*3];
-		fprintf(file, "f %d %d %d\n", in[0]+1, in[1]+1, in[2]+1);
-	}
-	fclose(file);
+	free(data->vertices);
+	free(data->indices);
+	free(data);
+}
+
+void mesh_free_vbo(MeshVBO *vbo)
+{
+	drawer_free_mesh_vbo(vbo);
 }
 
 void mesh_free(Mesh *mesh)
 {
-	free(mesh->vertices);
-	free(mesh->indices);
+	mesh_free_data(mesh->data);
+	mesh_free_vbo(mesh->vbo);
 	free(mesh);
+}
+
+static Mesh* allocate_mesh()
+{
+	Mesh *mesh = malloc(sizeof(Mesh));
+	memset(mesh, 0x00, sizeof(Mesh));
+	return mesh;
+}
+
+static void allocate_data(Mesh *mesh)
+{
+	MeshData *data = malloc(sizeof(MeshData));
+	
+	data->vertices = malloc(sizeof(float) * mesh->vertices_count * mesh_get_vertex_size(mesh->vertex_format));
+	data->indices = malloc(sizeof(unsigned int) * mesh->indices_count);
+	
+	mesh->data = data;
 }

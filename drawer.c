@@ -14,6 +14,7 @@ float mat_projection[16], mat_modelview[16];
 int screen_size[2] = {1280, 800};
 enum Render3DMode render_3d_mode = RENDER_3D_OFF;
 GLuint current_program;
+char vbo_bound = 0;
 
 struct PostProcessPass
 {
@@ -30,7 +31,7 @@ struct Rendertarget
 } pp_draw_targets[2];
 GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
-MeshVBO *screen_square_mesh;
+Mesh *screen_square_mesh;
 
 static void update_matrices();
 static void create_rendertarget(struct Rendertarget *target);
@@ -69,9 +70,7 @@ void drawer_init()
 	pp_fragment_shader = create_shader(GL_FRAGMENT_SHADER, "pp.glslf");
 	pp_program = create_program(pp_vertex_shader, pp_fragment_shader);
 	
-	Mesh *m = mesh_create_screen_square();
-	screen_square_mesh = drawer_create_mesh_vbo(m);
-	mesh_free(m);
+	screen_square_mesh = mesh_create_screen_square();
 }
 
 void drawer_quit()
@@ -147,6 +146,81 @@ void drawer_depth_mask(unsigned char mask)
 	glDepthMask(mask);
 }
 
+void drawer_draw_mesh(Mesh *mesh)
+{
+	GLsizei stride = 0;
+	int position_offset=0, normal_offset=0, texcoord_offset=0;
+	if(mesh->vertex_format & VERTEX_POSITION)
+	{
+		position_offset = stride;
+		stride += 3;
+	}
+	if(mesh->vertex_format & VERTEX_NORMAL)
+	{
+		normal_offset = stride;
+		stride += 3;
+	}
+	if(mesh->vertex_format & VERTEX_TEXCOORD)
+	{
+		texcoord_offset = stride;
+		stride += 2;
+	}
+	stride *= sizeof(GLfloat);
+	
+	GLfloat *position_pointer, *normal_pointer, *texcoord_pointer;
+	GLuint *element_pointer;
+	
+	if(mesh->vbo)
+	{
+		MeshVBO *vbo = mesh->vbo;
+		glBindBuffer(GL_ARRAY_BUFFER, vbo->vertex_buffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->index_buffer);
+		vbo_bound = 1;
+		position_pointer = ((GLfloat*)NULL)+position_offset;
+		normal_pointer = ((GLfloat*)NULL)+normal_offset;
+		texcoord_pointer = ((GLfloat*)NULL)+texcoord_offset;
+		element_pointer = ((GLuint*)NULL);
+	}
+	else
+	{
+		if(vbo_bound)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			vbo_bound = 0;
+		}
+		MeshData *data = mesh->data;
+		position_pointer = data->vertices+position_offset;
+		normal_pointer = data->vertices+normal_offset;
+		texcoord_pointer = data->vertices+texcoord_offset;
+		element_pointer = data->indices;
+	}
+	
+	GLint location;
+	if(mesh->vertex_format & VERTEX_POSITION)
+	{
+		location = glGetAttribLocation(current_program, "in_position");
+		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, position_pointer);
+		glEnableVertexAttribArray(location);
+	}
+	
+	if(mesh->vertex_format & VERTEX_NORMAL)
+	{
+		location = glGetAttribLocation(current_program, "in_normal");
+		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, normal_pointer);
+		glEnableVertexAttribArray(location);
+	}
+	
+	if(mesh->vertex_format & VERTEX_TEXCOORD)
+	{
+		location = glGetAttribLocation(current_program, "in_texcoord");
+		glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, stride, texcoord_pointer);
+		glEnableVertexAttribArray(location);
+	}
+	
+	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, element_pointer);
+}
+
 void drawer_postprocess_pass_add(char *filename, int toggle_key)
 {
 	struct PostProcessPass *pass = &pp_passes[pp_passes_count++];
@@ -200,7 +274,7 @@ void drawer_do_postprocess()
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.buffer);
 		glBindTexture(GL_TEXTURE_RECTANGLE, read.image);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		drawer_draw_mesh_vbo(screen_square_mesh);
+		drawer_draw_mesh(screen_square_mesh);
 	}
 }
 
@@ -273,71 +347,20 @@ enum Render3DMode drawer_get_3d_mode()
 	return render_3d_mode;
 }
 
-MeshVBO* drawer_create_mesh_vbo(Mesh *mesh)
+void drawer_create_mesh_vbo(Mesh *mesh)
 {
 	MeshVBO *vbo = malloc(sizeof(MeshVBO));
-	vbo->vertex_format = mesh->vertex_format;
-	vbo->vertices_count = mesh->vertices_count;
-	vbo->indices_count = mesh->indices_count;
 	
 	glGenBuffers(1, &vbo->vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo->vertex_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mesh_get_vertex_size(vbo->vertex_format) * vbo->vertices_count, mesh->vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mesh_get_vertex_size(mesh->vertex_format) * mesh->vertices_count, mesh->data->vertices, GL_STATIC_DRAW);
 	
 	glGenBuffers(1, &vbo->index_buffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->index_buffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * vbo->indices_count, mesh->indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh->indices_count, mesh->data->indices, GL_STATIC_DRAW);
 	
-	return vbo;
-}
-
-void drawer_draw_mesh_vbo(MeshVBO *vbo)
-{
-	glBindBuffer(GL_ARRAY_BUFFER, vbo->vertex_buffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->index_buffer);
-	
-	GLsizei stride = 0;
-	int position_offset=0, normal_offset=0, texcoord_offset=0;
-	if(vbo->vertex_format & VERTEX_POSITION)
-	{
-		position_offset = stride;
-		stride += 3;
-	}
-	if(vbo->vertex_format & VERTEX_NORMAL)
-	{
-		normal_offset = stride;
-		stride += 3;
-	}
-	if(vbo->vertex_format & VERTEX_TEXCOORD)
-	{
-		texcoord_offset = stride;
-		stride += 2;
-	}
-	stride *= sizeof(GLfloat);
-	
-	GLint location;
-	if(vbo->vertex_format & VERTEX_POSITION)
-	{
-		location = glGetAttribLocation(current_program, "in_position");
-		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, ((GLfloat*)NULL)+position_offset);
-		glEnableVertexAttribArray(location);
-	}
-	
-	if(vbo->vertex_format & VERTEX_NORMAL)
-	{
-		location = glGetAttribLocation(current_program, "in_normal");
-		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, ((GLfloat*)NULL)+normal_offset);
-		glEnableVertexAttribArray(location);
-	}
-	
-	if(vbo->vertex_format & VERTEX_TEXCOORD)
-	{
-		location = glGetAttribLocation(current_program, "in_texcoord");
-		glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, stride, ((GLfloat*)NULL)+texcoord_offset);
-		glEnableVertexAttribArray(location);
-	}
-	
-	glDrawElements(GL_TRIANGLES, vbo->indices_count, GL_UNSIGNED_INT, ((GLuint*)NULL));
+	mesh->vbo = vbo;
+	vbo_bound = 1;
 }
 
 void drawer_free_mesh_vbo(MeshVBO *vbo)
