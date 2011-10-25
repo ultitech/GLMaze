@@ -1,8 +1,8 @@
-#version 150
+#version 120
 
 uniform mat4 MVPMatrix;
 
-in vec3 in_position;
+attribute vec3 in_position;
 
 void main()
 {

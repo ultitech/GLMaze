@@ -1,10 +1,9 @@
-#version 150
+#version 120
+#extension GL_ARB_texture_rectangle : require
 
-uniform samplerRect image;
+uniform sampler2DRect image;
 uniform ivec2 screen_size;
 uniform vec2 gaussValues[11];
-
-out vec4 out_color;
 
 void main()
 {
@@ -14,8 +13,8 @@ void main()
 	vec4 color;
 	for(int i=0; i<11; i++)
 	{
-		color += texture(image, gl_FragCoord.xy + circle_pos * len * 5 * gaussValues[i].x) * gaussValues[i].y;
+		color += texture2DRect(image, gl_FragCoord.xy + circle_pos * len * 5 * gaussValues[i].x) * gaussValues[i].y;
 	}
 	
-	out_color = color;
+	gl_FragColor = color;
 }

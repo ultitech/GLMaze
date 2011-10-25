@@ -1,6 +1,6 @@
-#version 150
+#version 120
 
-in vec3 in_position;
+attribute vec3 in_position;
 
 void main()
 {

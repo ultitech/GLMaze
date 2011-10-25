@@ -1,10 +1,9 @@
-#version 150
+#version 120
+#extension GL_ARB_texture_rectangle : require
 
-uniform samplerRect image;
-
-out vec4 out_color;
+uniform sampler2DRect image;
 
 void main()
 {
-	out_color = texture(image, gl_FragCoord.xy);
+	gl_FragColor = texture2DRect(image, gl_FragCoord.xy);
 }

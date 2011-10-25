@@ -1,13 +1,13 @@
-#version 150
+#version 120
 
 uniform mat4 MVMatrix;
 uniform mat4 MVPMatrix;
 
-in vec3 in_position;
-in vec2 in_texcoord;
+attribute vec3 in_position;
+attribute vec2 in_texcoord;
 
-out vec3 position;
-out vec2 texcoord;
+varying vec3 position;
+varying vec2 texcoord;
 
 void main()
 {
