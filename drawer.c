@@ -49,6 +49,9 @@ void drawer_init()
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
 	
+#ifdef __APPLE__
+	putenv("SDL_VIDEODRIVER=x11");
+#endif
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
 	
