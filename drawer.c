@@ -40,6 +40,7 @@ static void update_uniforms();
 static void create_rendertarget(struct Rendertarget *target);
 static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
+static GLuint create_texture(GLsizei width, GLsizei height, GLenum format, GLfloat *data);
 static GLuint generate_noise_texture();
 static void calc_gauss_values(GLint location);
 static void screenshot();
@@ -135,14 +136,7 @@ Texture drawer_load_texture(char *filename)
 	GLfloat *image_data = malloc(sizeof(GLfloat) * image_size[0] * image_size[1] * 3);
 	ilCopyPixels(0, 0, 0, image_size[0], image_size[1], 1, IL_RGB, IL_FLOAT, image_data);
 	
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_size[0], image_size[1], 0, GL_RGB, GL_FLOAT, image_data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	GLuint texture = create_texture(image_size[0], image_size[1], GL_RGB, image_data);
 	
 	ilDeleteImages(1, &image);
 	free(image_data);
@@ -443,6 +437,19 @@ static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
 	return program;
 }
 
+static GLuint create_texture(GLsizei width, GLsizei height, GLenum format, GLfloat *data)
+{
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_FLOAT, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	return texture;
+}
+
 static GLuint generate_noise_texture()
 {
 	const int size = 256;
@@ -452,14 +459,7 @@ static GLuint generate_noise_texture()
 	noise_generate_texture2d_channel(16, size, size, 4, texture_data+2);
 	noise_generate_texture2d_channel(32, size, size, 4, texture_data+3);
 	
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_FLOAT, texture_data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	GLuint texture = create_texture(size, size, GL_RGBA, texture_data);
 	
 	free(texture_data);
 	
