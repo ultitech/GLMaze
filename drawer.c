@@ -1,6 +1,7 @@
 #include "drawer.h"
 #include "mesh.h"
 #include "file.h"
+#include "noise.h"
 
 #include <GL/glew.h>
 #include <SDL/SDL.h>
@@ -32,11 +33,14 @@ struct Rendertarget
 GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
 Mesh *screen_square_mesh;
+Texture noise_texture;
+#define NOISE_TEXTURE_LAYER 7
 
 static void update_uniforms();
 static void create_rendertarget(struct Rendertarget *target);
 static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
+static GLuint generate_noise_texture();
 static void calc_gauss_values(GLint location);
 static void screenshot();
 static void print_glinfo();
@@ -71,6 +75,10 @@ void drawer_init()
 	
 	create_rendertarget(&pp_draw_targets[0]);
 	create_rendertarget(&pp_draw_targets[1]);
+	
+	glActiveTexture(GL_TEXTURE0+NOISE_TEXTURE_LAYER);
+	noise_texture = generate_noise_texture();
+	glActiveTexture(GL_TEXTURE0);
 	
 	pp_vertex_shader = create_shader(GL_VERTEX_SHADER, "pp.glslv");
 	pp_fragment_shader = create_shader(GL_FRAGMENT_SHADER, "pp.glslf");
@@ -435,6 +443,29 @@ static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
 	return program;
 }
 
+static GLuint generate_noise_texture()
+{
+	const int size = 256;
+	float *texture_data = malloc(sizeof(float) * size * size * 4);
+	noise_generate_texture2d_channel(4, size, size, 4, texture_data);
+	noise_generate_texture2d_channel(8, size, size, 4, texture_data+1);
+	noise_generate_texture2d_channel(16, size, size, 4, texture_data+2);
+	noise_generate_texture2d_channel(32, size, size, 4, texture_data+3);
+	
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_FLOAT, texture_data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
+	free(texture_data);
+	
+	return texture;
+}
+
 static void calc_gauss_values(GLint location)
 {
 	const float sigma = 4.0;
@@ -466,6 +497,7 @@ static void update_uniforms()
 	}
 	if(uniform_exists("gaussValues")) calc_gauss_values(location);
 	if(uniform_exists("screen_size")) glUniform2iv(location, 1, screen_size);
+	if(uniform_exists("noise")) glUniform1i(location, NOISE_TEXTURE_LAYER);
 	
 	#undef uniform_exists
 }
