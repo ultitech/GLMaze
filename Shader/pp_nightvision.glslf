@@ -1,22 +1,22 @@
 #version 120
 #extension GL_ARB_texture_rectangle : require
 
-uniform sampler2DRect image;
-uniform sampler2D noise;
-uniform ivec2 screen_size;
-uniform float time;
+uniform sampler2DRect Image;
+uniform sampler2D Noise;
+uniform ivec2 ScreenSize;
+uniform float Time;
 
 void main()
 {
-	float color = texture2DRect(image, gl_FragCoord.xy).g;
+	float color = texture2DRect(Image, gl_FragCoord.xy).g;
 	color += 0.5;
-	vec2 texcoord = gl_FragCoord.xy / vec2(screen_size) * 8.0;
-	texcoord += vec2(time*1.618, time*0.9);
-	float noise_fac = texture2D(noise, texcoord).a * 0.2;
+	vec2 texcoord = gl_FragCoord.xy / vec2(ScreenSize) * 8.0;
+	texcoord += vec2(Time*1.618, Time*0.9);
+	float noise_fac = texture2D(Noise, texcoord).a * 0.2;
 	float line_fac = mod(gl_FragCoord.y, 4.0) > 2.0 ? 1.5 : 1.0;
 	color *= line_fac+noise_fac;
 	
-	vec2 circle_pos = (gl_FragCoord.xy / screen_size) * 2.0 - 1.0;
+	vec2 circle_pos = (gl_FragCoord.xy / ScreenSize) * 2.0 - 1.0;
 	float len = length(circle_pos);
 	color *= 1.0 - len*len*0.5;
 	

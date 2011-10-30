@@ -497,10 +497,10 @@ static void update_uniforms()
 		mul_m4_m4(mvp, mat_modelview);
 		glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
 	}
-	if(uniform_exists("gaussValues")) calc_gauss_values(location);
-	if(uniform_exists("screen_size")) glUniform2iv(location, 1, screen_size);
-	if(uniform_exists("noise")) glUniform1i(location, NOISE_TEXTURE_LAYER);
-	if(uniform_exists("time")) glUniform1f(location, global_time);
+	if(uniform_exists("GaussValues")) calc_gauss_values(location);
+	if(uniform_exists("ScreenSize")) glUniform2iv(location, 1, screen_size);
+	if(uniform_exists("Noise")) glUniform1i(location, NOISE_TEXTURE_LAYER);
+	if(uniform_exists("Time")) glUniform1f(location, global_time);
 	
 	#undef uniform_exists
 }
