@@ -33,7 +33,7 @@ GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
 Mesh *screen_square_mesh;
 
-static void update_matrices();
+static void update_uniforms();
 static void create_rendertarget(struct Rendertarget *target);
 static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
@@ -87,7 +87,7 @@ void drawer_quit()
 void drawer_modelview_set(float matrix[16])
 {
 	copy_m4_m4(mat_modelview, matrix);
-	update_matrices();
+	update_uniforms();
 }
 
 void drawer_modelview_get(float matrix[16])
@@ -110,7 +110,7 @@ void drawer_use_program(Program program)
 {
 	glUseProgram(program);
 	current_program = program;
-	update_matrices();
+	update_uniforms();
 }
 
 Texture drawer_load_texture(char *filename)
@@ -235,13 +235,7 @@ void drawer_postprocess_pass_add(char *filename, int toggle_key)
 	pass->shader = create_shader(GL_FRAGMENT_SHADER, filename);
 	pass->program = create_program(pp_vertex_shader, pass->shader);
 	
-	glUseProgram(pass->program);
-	
-	GLint location;
-	location = glGetUniformLocation(pass->program, "gaussValues");
-	if(location != -1) calc_gauss_values(location);
-	location = glGetUniformLocation(pass->program, "screen_size");
-	if(location != -1) glUniform2iv(location, 1, screen_size);
+	drawer_use_program(pass->program);
 }
 
 void drawer_do_postprocess()
@@ -275,7 +269,7 @@ void drawer_do_postprocess()
 		}
 		if(pass == enabled_passes_count-1) draw = window;
 		
-		glUseProgram(enabled_passes[pass]);
+		drawer_use_program(enabled_passes[pass]);
 		
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.buffer);
 		glBindTexture(GL_TEXTURE_RECTANGLE, read.image);
@@ -455,19 +449,25 @@ static void calc_gauss_values(GLint location)
 	glUniform2fv(location, 11, (const GLfloat*)values);
 }
 
-static void update_matrices()
+static void update_uniforms()
 {
-	float mvp[16];
-	copy_m4_m4(mvp, mat_projection);
-	mul_m4_m4(mvp, mat_modelview);
-	
 	if(current_program == 0) return;
 	
+	#define uniform_exists(s) ((location = glGetUniformLocation(current_program, s)) != -1)
+	
 	GLint location;
-	location = glGetUniformLocation(current_program, "MVMatrix");
-	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mat_modelview);
-	location = glGetUniformLocation(current_program, "MVPMatrix");
-	if(location != -1) glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
+	if(uniform_exists("MVMatrix")) glUniformMatrix4fv(location, 1, GL_FALSE, mat_modelview);
+	if(uniform_exists("MVPMatrix"))
+	{
+		float mvp[16];
+		copy_m4_m4(mvp, mat_projection);
+		mul_m4_m4(mvp, mat_modelview);
+		glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
+	}
+	if(uniform_exists("gaussValues")) calc_gauss_values(location);
+	if(uniform_exists("screen_size")) glUniform2iv(location, 1, screen_size);
+	
+	#undef uniform_exists
 }
 
 static void screenshot()
