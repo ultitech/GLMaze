@@ -27,7 +27,7 @@ void drawer_draw_mesh(Mesh *mesh);
 void drawer_postprocess_pass_add(char *filename, int toggle_key);
 void drawer_do_postprocess();
 int drawer_do_events();
-void drawer_begin_scene();
+void drawer_begin_scene(float time);
 void drawer_end_scene();
 void drawer_3d_reset();
 void drawer_3d_left();

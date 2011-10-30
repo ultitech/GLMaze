@@ -101,7 +101,7 @@ void draw_scene()
 
 void render()
 {
-	drawer_begin_scene();
+	drawer_begin_scene(t);
 	
 	if(drawer_get_3d_mode() == RENDER_3D_OFF) draw_scene();
 	else

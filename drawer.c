@@ -16,6 +16,7 @@ int screen_size[2] = {1280, 800};
 enum Render3DMode render_3d_mode = RENDER_3D_OFF;
 GLuint current_program;
 char vbo_bound = 0;
+float global_time = 0.0;
 
 struct PostProcessPass
 {
@@ -307,8 +308,9 @@ int drawer_do_events()
 	return 1;
 }
 
-void drawer_begin_scene()
+void drawer_begin_scene(float time)
 {
+	global_time = time;
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_targets[0].buffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -498,6 +500,7 @@ static void update_uniforms()
 	if(uniform_exists("gaussValues")) calc_gauss_values(location);
 	if(uniform_exists("screen_size")) glUniform2iv(location, 1, screen_size);
 	if(uniform_exists("noise")) glUniform1i(location, NOISE_TEXTURE_LAYER);
+	if(uniform_exists("time")) glUniform1f(location, global_time);
 	
 	#undef uniform_exists
 }

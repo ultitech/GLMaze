@@ -4,12 +4,14 @@
 uniform sampler2DRect image;
 uniform sampler2D noise;
 uniform ivec2 screen_size;
+uniform float time;
 
 void main()
 {
 	float color = texture2DRect(image, gl_FragCoord.xy).g;
 	color += 0.5;
-	vec2 texcoord = gl_FragCoord.xy / vec2(screen_size) * 16.0;
+	vec2 texcoord = gl_FragCoord.xy / vec2(screen_size) * 8.0;
+	texcoord += vec2(time*1.618, time*0.9);
 	float noise_fac = texture2D(noise, texcoord).a * 0.2;
 	float line_fac = mod(gl_FragCoord.y, 4.0) > 2.0 ? 1.5 : 1.0;
 	color *= line_fac+noise_fac;
