@@ -243,7 +243,7 @@ void drawer_postprocess_pass_add(char *filename, int toggle_key)
 
 void drawer_do_postprocess()
 {
-	struct Rendertarget read = pp_draw_targets[0], draw = pp_draw_targets[1];
+	struct Rendertarget *read = &pp_draw_targets[0], *draw = &pp_draw_targets[1];
 	struct Rendertarget window = {0, 0};
 	GLuint enabled_passes[pp_passes_count];
 	int enabled_passes_count = 0;
@@ -265,17 +265,17 @@ void drawer_do_postprocess()
 	{
 		if(pass != 0) //do not swap on first pass
 		{
-			struct Rendertarget temp;
+			struct Rendertarget *temp;
 			temp = draw;
 			draw = read;
 			read = temp;
 		}
-		if(pass == enabled_passes_count-1) draw = window;
+		if(pass == enabled_passes_count-1) draw = &window;
 		
 		drawer_use_program(enabled_passes[pass]);
 		
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.buffer);
-		glBindTexture(GL_TEXTURE_RECTANGLE, read.image);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw->buffer);
+		glBindTexture(GL_TEXTURE_RECTANGLE, read->image);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		drawer_draw_mesh(screen_square_mesh);
 	}
