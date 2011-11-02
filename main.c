@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "walker.h"
 #include "drawer.h"
+#include "window.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -134,6 +135,7 @@ int main()
 {
 	srand(time(NULL));
 	
+	window_init();
 	drawer_init();
 	
 	wall_texture = drawer_load_texture("wall.jpg");
@@ -150,7 +152,7 @@ int main()
 	new_game();
 	
 	char quit = 0;
-	while(drawer_do_events())
+	while(window_do_events())
 	{	
 		t++;
 		
@@ -165,5 +167,7 @@ int main()
 	}
 	
 	drawer_quit();
+	window_quit();
+	
 	return 0;
 }

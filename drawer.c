@@ -1,10 +1,10 @@
 #include "drawer.h"
 #include "mesh.h"
 #include "file.h"
+#include "window.h"
 #include "noise.h"
 
 #include <GL/glew.h>
-#include <SDL/SDL.h>
 #include <IL/il.h>
 #include <MathLib.h>
 
@@ -12,7 +12,6 @@
 #include <stdio.h>
 
 float mat_projection[16], mat_modelview[16];
-int screen_size[2] = {1280, 800};
 enum Render3DMode render_3d_mode = RENDER_3D_OFF;
 GLuint current_program;
 char vbo_bound = 0;
@@ -47,19 +46,16 @@ static void calc_gauss_values(GLint location);
 static void screenshot();
 static void print_glinfo();
 static void write_glinfo();
+static void handle_keypress(char key);
 
 void drawer_init()
 {
+	window_add_keypress_handler(handle_keypress);
+	
 	ilInit();
 	ilEnable(IL_FILE_OVERWRITE);
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-	
-#ifdef __APPLE__
-	putenv("SDL_VIDEODRIVER=x11");
-#endif
-	SDL_Init(SDL_INIT_VIDEO);
-	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
 	
 	glewInit();
 	
@@ -73,7 +69,9 @@ void drawer_init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	create_perspective_m4(mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
+	int size[2];
+	window_get_size(size);
+	create_perspective_m4(mat_projection, 90.0, (float)size[0]/(float)size[1], 0.1, 100.0);
 	
 	create_rendertarget(&pp_draw_targets[0]);
 	create_rendertarget(&pp_draw_targets[1]);
@@ -91,7 +89,6 @@ void drawer_init()
 
 void drawer_quit()
 {
-	SDL_Quit();
 }
 
 void drawer_modelview_set(float matrix[16])
@@ -281,33 +278,6 @@ void drawer_do_postprocess()
 	}
 }
 
-int drawer_do_events()
-{
-	SDL_Event ev;
-	while(SDL_PollEvent(&ev))
-	{
-		if(ev.type == SDL_QUIT) return 0;
-		if(ev.type == SDL_KEYDOWN)
-		{
-			SDLKey key = ev.key.keysym.sym;
-			if(key == SDLK_ESCAPE) return 0;
-			else if(key == SDLK_r) render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
-			else if(key == SDLK_F5) write_glinfo();
-			else if(key == SDLK_F12) screenshot();
-			else
-			{
-				int i;
-				for(i=0; i<pp_passes_count; i++)
-				{
-					struct PostProcessPass *p = &pp_passes[i];
-					if(p->key == key) p->enabled ^= 1;
-				}
-			}
-		}
-	}
-	return 1;
-}
-
 void drawer_begin_scene(float time)
 {
 	global_time = time;
@@ -317,13 +287,18 @@ void drawer_begin_scene(float time)
 
 void drawer_end_scene()
 {
-	SDL_GL_SwapBuffers();
+	window_swap_buffers();
 }
 
 void drawer_3d_reset()
 {
 	if(render_3d_mode == RENDER_3D_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0], screen_size[1]);
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE)
+	{
+		int size[2];
+		window_get_size(size);
+		glViewport(0, 0, size[0], size[1]);
+	}
 }
 
 void drawer_3d_left()
@@ -333,7 +308,12 @@ void drawer_3d_left()
 		glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0]/2, screen_size[1]);
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE)
+	{
+		int size[2];
+		window_get_size(size);
+		glViewport(0, 0, size[0]/2, size[1]);
+	}
 }
 
 void drawer_3d_right()
@@ -343,7 +323,12 @@ void drawer_3d_right()
 		glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_FALSE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE)
+	{
+		int size[2];
+		window_get_size(size);
+		glViewport(size[0]/2, 0, size[0]/2, size[1]);
+	}
 }
 
 enum Render3DMode drawer_get_3d_mode()
@@ -378,6 +363,9 @@ static void create_rendertarget(struct Rendertarget *target)
 {
 	glGenFramebuffers(1, &target->buffer);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target->buffer);
+	
+	int screen_size[2];
+	window_get_size(screen_size);
 	
 	glGenTextures(1, &target->image);
 	glBindTexture(GL_TEXTURE_RECTANGLE, target->image);
@@ -498,7 +486,12 @@ static void update_uniforms()
 		glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
 	}
 	if(uniform_exists("GaussValues")) calc_gauss_values(location);
-	if(uniform_exists("ScreenSize")) glUniform2iv(location, 1, screen_size);
+	if(uniform_exists("ScreenSize"))
+	{
+		int size[2];
+		window_get_size(size);
+		glUniform2iv(location, 1, size);
+	}
 	if(uniform_exists("Noise")) glUniform1i(location, NOISE_TEXTURE_LAYER);
 	if(uniform_exists("Time")) glUniform1f(location, global_time);
 	
@@ -507,7 +500,9 @@ static void update_uniforms()
 
 static void screenshot()
 {
-	const unsigned int w = screen_size[0], h = screen_size[1];
+	int size[2];
+	window_get_size(size);
+	const unsigned int w = size[0], h = size[1];
 	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
 	
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -560,4 +555,17 @@ static void write_glinfo()
 	fprintf(file, "Vendor: %s\n", glGetString(GL_VENDOR));
 	fprintf(file, "Extensions: %s\n", glGetString(GL_EXTENSIONS));
 	fclose(file);
+}
+
+static void handle_keypress(char key)
+{
+	if(key == 'r') render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
+	else if(key == 'i') write_glinfo();
+	else if(key == 'p') screenshot();
+	int i;
+	for(i=0; i<pp_passes_count; i++)
+	{
+		struct PostProcessPass *p = &pp_passes[i];
+		if(p->key == key) p->enabled ^= 1;
+	}
 }

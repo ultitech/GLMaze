@@ -1,5 +1,5 @@
 TARGET = GLMaze
-OBJ = main.o maze.o mesh.o camera.o walker.o drawer.o noise.o file.o
+OBJ = main.o maze.o mesh.o camera.o walker.o drawer.o noise.o file.o window.o
 LIB = -lGL -lGLU -lIL -lSDL -lMathLib -lGLEW
 FLAGS = -g
 
