@@ -15,6 +15,8 @@ Walker *walker;
 Texture wall_texture, ceiling_texture, floor_texture;
 Program textured_program, twister_program;
 
+#define WALL_GROW_TIME 2.0
+
 enum
 {
 	GAME_STARTING,
@@ -52,8 +54,8 @@ void scene_update(float time)
 {
 	t += time;
 	
-	if(t > 2.0 && game_state == GAME_STARTING) game_state = GAME_RUNNING;
-	if((t-t_endgame) > 2.0 && game_state == GAME_ENDING) new_game();
+	if(t > WALL_GROW_TIME && game_state == GAME_STARTING) game_state = GAME_RUNNING;
+	if((t-t_endgame) > WALL_GROW_TIME && game_state == GAME_ENDING) new_game();
 	
 	if(game_state == GAME_RUNNING) walker_step(walker, time);
 }
@@ -136,8 +138,8 @@ static void draw_scene()
 	
 	drawer_use_texture(wall_texture);
 	copy_m4_m4(temp, m);
-	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, t/2.0, 1.0);
-	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((t-t_endgame)/2.0), 1.0);
+	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, t/WALL_GROW_TIME, 1.0);
+	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((t-t_endgame)/WALL_GROW_TIME), 1.0);
 	drawer_modelview_set(temp);
 	drawer_draw_mesh(maze_mesh);
 	
