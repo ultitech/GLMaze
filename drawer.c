@@ -40,6 +40,7 @@ static void update_uniforms();
 static void create_rendertarget(struct Rendertarget *target);
 static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
+static int uniform_exists(char *name, GLint *location);
 static GLuint create_texture(GLsizei width, GLsizei height, GLenum format, GLfloat *data);
 static GLuint generate_noise_texture();
 static void calc_gauss_values(GLint location);
@@ -427,6 +428,12 @@ static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
 	return program;
 }
 
+static int uniform_exists(char *name, GLint *location)
+{
+	*location = glGetUniformLocation(current_program, name);
+	return *location == -1 ? 0 : 1;
+}
+
 static GLuint create_texture(GLsizei width, GLsizei height, GLenum format, GLfloat *data)
 {
 	GLuint texture;
@@ -474,28 +481,24 @@ static void update_uniforms()
 {
 	if(current_program == 0) return;
 	
-	#define uniform_exists(s) ((location = glGetUniformLocation(current_program, s)) != -1)
-	
 	GLint location;
-	if(uniform_exists("MVMatrix")) glUniformMatrix4fv(location, 1, GL_FALSE, mat_modelview);
-	if(uniform_exists("MVPMatrix"))
+	if(uniform_exists("MVMatrix", &location)) glUniformMatrix4fv(location, 1, GL_FALSE, mat_modelview);
+	if(uniform_exists("MVPMatrix", &location))
 	{
 		float mvp[16];
 		copy_m4_m4(mvp, mat_projection);
 		mul_m4_m4(mvp, mat_modelview);
 		glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
 	}
-	if(uniform_exists("GaussValues")) calc_gauss_values(location);
-	if(uniform_exists("ScreenSize"))
+	if(uniform_exists("GaussValues", &location)) calc_gauss_values(location);
+	if(uniform_exists("ScreenSize", &location))
 	{
 		int size[2];
 		window_get_size(size);
 		glUniform2iv(location, 1, size);
 	}
-	if(uniform_exists("Noise")) glUniform1i(location, NOISE_TEXTURE_LAYER);
-	if(uniform_exists("Time")) glUniform1f(location, global_time);
-	
-	#undef uniform_exists
+	if(uniform_exists("Noise", &location)) glUniform1i(location, NOISE_TEXTURE_LAYER);
+	if(uniform_exists("Time", &location)) glUniform1f(location, global_time);
 }
 
 static void screenshot()
