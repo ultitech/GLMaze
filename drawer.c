@@ -25,11 +25,7 @@ struct PostProcessPass
 	unsigned enabled:1;
 } pp_passes[16];
 GLuint pp_passes_count = 0;
-struct Rendertarget
-{
-	GLuint buffer;
-	GLuint image;
-} pp_draw_targets[2];
+GLuint pp_draw_targets[2];
 GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
 Mesh *screen_square_mesh;
@@ -37,7 +33,6 @@ Texture noise_texture;
 #define NOISE_TEXTURE_LAYER 7
 
 static void update_uniforms();
-static void create_rendertarget(struct Rendertarget *target);
 static GLuint create_shader(GLenum type, char *filename);
 static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader);
 static int uniform_exists(char *name, GLint *location);
@@ -74,8 +69,8 @@ void drawer_init()
 	window_get_size(size);
 	create_perspective_m4(mat_projection, 90.0, (float)size[0]/(float)size[1], 0.1, 100.0);
 	
-	create_rendertarget(&pp_draw_targets[0]);
-	create_rendertarget(&pp_draw_targets[1]);
+	pp_draw_targets[0] = drawer_create_rendertarget();
+	pp_draw_targets[1] = drawer_create_rendertarget();
 	
 	glActiveTexture(GL_TEXTURE0+NOISE_TEXTURE_LAYER);
 	noise_texture = generate_noise_texture();
@@ -149,6 +144,44 @@ void drawer_use_texture(Texture texture, unsigned int texture_unit, char *unifor
 	glBindTexture(GL_TEXTURE_2D, texture);
 	GLint location;
 	if(uniform_exists(uniform_name, &location)) glUniform1i(location, texture_unit);
+}
+
+Rendertarget drawer_create_rendertarget()
+{
+	GLuint target, image, depth;
+	
+	glGenFramebuffers(1, &target);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
+	
+	int screen_size[2];
+	window_get_size(screen_size);
+	
+	glGenTextures(1, &image);
+	glBindTexture(GL_TEXTURE_RECTANGLE, image);
+	GLfloat *img_buffer = malloc(sizeof(GLfloat)*screen_size[0]*screen_size[1]*3);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, img_buffer);
+	free(img_buffer);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, image, 0);
+	
+	glGenRenderbuffers(1, &depth);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screen_size[0], screen_size[1]);
+	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
+	
+	return target;
+}
+
+void drawer_use_rendertarget(Rendertarget target)
+{
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
+}
+
+Texture drawer_get_rendertarget_texture(Rendertarget target)
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, target);
+	GLuint texture;
+	glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture);
+	return texture;
 }
 
 void drawer_depth_mask(unsigned char mask)
@@ -244,8 +277,7 @@ void drawer_postprocess_pass_add(char *filename, int toggle_key)
 
 void drawer_do_postprocess()
 {
-	struct Rendertarget *read = &pp_draw_targets[0], *draw = &pp_draw_targets[1];
-	struct Rendertarget window = {0, 0};
+	GLuint read = pp_draw_targets[0], draw = pp_draw_targets[1], window = 0;
 	GLuint enabled_passes[pp_passes_count];
 	int enabled_passes_count = 0;
 	int pass;
@@ -268,17 +300,17 @@ void drawer_do_postprocess()
 	{
 		if(pass != 0) //do not swap on first pass
 		{
-			struct Rendertarget *temp;
+			Rendertarget temp;
 			temp = draw;
 			draw = read;
 			read = temp;
 		}
-		if(pass == enabled_passes_count-1) draw = &window;
+		if(pass == enabled_passes_count-1) draw = window;
 		
 		drawer_use_program(enabled_passes[pass]);
 		
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw->buffer);
-		glBindTexture(GL_TEXTURE_RECTANGLE, read->image);
+		drawer_use_rendertarget(draw);
+		glBindTexture(GL_TEXTURE_RECTANGLE, drawer_get_rendertarget_texture(read));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		drawer_draw_mesh(screen_square_mesh);
 	}
@@ -287,7 +319,7 @@ void drawer_do_postprocess()
 void drawer_begin_scene(float time)
 {
 	global_time += time;
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_targets[0].buffer);
+	drawer_use_rendertarget(pp_draw_targets[0]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -363,28 +395,6 @@ void drawer_free_mesh_vbo(MeshVBO *vbo)
 	glDeleteBuffers(1, &vbo->vertex_buffer);
 	glDeleteBuffers(1, &vbo->index_buffer);
 	free(vbo);
-}
-
-static void create_rendertarget(struct Rendertarget *target)
-{
-	glGenFramebuffers(1, &target->buffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target->buffer);
-	
-	int screen_size[2];
-	window_get_size(screen_size);
-	
-	glGenTextures(1, &target->image);
-	glBindTexture(GL_TEXTURE_RECTANGLE, target->image);
-	GLfloat *img_buffer = malloc(sizeof(GLfloat)*screen_size[0]*screen_size[1]*3);
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, img_buffer);
-	free(img_buffer);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, target->image, 0);
-	
-	GLuint depth_buffer;
-	glGenRenderbuffers(1, &depth_buffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screen_size[0], screen_size[1]);
-	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
 }
 
 static GLuint create_shader(GLenum type, char *filename)
