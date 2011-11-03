@@ -143,9 +143,12 @@ Texture drawer_load_texture(char *filename)
 	return texture;
 }
 
-void drawer_use_texture(Texture texture)
+void drawer_use_texture(Texture texture, unsigned int texture_unit, char *uniform_name)
 {
+	glActiveTexture(GL_TEXTURE0+texture_unit);
 	glBindTexture(GL_TEXTURE_2D, texture);
+	GLint location;
+	if(uniform_exists(uniform_name, &location)) glUniform1i(location, texture_unit);
 }
 
 void drawer_depth_mask(unsigned char mask)
@@ -258,6 +261,8 @@ void drawer_do_postprocess()
 		enabled_passes[0] = pp_program;
 		enabled_passes_count = 1;
 	}
+	
+	glActiveTexture(GL_TEXTURE0);
 	
 	for(pass=0; pass<enabled_passes_count; pass++)
 	{

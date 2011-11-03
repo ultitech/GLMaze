@@ -21,7 +21,7 @@ void drawer_modelview_get(float matrix[16]);
 Program drawer_create_program(char *vertex_filename, char *fragment_filename);
 void drawer_use_program(Program program);
 Texture drawer_load_texture(char *filename);
-void drawer_use_texture(Texture texture);
+void drawer_use_texture(Texture texture, unsigned int texture_unit, char *uniform_name);
 void drawer_depth_mask(unsigned char mask);
 void drawer_draw_mesh(Mesh *mesh);
 void drawer_postprocess_pass_add(char *filename, int toggle_key);

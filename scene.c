@@ -128,15 +128,15 @@ static void draw_scene()
 	drawer_modelview_set(m);
 	
 	drawer_use_program(textured_program);
-	drawer_use_texture(floor_texture);
+	drawer_use_texture(floor_texture, 0, "Diffuse");
 	drawer_draw_mesh(plane);
-	drawer_use_texture(ceiling_texture);
+	drawer_use_texture(ceiling_texture, 0, "Diffuse");
 	copy_m4_m4(temp, m);
 	translate_m4(temp, 0.0, 1.0, 0.0);
 	drawer_modelview_set(temp);
 	drawer_draw_mesh(plane);
 	
-	drawer_use_texture(wall_texture);
+	drawer_use_texture(wall_texture, 0, "Diffuse");
 	copy_m4_m4(temp, m);
 	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, t/WALL_GROW_TIME, 1.0);
 	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((t-t_endgame)/WALL_GROW_TIME), 1.0);
