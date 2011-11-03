@@ -280,7 +280,7 @@ void drawer_do_postprocess()
 
 void drawer_begin_scene(float time)
 {
-	global_time = time;
+	global_time += time;
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, pp_draw_targets[0].buffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
