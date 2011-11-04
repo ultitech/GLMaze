@@ -132,6 +132,10 @@ static void draw_scene()
 
 static void draw_models()
 {
+	float mv[16];
+	camera_get_matrix(mv);
+	drawer_modelview_set(mv);
+	
 	draw_floor();
 	drawer_modelview_set(mv);
 	
