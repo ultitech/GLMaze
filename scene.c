@@ -29,6 +29,10 @@ static void finish();
 static void clean_up();
 static void new_game();
 static void draw_scene();
+static void draw_ceiling();
+static void draw_floor();
+static void draw_walls();
+static void draw_twisters();
 
 void scene_init()
 {
@@ -122,26 +126,58 @@ static void new_game()
 
 static void draw_scene()
 {	
-	float m[16];
-	float temp[16];
-	camera_get_matrix(m);
-	drawer_modelview_set(m);
+	float mv[16];
+	camera_get_matrix(mv);
+	drawer_modelview_set(mv);
 	
+	draw_floor();
+	drawer_modelview_set(mv);
+	
+	draw_ceiling();
+	drawer_modelview_set(mv);
+	
+	draw_walls();
+	drawer_modelview_set(mv);
+	
+	draw_twisters();
+}
+
+static void draw_ceiling()
+{
+	float temp[16];
+	drawer_modelview_get(temp);
+	translate_m4(temp, 0.0, 1.0, 0.0);
+	drawer_modelview_set(temp);
+	
+	drawer_use_program(textured_program);
+	drawer_use_texture(ceiling_texture, 0, "Diffuse");
+	drawer_draw_mesh(plane);
+}
+
+static void draw_floor()
+{
 	drawer_use_program(textured_program);
 	drawer_use_texture(floor_texture, 0, "Diffuse");
 	drawer_draw_mesh(plane);
-	drawer_use_texture(ceiling_texture, 0, "Diffuse");
-	copy_m4_m4(temp, m);
-	translate_m4(temp, 0.0, 1.0, 0.0);
-	drawer_modelview_set(temp);
-	drawer_draw_mesh(plane);
-	
-	drawer_use_texture(wall_texture, 0, "Diffuse");
-	copy_m4_m4(temp, m);
+}
+
+static void draw_walls()
+{
+	float temp[16];
+	drawer_modelview_get(temp);
 	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, t/WALL_GROW_TIME, 1.0);
 	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((t-t_endgame)/WALL_GROW_TIME), 1.0);
 	drawer_modelview_set(temp);
+	
+	drawer_use_program(textured_program);
+	drawer_use_texture(wall_texture, 0, "Diffuse");
 	drawer_draw_mesh(maze_mesh);
+}
+
+static void draw_twisters()
+{
+	float mv[16], temp[16];
+	drawer_modelview_get(mv);
 	
 	drawer_use_program(twister_program);
 	drawer_depth_mask(0);
@@ -151,7 +187,7 @@ static void draw_scene()
 		Cell *cell = &maze->cells[i];
 		if(cell->object == OBJ_TWISTER)
 		{
-			copy_m4_m4(temp, m);
+			copy_m4_m4(temp, mv);
 			translate_m4(temp, cell->x+0.5, 0.5, cell->y+0.5);
 			rotate_m4(temp, t*50.0, 0.0, 1.0, 0.0);
 			rotate_m4(temp, t*35, 1.0, 0.0, 0.0);
