@@ -29,6 +29,7 @@ static void finish();
 static void clean_up();
 static void new_game();
 static void draw_scene();
+static void draw_models();
 static void draw_ceiling();
 static void draw_floor();
 static void draw_walls();
@@ -126,10 +127,11 @@ static void new_game()
 
 static void draw_scene()
 {	
-	float mv[16];
-	camera_get_matrix(mv);
-	drawer_modelview_set(mv);
-	
+	draw_models();
+}
+
+static void draw_models()
+{
 	draw_floor();
 	drawer_modelview_set(mv);
 	
@@ -140,6 +142,7 @@ static void draw_scene()
 	drawer_modelview_set(mv);
 	
 	draw_twisters();
+	drawer_modelview_set(mv);
 }
 
 static void draw_ceiling()
