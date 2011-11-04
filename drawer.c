@@ -186,7 +186,9 @@ Rendertarget drawer_create_rendertarget()
 
 void drawer_use_rendertarget(Rendertarget target)
 {
+	if(target == DRAWER_PP_RENDERTARGET) target = pp_draw_targets[0];
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void drawer_depth_mask(unsigned char mask)

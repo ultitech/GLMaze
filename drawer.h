@@ -11,6 +11,8 @@ enum Render3DMode
 	RENDER_3D_MODES_COUNT
 };
 
+#define DRAWER_PP_RENDERTARGET 0xFFFFFFFF
+
 typedef unsigned int Texture;
 typedef unsigned int Program;
 typedef unsigned int Rendertarget;
