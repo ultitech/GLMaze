@@ -315,7 +315,7 @@ void drawer_do_postprocess()
 		drawer_use_program(enabled_passes[pass]);
 		
 		drawer_use_rendertarget(draw);
-		glBindTexture(GL_TEXTURE_RECTANGLE, drawer_get_rendertarget_texture(read));
+		drawer_use_rendertarget_texture(read, 0, "Image");
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		drawer_draw_mesh(screen_square_mesh);
 	}
