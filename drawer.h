@@ -25,7 +25,7 @@ Texture drawer_load_texture(char *filename);
 void drawer_use_texture(Texture texture, unsigned int texture_unit, char *uniform_name);
 Rendertarget drawer_create_rendertarget();
 void drawer_use_rendertarget(Rendertarget target);
-Texture drawer_get_rendertarget_texture(Rendertarget target);
+void drawer_use_rendertarget_texture(Rendertarget target, unsigned int texture_unit, char *uniform_name);
 void drawer_depth_mask(unsigned char mask);
 void drawer_draw_mesh(Mesh *mesh);
 void drawer_postprocess_pass_add(char *filename, int toggle_key);

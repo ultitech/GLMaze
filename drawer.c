@@ -146,6 +146,19 @@ void drawer_use_texture(Texture texture, unsigned int texture_unit, char *unifor
 	if(uniform_exists(uniform_name, &location)) glUniform1i(location, texture_unit);
 }
 
+void drawer_use_rendertarget_texture(Rendertarget target, unsigned int texture_unit, char *uniform_name)
+{
+	GLuint texture;
+	GLint location;
+	
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, target);
+	glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture);
+	
+	glActiveTexture(GL_TEXTURE0+texture_unit);
+	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
+	if(uniform_exists(uniform_name, &location)) glUniform1i(location, texture_unit);
+}
+
 Rendertarget drawer_create_rendertarget()
 {
 	GLuint target, image, depth;
@@ -174,14 +187,6 @@ Rendertarget drawer_create_rendertarget()
 void drawer_use_rendertarget(Rendertarget target)
 {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
-}
-
-Texture drawer_get_rendertarget_texture(Rendertarget target)
-{
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, target);
-	GLuint texture;
-	glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture);
-	return texture;
 }
 
 void drawer_depth_mask(unsigned char mask)
