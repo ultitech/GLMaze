@@ -17,6 +17,7 @@ GLuint current_program;
 char vbo_bound = 0;
 float global_time = 0.0;
 int screen_size[2];
+int viewport_position[2], viewport_size[2];
 
 struct PostProcessPass
 {
@@ -40,6 +41,7 @@ static int uniform_exists(char *name, GLint *location);
 static GLuint create_texture(GLsizei width, GLsizei height, GLenum format, GLfloat *data);
 static GLuint generate_noise_texture();
 static void calc_gauss_values(GLint location);
+static void set_viewport(int posx, int posy, int sizex, int sizey);
 static void screenshot();
 static void print_glinfo();
 static void write_glinfo();
@@ -68,6 +70,7 @@ void drawer_init()
 	
 	window_get_size(screen_size);
 	create_perspective_m4(mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
+	set_viewport(0, 0, screen_size[0], screen_size[1]);
 	
 	pp_draw_targets[0] = drawer_create_rendertarget();
 	pp_draw_targets[1] = drawer_create_rendertarget();
@@ -335,7 +338,7 @@ void drawer_end_scene()
 void drawer_3d_reset()
 {
 	if(render_3d_mode == RENDER_3D_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0], screen_size[1]);
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) set_viewport(0, 0, screen_size[0], screen_size[1]);
 }
 
 void drawer_3d_left()
@@ -345,7 +348,7 @@ void drawer_3d_left()
 		glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0]/2, screen_size[1]);
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) set_viewport(0, 0, screen_size[0]/2, screen_size[1]);
 }
 
 void drawer_3d_right()
@@ -355,7 +358,7 @@ void drawer_3d_right()
 		glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_FALSE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) set_viewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
 }
 
 enum Render3DMode drawer_get_3d_mode()
@@ -495,9 +498,20 @@ static void update_uniforms()
 		glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
 	}
 	if(uniform_exists("GaussValues", &location)) calc_gauss_values(location);
-	if(uniform_exists("ScreenSize", &location)) glUniform2iv(location, 1, screen_size);
 	if(uniform_exists("Noise", &location)) glUniform1i(location, NOISE_TEXTURE_LAYER);
 	if(uniform_exists("Time", &location)) glUniform1f(location, global_time);
+	if(uniform_exists("ScreenSize", &location)) glUniform2iv(location, 1, screen_size);
+	if(uniform_exists("ViewportPosition", &location)) glUniform2iv(location, 1, viewport_position);
+	if(uniform_exists("ViewportSize", &location)) glUniform2iv(location, 1, viewport_size);
+}
+
+static void set_viewport(int posx, int posy, int sizex, int sizey)
+{
+	viewport_position[0] = posx;
+	viewport_position[1] = posy;
+	viewport_size[0] = sizex;
+	viewport_size[1] = sizey;
+	glViewport(posx, posy, sizex, sizey);
 }
 
 static void screenshot()
