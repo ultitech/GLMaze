@@ -1,0 +1,13 @@
+TARGET = GLMaze
+OBJ = main.o scene.o maze.o mesh.o camera.o walker.o drawer.o noise.o file.o window.o
+LIB = -framework OpenGL -lIL -lSDL -lMathLib -lGLEW
+FLAGS = -g -c32
+
+$(TARGET): $(OBJ)
+	gcc $(FLAGS) -o $@ $(OBJ) $(LIB)
+
+clean:
+	rm $(OBJ) $(TARGET)
+
+%.o: %.c
+	gcc $(FLAGS) -c $<
