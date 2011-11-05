@@ -16,6 +16,7 @@ enum Render3DMode render_3d_mode = RENDER_3D_OFF;
 GLuint current_program;
 char vbo_bound = 0;
 float global_time = 0.0;
+int screen_size[2];
 
 struct PostProcessPass
 {
@@ -65,9 +66,8 @@ void drawer_init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	int size[2];
-	window_get_size(size);
-	create_perspective_m4(mat_projection, 90.0, (float)size[0]/(float)size[1], 0.1, 100.0);
+	window_get_size(screen_size);
+	create_perspective_m4(mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
 	
 	pp_draw_targets[0] = drawer_create_rendertarget();
 	pp_draw_targets[1] = drawer_create_rendertarget();
@@ -165,9 +165,6 @@ Rendertarget drawer_create_rendertarget()
 	
 	glGenFramebuffers(1, &target);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
-	
-	int screen_size[2];
-	window_get_size(screen_size);
 	
 	glGenTextures(1, &image);
 	glBindTexture(GL_TEXTURE_RECTANGLE, image);
@@ -338,12 +335,7 @@ void drawer_end_scene()
 void drawer_3d_reset()
 {
 	if(render_3d_mode == RENDER_3D_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE)
-	{
-		int size[2];
-		window_get_size(size);
-		glViewport(0, 0, size[0], size[1]);
-	}
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0], screen_size[1]);
 }
 
 void drawer_3d_left()
@@ -353,12 +345,7 @@ void drawer_3d_left()
 		glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE)
-	{
-		int size[2];
-		window_get_size(size);
-		glViewport(0, 0, size[0]/2, size[1]);
-	}
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(0, 0, screen_size[0]/2, screen_size[1]);
 }
 
 void drawer_3d_right()
@@ -368,12 +355,7 @@ void drawer_3d_right()
 		glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_FALSE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE)
-	{
-		int size[2];
-		window_get_size(size);
-		glViewport(size[0]/2, 0, size[0]/2, size[1]);
-	}
+	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) glViewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
 }
 
 enum Render3DMode drawer_get_3d_mode()
@@ -513,21 +495,14 @@ static void update_uniforms()
 		glUniformMatrix4fv(location, 1, GL_FALSE, mvp);
 	}
 	if(uniform_exists("GaussValues", &location)) calc_gauss_values(location);
-	if(uniform_exists("ScreenSize", &location))
-	{
-		int size[2];
-		window_get_size(size);
-		glUniform2iv(location, 1, size);
-	}
+	if(uniform_exists("ScreenSize", &location)) glUniform2iv(location, 1, screen_size);
 	if(uniform_exists("Noise", &location)) glUniform1i(location, NOISE_TEXTURE_LAYER);
 	if(uniform_exists("Time", &location)) glUniform1f(location, global_time);
 }
 
 static void screenshot()
 {
-	int size[2];
-	window_get_size(size);
-	const unsigned int w = size[0], h = size[1];
+	const unsigned int w = screen_size[0], h = screen_size[1];
 	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
 	
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
