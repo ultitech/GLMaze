@@ -35,7 +35,6 @@ static void camera_update_pos(float pos[3]);
 static void finish();
 static void clean_up();
 static void new_game();
-static void draw_scene();
 static void draw_models(enum RenderPass pass);
 static void draw_ceiling(enum RenderPass pass);
 static void draw_floor(enum RenderPass pass);
@@ -76,29 +75,9 @@ void scene_update(float time)
 }
 
 void scene_draw()
-{
-	if(drawer_get_3d_mode() == RENDER_3D_OFF) draw_scene();
-	else
-	{
-		float camera_rot[3], temp[3];
-		camera_get_rotation(camera_rot);
-		
-		drawer_3d_left();
-		copy_v3_v3(temp, camera_rot);
-		temp[0] -= 2.5;
-		camera_set_rotation(temp);
-		draw_scene();
-		
-		drawer_3d_right();
-		copy_v3_v3(temp, camera_rot);
-		temp[0] += 2.5;
-		camera_set_rotation(temp);
-		draw_scene();
-		
-		camera_set_rotation(camera_rot);
-		drawer_3d_reset();
-	}
-	
+{	
+	draw_models(PASS_REFLECTION);
+	draw_models(PASS_FINAL);
 	drawer_do_postprocess();
 }
 
@@ -133,12 +112,6 @@ static void new_game()
 	walker = walker_create(maze, start, DOWN, camera_update_pos, camera_set_rotation, finish);
 	game_state = GAME_STARTING;
 	t_endgame = t = 0.0;
-}
-
-static void draw_scene()
-{	
-	draw_models(PASS_REFLECTION);
-	draw_models(PASS_FINAL);
 }
 
 static void draw_models(enum RenderPass pass)

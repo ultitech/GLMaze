@@ -3,14 +3,6 @@
 
 #include "mesh.h"
 
-enum Render3DMode
-{
-	RENDER_3D_OFF,
-	RENDER_3D_ANAGLYPH,
-	RENDER_3D_SIDEBYSIDE,
-	RENDER_3D_MODES_COUNT
-};
-
 #define DRAWER_PP_RENDERTARGET 0xFFFFFFFF
 
 typedef unsigned int Texture;
@@ -34,9 +26,6 @@ void drawer_postprocess_pass_add(char *filename, int toggle_key);
 void drawer_do_postprocess();
 void drawer_begin_scene(float time);
 void drawer_end_scene();
-void drawer_3d_reset();
-void drawer_3d_left();
-void drawer_3d_right();
 enum Render3DMode drawer_get_3d_mode();
 void drawer_create_mesh_vbo(Mesh *mesh);
 void drawer_free_mesh_vbo(MeshVBO *vbo);

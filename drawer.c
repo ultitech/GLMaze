@@ -12,7 +12,6 @@
 #include <stdio.h>
 
 float mat_projection[16], mat_modelview[16];
-enum Render3DMode render_3d_mode = RENDER_3D_OFF;
 GLuint current_program;
 char vbo_bound = 0;
 float global_time = 0.0;
@@ -335,37 +334,6 @@ void drawer_end_scene()
 	window_swap_buffers();
 }
 
-void drawer_3d_reset()
-{
-	if(render_3d_mode == RENDER_3D_ANAGLYPH) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) set_viewport(0, 0, screen_size[0], screen_size[1]);
-}
-
-void drawer_3d_left()
-{
-	if(render_3d_mode == RENDER_3D_ANAGLYPH)
-	{
-		glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) set_viewport(0, 0, screen_size[0]/2, screen_size[1]);
-}
-
-void drawer_3d_right()
-{
-	if(render_3d_mode == RENDER_3D_ANAGLYPH)
-	{
-		glColorMask(GL_FALSE, GL_FALSE, GL_TRUE, GL_FALSE);
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-	if(render_3d_mode == RENDER_3D_SIDEBYSIDE) set_viewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
-}
-
-enum Render3DMode drawer_get_3d_mode()
-{
-	return render_3d_mode;
-}
-
 void drawer_create_mesh_vbo(Mesh *mesh)
 {
 	MeshVBO *vbo = malloc(sizeof(MeshVBO));
@@ -573,8 +541,7 @@ static void write_glinfo()
 
 static void handle_keypress(char key)
 {
-	if(key == 'r') render_3d_mode = (render_3d_mode+1) % RENDER_3D_MODES_COUNT;
-	else if(key == 'i') write_glinfo();
+	if(key == 'i') write_glinfo();
 	else if(key == 'p') screenshot();
 	int i;
 	for(i=0; i<pp_passes_count; i++)
