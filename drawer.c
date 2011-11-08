@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 float mat_projection[16], mat_modelview[16];
 GLuint current_program;
@@ -496,11 +497,13 @@ static void screenshot()
 	
 	glReadBuffer(read);
 	
-	char filename[32];
+	char filename[1024];
 	int index;
 	for(index=0;;index++)
 	{
 		sprintf(filename, "Screenshot%d.jpg", index);
+		char *filename_dir = file_rootdir(filename);
+		strcpy(filename, filename_dir);
 		FILE *f;
 		if((f = fopen(filename, "r")) == NULL) break;
 		else fclose(f);
@@ -529,7 +532,7 @@ static void print_glinfo()
 
 static void write_glinfo()
 {
-	FILE *file = fopen("glinfo.txt", "w");
+	FILE *file = fopen(file_rootdir("glinfo.txt"), "w");
 	fprintf(file, "OpenGL Info\n");
 	fprintf(file, "Version: %s\n", glGetString(GL_VERSION));
 	fprintf(file, "GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));

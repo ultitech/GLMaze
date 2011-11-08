@@ -9,6 +9,8 @@ int main()
 {
 	srand(time(NULL));
 	
+	file_set_rootdir("./");
+	
 	window_init();
 	drawer_init();
 	scene_init();
