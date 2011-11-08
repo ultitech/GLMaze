@@ -274,7 +274,7 @@ void drawer_postprocess_pass_add(char *filename, int toggle_key)
 {
 	struct PostProcessPass *pass = &pp_passes[pp_passes_count++];
 	pass->key = toggle_key;
-	pass->enabled = 1;
+	pass->enabled = 0;
 	pass->shader = create_shader(GL_FRAGMENT_SHADER, filename);
 	pass->program = create_program(pp_vertex_shader, pass->shader);
 	
