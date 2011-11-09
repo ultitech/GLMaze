@@ -13,6 +13,7 @@ void window_init()
 #endif
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, SDL_OPENGL);
+	SDL_WM_SetCaption("GLMaze", NULL);
 }
 
 void window_quit()
