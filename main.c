@@ -9,7 +9,8 @@ int main()
 {
 	srand(time(NULL));
 	
-	file_set_rootdir("./");
+	file_set_resource_dir("./");
+	file_set_output_dir("./");
 	
 	window_init();
 	drawer_init();

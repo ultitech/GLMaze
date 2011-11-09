@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
+char *resource_dir, *output_dir;
 char *prefix_texture = "Textures/";
 char *prefix_shader = "Shader/";
-char *rootdir;
 
 char* file_text(char *filename)
 {
@@ -26,44 +26,52 @@ char* file_text(char *filename)
 	return string;
 }
 
-char* file_prefix(char *filename, enum FilePrefix prefix)
+void file_set_resource_dir(char *dir)
 {
-	char *prefix_str, *str, *dir_str;
-	
-	switch(prefix)
-	{
-		case PREFIX_TEXTURE:
-		prefix_str = prefix_texture;
-		break;
-		
-		case PREFIX_SHADER:
-		prefix_str = prefix_shader;
-		break;
-	}
-	
-	str = malloc(strlen(prefix_str)+strlen(filename)+1);
-	strcpy(str, prefix_str);
-	strcat(str, filename);
-	dir_str = file_rootdir(str);
-	free(str);
-	
-	return dir_str;
+	resource_dir = malloc(strlen(dir)+1);
+	strcpy(resource_dir, dir);
 }
 
-void file_set_rootdir(char *dir)
-{
-	rootdir = malloc(strlen(dir)+1);
-	strcpy(rootdir, dir);
-}
-
-char* file_rootdir(char *filename)
+char* file_resource(char *filename, enum FileResource type)
 {
 	static char *str;
 	
 	if(str) free(str);
 	
-	str = malloc(strlen(rootdir)+strlen(filename)+1);
-	strcpy(str, rootdir);
+	char *prefix_str;
+	switch(type)
+	{
+		case RESOURCE_TEXTURE:
+		prefix_str = prefix_texture;
+		break;
+		
+		case RESOURCE_SHADER:
+		prefix_str = prefix_shader;
+		break;
+	}
+	
+	str = malloc(strlen(resource_dir)+strlen(prefix_str)+strlen(filename)+1);
+	strcpy(str, resource_dir);
+	strcat(str, prefix_str);
+	strcat(str, filename);
+	
+	return str;
+}
+
+void file_set_output_dir(char *dir)
+{
+	output_dir = malloc(strlen(dir)+1);
+	strcpy(output_dir, dir);
+}
+
+char* file_output(char *filename)
+{
+	static char *str;
+	
+	if(str) free(str);
+	
+	str = malloc(strlen(output_dir)+strlen(filename)+1);
+	strcpy(str, output_dir);
 	strcat(str, filename);
 	
 	return str;

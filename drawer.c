@@ -124,7 +124,7 @@ Texture drawer_load_texture(char *filename)
 	ILuint image;
 	ilGenImages(1, &image);
 	ilBindImage(image);
-	ilLoadImage(file_prefix(filename, PREFIX_TEXTURE));
+	ilLoadImage(file_resource(filename, RESOURCE_TEXTURE));
 	
 	int image_size[2];
 	image_size[0] = ilGetInteger(IL_IMAGE_WIDTH);
@@ -361,7 +361,7 @@ void drawer_free_mesh_vbo(MeshVBO *vbo)
 static GLuint create_shader(GLenum type, char *filename)
 {
 	GLuint shader = glCreateShader(type);
-	GLchar *shader_source = file_text(file_prefix(filename, PREFIX_SHADER));
+	GLchar *shader_source = file_text(file_resource(filename, RESOURCE_SHADER));
 	glShaderSource(shader, 1, (const GLchar**)&shader_source, NULL);
 	free(shader_source);
 	
@@ -502,7 +502,7 @@ static void screenshot()
 	for(index=0;;index++)
 	{
 		sprintf(filename, "Screenshot%d.jpg", index);
-		char *filename_dir = file_rootdir(filename);
+		char *filename_dir = file_output(filename);
 		strcpy(filename, filename_dir);
 		FILE *f;
 		if((f = fopen(filename, "r")) == NULL) break;
@@ -532,7 +532,7 @@ static void print_glinfo()
 
 static void write_glinfo()
 {
-	FILE *file = fopen(file_rootdir("glinfo.txt"), "w");
+	FILE *file = fopen(file_output("glinfo.txt"), "w");
 	fprintf(file, "OpenGL Info\n");
 	fprintf(file, "Version: %s\n", glGetString(GL_VERSION));
 	fprintf(file, "GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
