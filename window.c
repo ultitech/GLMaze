@@ -21,7 +21,7 @@ void window_quit()
 	SDL_Quit();
 }
 
-void window_add_keypress_handler(void(*handler)(char))
+void window_add_keypress_handler(KeypressHandler handler)
 {
 	keypress_handlers[keypress_handlers_count++] = handler;
 }

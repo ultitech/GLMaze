@@ -1,7 +1,9 @@
 #ifndef H_WINDOW
 #define H_WINDOW
 
-typedef void(*KeypressHandler)(char);
+#include "key.h"
+
+typedef void(*KeypressHandler)(enum Key);
 
 void window_init();
 void window_quit();

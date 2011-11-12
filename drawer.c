@@ -23,7 +23,7 @@ struct PostProcessPass
 {
 	GLuint shader;
 	GLuint program;
-	int key;
+	enum Key key;
 	unsigned enabled:1;
 } pp_passes[16];
 GLuint pp_passes_count = 0;
@@ -45,7 +45,7 @@ static void set_viewport(int posx, int posy, int sizex, int sizey);
 static void screenshot();
 static void print_glinfo();
 static void write_glinfo();
-static void handle_keypress(char key);
+static void handle_keypress(enum Key key);
 
 void drawer_init()
 {
@@ -271,7 +271,7 @@ void drawer_draw_mesh(Mesh *mesh)
 	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, element_pointer);
 }
 
-void drawer_postprocess_pass_add(char *filename, int toggle_key)
+void drawer_postprocess_pass_add(char *filename, enum Key toggle_key)
 {
 	struct PostProcessPass *pass = &pp_passes[pp_passes_count++];
 	pass->key = toggle_key;
@@ -542,10 +542,10 @@ static void write_glinfo()
 	fclose(file);
 }
 
-static void handle_keypress(char key)
+static void handle_keypress(enum Key key)
 {
-	if(key == 'i') write_glinfo();
-	else if(key == 'p') screenshot();
+	if(key == KEY_F5) write_glinfo();
+	else if(key == KEY_F12) screenshot();
 	int i;
 	for(i=0; i<pp_passes_count; i++)
 	{

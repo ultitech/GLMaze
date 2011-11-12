@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "walker.h"
 #include "drawer.h"
+#include "key.h"
 
 #include <stdlib.h>
 #include <MathLib.h>
@@ -50,8 +51,8 @@ void scene_init()
 	textured_program = drawer_create_program("textured.glslv", "textured.glslf");
 	floor_reflect_program = drawer_create_program("textured.glslv", "floor_reflect.glslf");
 	twister_program = drawer_create_program("twister.glslv", "twister.glslf");
-	drawer_postprocess_pass_add("pp_radialblur.glslf", 'b');
-	drawer_postprocess_pass_add("pp_nightvision.glslf", 'n');
+	drawer_postprocess_pass_add("pp_radialblur.glslf", KEY_b);
+	drawer_postprocess_pass_add("pp_nightvision.glslf", KEY_n);
 	
 	reflection_target = drawer_create_rendertarget();
 	

@@ -2,6 +2,7 @@
 #define H_DRAWER
 
 #include "mesh.h"
+#include "key.h"
 
 #define DRAWER_PP_RENDERTARGET 0xFFFFFFFF
 
@@ -22,7 +23,7 @@ void drawer_use_rendertarget(Rendertarget target);
 void drawer_use_rendertarget_texture(Rendertarget target, unsigned int texture_unit, char *uniform_name);
 void drawer_depth_mask(unsigned char mask);
 void drawer_draw_mesh(Mesh *mesh);
-void drawer_postprocess_pass_add(char *filename, int toggle_key);
+void drawer_postprocess_pass_add(char *filename, enum Key toggle_key);
 void drawer_do_postprocess();
 void drawer_begin_scene(float time);
 void drawer_end_scene();
