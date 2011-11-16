@@ -1,13 +1,17 @@
 #include "window.h"
+#include "config.h"
 
 #include <SDL/SDL.h>
 
-int screen_size[2] = {1280, 800};
+int screen_size[2];
 KeypressHandler keypress_handlers[16];
 unsigned int keypress_handlers_count = 0;
 
 void window_init()
 {
+	screen_size[0] = config_get_value_integer("res_width", 640);
+	screen_size[1] = config_get_value_integer("res_height", 480);
+	
 #ifdef __APPLE__
 	putenv("SDL_VIDEODRIVER=x11");
 #endif

@@ -1,6 +1,7 @@
 #include "drawer.h"
 #include "window.h"
 #include "scene.h"
+#include "config.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -11,6 +12,9 @@ int main()
 	
 	file_set_resource_dir("./");
 	file_set_output_dir("./");
+	
+	config_load();
+	config_print();
 	
 	window_init();
 	drawer_init();

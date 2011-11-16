@@ -1,0 +1,2 @@
+res_width=1280
+res_height=800
