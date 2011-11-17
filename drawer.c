@@ -12,12 +12,12 @@
 #include <stdio.h>
 #include <string.h>
 
-float mat_projection[16], mat_modelview[16];
-GLuint current_program;
-char vbo_bound = 0;
-float global_time = 0.0;
-int screen_size[2];
-int viewport_position[2], viewport_size[2];
+static float mat_projection[16], mat_modelview[16];
+static GLuint current_program;
+static char vbo_bound = 0;
+static float global_time = 0.0;
+static int screen_size[2];
+static int viewport_position[2], viewport_size[2];
 
 struct PostProcessPass
 {
@@ -25,13 +25,14 @@ struct PostProcessPass
 	GLuint program;
 	enum Key key;
 	unsigned enabled:1;
-} pp_passes[16];
-GLuint pp_passes_count = 0;
-GLuint pp_draw_targets[2];
-GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
+};
+static struct PostProcessPass pp_passes[16];
+static GLuint pp_passes_count = 0;
+static GLuint pp_draw_targets[2];
+static GLuint pp_vertex_shader, pp_fragment_shader, pp_program;
 
-Mesh *screen_square_mesh;
-Texture noise_texture;
+static Mesh *screen_square_mesh;
+static Texture noise_texture;
 #define NOISE_TEXTURE_LAYER 7
 
 static void update_uniforms();

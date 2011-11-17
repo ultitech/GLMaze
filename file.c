@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-char *resource_dir, *output_dir;
-char *prefix_texture = "Textures/";
-char *prefix_shader = "Shader/";
+static char *resource_dir, *output_dir;
+static char *prefix_texture = "Textures/";
+static char *prefix_shader = "Shader/";
 
 char* file_text(char *filename)
 {

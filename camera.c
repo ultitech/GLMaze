@@ -3,8 +3,8 @@
 #include <string.h>
 #include <MathLib.h>
 
-float camera_position[] = {0.0, 0.0, 0.0};
-float camera_angle[] = {0.0, 0.0, 0.0};
+static float camera_position[] = {0.0, 0.0, 0.0};
+static float camera_angle[] = {0.0, 0.0, 0.0};
 
 void camera_set_position(float pos[3])
 {

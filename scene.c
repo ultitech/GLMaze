@@ -8,23 +8,24 @@
 #include <stdlib.h>
 #include <MathLib.h>
 
-float t = 0.0;
-float t_endgame;
-Maze *maze;
-Mesh *maze_mesh, *plane, *pyramid;
-Walker *walker;
-Texture wall_texture, ceiling_texture, floor_texture;
-Program textured_program, twister_program, floor_reflect_program;
-Rendertarget reflection_target;
+static float t = 0.0;
+static float t_endgame;
+static Maze *maze;
+static Mesh *maze_mesh, *plane, *pyramid;
+static Walker *walker;
+static Texture wall_texture, ceiling_texture, floor_texture;
+static Program textured_program, twister_program, floor_reflect_program;
+static Rendertarget reflection_target;
 
 #define WALL_GROW_TIME 2.0
 
-enum
+enum GameState
 {
 	GAME_STARTING,
 	GAME_RUNNING,
 	GAME_ENDING
-} game_state;
+};
+static enum GameState game_state;
 
 enum RenderPass
 {

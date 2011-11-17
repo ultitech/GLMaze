@@ -3,9 +3,9 @@
 
 #include <SDL/SDL.h>
 
-int screen_size[2];
-KeypressHandler keypress_handlers[16];
-unsigned int keypress_handlers_count = 0;
+static int screen_size[2];
+static KeypressHandler keypress_handlers[16];
+static unsigned int keypress_handlers_count = 0;
 
 void window_init()
 {

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <MathLib.h>
 
-char generate_vbo = 0;
+static char generate_vbo = 0;
 
 static Mesh* allocate_mesh();
 static void allocate_data(Mesh *mesh);

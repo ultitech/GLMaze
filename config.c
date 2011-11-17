@@ -10,7 +10,7 @@ struct ConfigEntry
 	struct ConfigEntry *next;
 };
 
-struct ConfigEntry *config_first = NULL;
+static struct ConfigEntry *config_first = NULL;
 
 static struct ConfigEntry* get_config_entry_by_name(char *name);
 static char* string_create_from(char *other, int count);
