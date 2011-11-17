@@ -12,6 +12,7 @@ struct ConfigEntry
 
 struct ConfigEntry *config_first = NULL;
 
+static struct ConfigEntry* get_config_entry_by_name(char *name);
 static char* string_create_from(char *other, int count);
 static int string_get_char_index(char *str, char c);
 
@@ -42,10 +43,9 @@ void config_print()
 
 const char* config_get_value(char *name)
 {
-	struct ConfigEntry *config;
-	for(config = config_first; config != NULL; config = config->next)
-		if(strcmp(config->name, name) == 0) return config->value;
-	return NULL;
+	struct ConfigEntry *config = get_config_entry_by_name(name);
+	if(config) return config->value;
+	else return NULL;
 }
 
 int config_get_value_integer(char *name, int def)
@@ -53,6 +53,14 @@ int config_get_value_integer(char *name, int def)
 	const char *value = config_get_value(name);
 	if(value) return atoi(value);
 	else return def;
+}
+
+static struct ConfigEntry* get_config_entry_by_name(char *name)
+{
+	struct ConfigEntry *config;
+	for(config = config_first; config != NULL; config = config->next)
+		if(strcmp(config->name, name) == 0) return config;
+	return NULL;
 }
 
 static char* string_create_from(char *other, int count)
