@@ -18,7 +18,9 @@ char* file_text(char *filename)
 	rewind(file);
 	
 	char *string = malloc(length+1);
-	fread(string, 1, length, file);
+	int result = fread(string, 1, length, file);
+	if(result != length) return NULL;
+	
 	string[length] = '\0';
 	
 	fclose(file);
@@ -38,7 +40,7 @@ char* file_resource(char *filename, enum FileResource type)
 	
 	if(str) free(str);
 	
-	char *prefix_str;
+	char *prefix_str = NULL;
 	switch(type)
 	{
 		case RESOURCE_TEXTURE:

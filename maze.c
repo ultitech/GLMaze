@@ -26,7 +26,7 @@ void maze_generate_cell(Maze *maze, Cell *cell)
 		if(!directions) break;
 		
 		int index = rand() % directions;
-		Cell *new_cell;
+		Cell *new_cell = NULL;
 		switch(paths[index])
 		{
 			case UP:
