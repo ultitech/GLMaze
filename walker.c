@@ -5,16 +5,16 @@
 #include <MathLib.h>
 
 static int cell_passage_in_direction(Cell *cell, enum Direction dir);
-static enum Direction walker_rotate_direction_right(enum Direction dir);
-static enum Direction walker_rotate_direction_left(enum Direction dir);
-static void walker_create_new_interpolation(Walker *walker);
-static float walker_pan_from_direction(enum Direction dir);
-static void walker_get_global_position(Walker *walker, float pos[3]);
-static void walker_straight(Walker *walker);
-static void walker_right(Walker *walker);
-static void walker_left(Walker *walker);
-static void walker_turn(Walker *walker);
-static void walker_twist(Walker *walker);
+static enum Direction rotate_direction_right(enum Direction dir);
+static enum Direction rotate_direction_left(enum Direction dir);
+static void create_new_interpolation(Walker *walker);
+static float pan_from_direction(enum Direction dir);
+static void get_global_position(Walker *walker, float pos[3]);
+static void walk_straight(Walker *walker);
+static void walk_right(Walker *walker);
+static void walk_left(Walker *walker);
+static void walk_turn(Walker *walker);
+static void walk_twist(Walker *walker);
 
 #define copy_cell(target, source) memcpy(target, source, sizeof(float)*2)
 
@@ -31,18 +31,18 @@ Walker* walker_create(Maze *maze, int start_cell_pos[2], enum Direction start_di
 	walker->finish_callback = fin_callback;
 	
 	float position[3];
-	walker_get_global_position(walker, position);
+	get_global_position(walker, position);
 	copy_v3_v3(walker->pos_interp_start, position);
 	copy_v3_v3(walker->pos_interp_end, position);
 	walker->set_position_callback(walker->pos_interp_start);
 	float rotation[3];
-	rotation[0] = walker_pan_from_direction(walker->direction);
+	rotation[0] = pan_from_direction(walker->direction);
 	rotation[1] = rotation[2] = 0.0;
 	copy_v3_v3(walker->rot_interp_start, rotation);
 	copy_v3_v3(walker->rot_interp_end, rotation);
 	walker->set_rotation_callback(rotation);
 	
-	walker_create_new_interpolation(walker);
+	create_new_interpolation(walker);
 	
 	return walker;
 }
@@ -55,7 +55,7 @@ void walker_step(Walker *walker, float time_step)
 		copy_v3_v3(walker->pos_interp_start, walker->pos_interp_end);
 		copy_v3_v3(walker->rot_interp_start, walker->rot_interp_end);
 		walker->interp_step -= 1.0;
-		walker_create_new_interpolation(walker);
+		create_new_interpolation(walker);
 		return;
 	}
 	float result[3];
@@ -87,7 +87,7 @@ static int cell_passage_in_direction(Cell *cell, enum Direction dir)
 	}
 }
 
-static enum Direction walker_rotate_direction_right(enum Direction dir)
+static enum Direction rotate_direction_right(enum Direction dir)
 {
 	switch(dir)
 	{
@@ -109,7 +109,7 @@ static enum Direction walker_rotate_direction_right(enum Direction dir)
 	}
 }
 
-static enum Direction walker_rotate_direction_left(enum Direction dir)
+static enum Direction rotate_direction_left(enum Direction dir)
 {
 	switch(dir)
 	{
@@ -131,13 +131,13 @@ static enum Direction walker_rotate_direction_left(enum Direction dir)
 	}
 }
 
-static void walker_create_new_interpolation(Walker *walker)
+static void create_new_interpolation(Walker *walker)
 {
 	Cell *cur_cell = maze_get_cell(walker->maze, walker->cell[0], walker->cell[1]);
 	
 	if(cur_cell->object == OBJ_TWISTER)
 	{
-		walker_twist(walker);
+		walk_twist(walker);
 		cur_cell->object = OBJ_NONE;
 		return;
 	}
@@ -147,13 +147,13 @@ static void walker_create_new_interpolation(Walker *walker)
 		return;
 	}
 	
-	if(cell_passage_in_direction(cur_cell, walker_rotate_direction_right(walker->direction))) walker_right(walker); //first look right
-	else if(cell_passage_in_direction(cur_cell, walker->direction)) walker_straight(walker); //then forward
-	else if(cell_passage_in_direction(cur_cell, walker_rotate_direction_left(walker->direction))) walker_left(walker); //then left
-	else walker_turn(walker); //else turn right (180 degrees)
+	if(cell_passage_in_direction(cur_cell, rotate_direction_right(walker->direction))) walk_right(walker); //first look right
+	else if(cell_passage_in_direction(cur_cell, walker->direction)) walk_straight(walker); //then forward
+	else if(cell_passage_in_direction(cur_cell, rotate_direction_left(walker->direction))) walk_left(walker); //then left
+	else walk_turn(walker); //else turn right (180 degrees)
 }
 
-static float walker_pan_from_direction(enum Direction dir)
+static float pan_from_direction(enum Direction dir)
 {
 	switch(dir)
 	{
@@ -175,7 +175,7 @@ static float walker_pan_from_direction(enum Direction dir)
 	}
 }
 
-static void walker_get_global_position(Walker *walker, float pos[3])
+static void get_global_position(Walker *walker, float pos[3])
 {
 	pos[0] = (float)walker->cell[0] + 0.5;
 	pos[1] = 0.0;
@@ -200,7 +200,7 @@ static void walker_get_global_position(Walker *walker, float pos[3])
 	}
 }
 
-static void walker_straight(Walker *walker)
+static void walk_straight(Walker *walker)
 {
 	switch(walker->direction)
 	{
@@ -220,29 +220,29 @@ static void walker_straight(Walker *walker)
 		walker->cell[0]--;
 		break;
 	}
-	walker_get_global_position(walker, walker->pos_interp_end);
+	get_global_position(walker, walker->pos_interp_end);
 }
 
-static void walker_right(Walker *walker)
+static void walk_right(Walker *walker)
 {
-	walker->direction = walker_rotate_direction_right(walker->direction);
-	walker_straight(walker);
+	walker->direction = rotate_direction_right(walker->direction);
+	walk_straight(walker);
 	
 	walker->rot_interp_end[0] += 90.0;
 }
 
-static void walker_left(Walker *walker)
+static void walk_left(Walker *walker)
 {
-	walker->direction = walker_rotate_direction_left(walker->direction);
-	walker_straight(walker);
+	walker->direction = rotate_direction_left(walker->direction);
+	walk_straight(walker);
 	
 	walker->rot_interp_end[0] -= 90.0;
 }
 
-static void walker_turn(Walker *walker)
+static void walk_turn(Walker *walker)
 {
-	walker->direction = walker_rotate_direction_right(walker->direction);
-	walker->direction = walker_rotate_direction_right(walker->direction);
+	walker->direction = rotate_direction_right(walker->direction);
+	walker->direction = rotate_direction_right(walker->direction);
 	switch(walker->direction)
 	{
 		case UP:
@@ -265,7 +265,7 @@ static void walker_turn(Walker *walker)
 	walker->rot_interp_end[0] += 180.0;
 }
 
-static void walker_twist(Walker *walker)
+static void walk_twist(Walker *walker)
 {
 	walker->rot_interp_end[2] += 180.0;
 }
