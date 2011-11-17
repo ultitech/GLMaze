@@ -156,7 +156,7 @@ void drawer_use_rendertarget_texture(Rendertarget target, unsigned int texture_u
 	GLint location;
 	
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, target);
-	glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texture);
+	glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, (GLint*)&texture);
 	
 	glActiveTexture(GL_TEXTURE0+texture_unit);
 	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
@@ -491,7 +491,7 @@ static void screenshot()
 	
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	GLuint read;
-	glGetIntegerv(GL_READ_BUFFER, &read);
+	glGetIntegerv(GL_READ_BUFFER, (GLint*)&read);
 	glReadBuffer(GL_FRONT);
 	
 	glReadPixels(0, 0, w, h, GL_RGB, GL_FLOAT, data);

@@ -2,9 +2,11 @@
 #include "window.h"
 #include "scene.h"
 #include "config.h"
+#include "file.h"
 
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 int main()
 {
@@ -20,7 +22,6 @@ int main()
 	drawer_init();
 	scene_init();
 	
-	char quit = 0;
 	while(window_do_events())
 	{	
 		scene_update(0.02);

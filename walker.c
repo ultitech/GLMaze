@@ -85,6 +85,7 @@ static int cell_passage_in_direction(Cell *cell, enum Direction dir)
 		return cell->right;
 		break;
 	}
+	return 0;
 }
 
 static enum Direction rotate_direction_right(enum Direction dir)
@@ -107,6 +108,7 @@ static enum Direction rotate_direction_right(enum Direction dir)
 		return UP;
 		break;
 	}
+	return 0;
 }
 
 static enum Direction rotate_direction_left(enum Direction dir)
@@ -129,6 +131,7 @@ static enum Direction rotate_direction_left(enum Direction dir)
 		return DOWN;
 		break;
 	}
+	return 0;
 }
 
 static void create_new_interpolation(Walker *walker)
@@ -173,6 +176,7 @@ static float pan_from_direction(enum Direction dir)
 		return 90.0;
 		break;
 	}
+	return 0.0;
 }
 
 static void get_global_position(Walker *walker, float pos[3])
