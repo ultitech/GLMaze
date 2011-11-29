@@ -4,6 +4,7 @@
 #include "walker.h"
 #include "drawer.h"
 #include "key.h"
+#include "config.h"
 
 #include <stdlib.h>
 #include <MathLib.h>
@@ -16,6 +17,8 @@ static Walker *walker;
 static Texture wall_texture, ceiling_texture, floor_texture;
 static Program textured_program, twister_program, floor_reflect_program;
 static Rendertarget reflection_target;
+
+static char reflection_enabled;
 
 #define WALL_GROW_TIME 2.0
 
@@ -45,17 +48,22 @@ static void draw_twisters(enum RenderPass pass);
 
 void scene_init()
 {
+	reflection_enabled = config_get_value_integer("reflection", 1);
+	
 	wall_texture = drawer_load_texture("wall.jpg");
 	ceiling_texture = drawer_load_texture("ceiling.jpg");
 	floor_texture = drawer_load_texture("floor.jpg");
 	
 	textured_program = drawer_create_program("textured.glslv", "textured.glslf");
-	floor_reflect_program = drawer_create_program("textured.glslv", "floor_reflect.glslf");
 	twister_program = drawer_create_program("twister.glslv", "twister.glslf");
 	drawer_postprocess_pass_add("pp_radialblur.glslf", KEY_b);
 	drawer_postprocess_pass_add("pp_nightvision.glslf", KEY_n);
 	
-	reflection_target = drawer_create_rendertarget();
+	if(reflection_enabled)
+	{
+		floor_reflect_program = drawer_create_program("textured.glslv", "floor_reflect.glslf");
+		reflection_target = drawer_create_rendertarget();
+	}
 	
 	pyramid = mesh_create_pyramid(0.2);
 	
@@ -78,7 +86,7 @@ void scene_update(float time)
 
 void scene_draw()
 {	
-	draw_models(PASS_REFLECTION);
+	if(reflection_enabled) draw_models(PASS_REFLECTION);
 	draw_models(PASS_FINAL);
 	drawer_do_postprocess();
 }
@@ -156,7 +164,7 @@ static void draw_ceiling(enum RenderPass pass)
 
 static void draw_floor(enum RenderPass pass)
 {
-	if(pass == PASS_FINAL)
+	if(pass == PASS_FINAL && reflection_enabled)
 	{
 		drawer_use_program(floor_reflect_program);
 		drawer_use_rendertarget_texture(reflection_target, 1, "Reflection");
