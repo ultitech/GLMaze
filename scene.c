@@ -19,6 +19,7 @@ static Program textured_program, twister_program, floor_reflect_program;
 static Rendertarget reflection_target;
 
 static char reflection_enabled;
+static char postprocess_enabled;
 
 #define WALL_GROW_TIME 2.0
 
@@ -49,6 +50,7 @@ static void draw_twisters(enum RenderPass pass);
 void scene_init()
 {
 	reflection_enabled = config_get_value_integer("reflection", 1);
+	postprocess_enabled = config_get_value_integer("postprocess", 1);
 	
 	wall_texture = drawer_load_texture("wall.jpg");
 	ceiling_texture = drawer_load_texture("ceiling.jpg");
@@ -56,8 +58,12 @@ void scene_init()
 	
 	textured_program = drawer_create_program("textured.glslv", "textured.glslf");
 	twister_program = drawer_create_program("twister.glslv", "twister.glslf");
-	drawer_postprocess_pass_add("pp_radialblur.glslf", KEY_b);
-	drawer_postprocess_pass_add("pp_nightvision.glslf", KEY_n);
+	
+	if(postprocess_enabled)
+	{
+		drawer_postprocess_pass_add("pp_radialblur.glslf", KEY_b);
+		drawer_postprocess_pass_add("pp_nightvision.glslf", KEY_n);
+	}
 	
 	if(reflection_enabled)
 	{
@@ -88,7 +94,7 @@ void scene_draw()
 {	
 	if(reflection_enabled) draw_models(PASS_REFLECTION);
 	draw_models(PASS_FINAL);
-	drawer_do_postprocess();
+	if(postprocess_enabled) drawer_do_postprocess();
 }
 
 static void camera_update_pos(float pos[3])
@@ -127,7 +133,8 @@ static void new_game()
 static void draw_models(enum RenderPass pass)
 {
 	if(pass == PASS_REFLECTION) drawer_use_rendertarget(reflection_target);
-	else drawer_use_rendertarget(DRAWER_PP_RENDERTARGET);
+	else if(postprocess_enabled) drawer_use_rendertarget(DRAWER_PP_RENDERTARGET);
+	else drawer_use_rendertarget(DRAWER_WINDOW_RENDERTARGET);
 	
 	float mv[16];
 	camera_get_matrix(mv);

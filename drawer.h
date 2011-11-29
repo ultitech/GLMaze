@@ -4,6 +4,7 @@
 #include "mesh.h"
 #include "key.h"
 
+#define DRAWER_WINDOW_RENDERTARGET 0
 #define DRAWER_PP_RENDERTARGET 0xFFFFFFFF
 
 typedef unsigned int Texture;

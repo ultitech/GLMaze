@@ -2,3 +2,4 @@ res_width=1280
 res_height=800
 fullscreen=0
 reflection=1
+postprocess=1
