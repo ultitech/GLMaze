@@ -8,6 +8,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <SDL/SDL.h> //for SDL_GetTicks
+
 int main()
 {
 	srand(time(NULL));
@@ -22,15 +24,22 @@ int main()
 	drawer_init();
 	scene_init();
 	
+	float time_passed = 0.0;
+	
 	while(window_do_events())
-	{	
-		scene_update(0.02);
+	{
+		int start = SDL_GetTicks();
 		
-		drawer_begin_scene(0.02);
+		scene_update(time_passed);
+		
+		drawer_begin_scene(time_passed);
 		scene_draw();
 		drawer_end_scene();
 		
 		usleep(20000);
+		
+		int end = SDL_GetTicks();
+		time_passed = (end-start)/1000.0;
 	}
 	
 	scene_quit();
