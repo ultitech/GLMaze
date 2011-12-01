@@ -15,7 +15,7 @@
 static float mat_projection[16], mat_modelview[16];
 static GLuint current_program;
 static char vbo_bound = 0;
-static float global_time = 0.0;
+static float time = 0.0;
 static int screen_size[2];
 static int viewport_position[2], viewport_size[2];
 
@@ -324,9 +324,9 @@ void drawer_do_postprocess()
 	}
 }
 
-void drawer_begin_scene(float time)
+void drawer_begin_scene(float time_passed)
 {
-	global_time += time;
+	time += time_passed;
 	drawer_use_rendertarget(pp_draw_targets[0]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -469,7 +469,7 @@ static void update_uniforms()
 	}
 	if(uniform_exists("GaussValues", &location)) calc_gauss_values(location);
 	if(uniform_exists("Noise", &location)) glUniform1i(location, NOISE_TEXTURE_LAYER);
-	if(uniform_exists("Time", &location)) glUniform1f(location, global_time);
+	if(uniform_exists("Time", &location)) glUniform1f(location, time);
 	if(uniform_exists("ScreenSize", &location)) glUniform2iv(location, 1, screen_size);
 	if(uniform_exists("ViewportPosition", &location)) glUniform2iv(location, 1, viewport_position);
 	if(uniform_exists("ViewportSize", &location)) glUniform2iv(location, 1, viewport_size);

@@ -26,7 +26,7 @@ void drawer_depth_mask(unsigned char mask);
 void drawer_draw_mesh(Mesh *mesh);
 void drawer_postprocess_pass_add(char *filename, enum Key toggle_key);
 void drawer_do_postprocess();
-void drawer_begin_scene(float time);
+void drawer_begin_scene(float time_passed);
 void drawer_end_scene();
 enum Render3DMode drawer_get_3d_mode();
 void drawer_create_mesh_vbo(Mesh *mesh);
