@@ -18,6 +18,7 @@ static char vbo_bound = 0;
 static float time = 0.0;
 static int screen_size[2];
 static int viewport_position[2], viewport_size[2];
+enum Drawer3DMode render_3d_mode = DRAWER_3D_OFF;
 
 struct PostProcessPass
 {
@@ -185,11 +186,12 @@ Rendertarget drawer_create_rendertarget()
 	return target;
 }
 
-void drawer_use_rendertarget(Rendertarget target)
+void drawer_use_rendertarget(Rendertarget target, char clear)
 {
 	if(target == DRAWER_PP_RENDERTARGET) target = pp_draw_targets[0];
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	if(clear) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void drawer_depth_mask(unsigned char mask)
@@ -317,9 +319,8 @@ void drawer_do_postprocess()
 		
 		drawer_use_program(enabled_passes[pass]);
 		
-		drawer_use_rendertarget(draw);
+		drawer_use_rendertarget(draw, 1);
 		drawer_use_rendertarget_texture(read, 0, "Image");
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		drawer_draw_mesh(screen_square_mesh);
 	}
 }
@@ -327,13 +328,36 @@ void drawer_do_postprocess()
 void drawer_begin_scene(float time_passed)
 {
 	time += time_passed;
-	drawer_use_rendertarget(pp_draw_targets[0]);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void drawer_end_scene()
 {
 	window_swap_buffers();
+}
+
+void drawer_3d_reset()
+{
+	if(render_3d_mode == DRAWER_3D_SIDEBYSIDE) set_viewport(0, 0, screen_size[0], screen_size[1]);
+}
+
+void drawer_3d_left()
+{
+	if(render_3d_mode == DRAWER_3D_SIDEBYSIDE) set_viewport(0, 0, screen_size[0]/2, screen_size[1]);
+}
+
+void drawer_3d_right()
+{
+	if(render_3d_mode == DRAWER_3D_SIDEBYSIDE) set_viewport(screen_size[0]/2, 0, screen_size[0]/2, screen_size[1]);
+}
+
+void drawer_set_3d_mode(enum Drawer3DMode mode)
+{
+	render_3d_mode = mode;
+}
+
+enum Drawer3DMode drawer_get_3d_mode()
+{
+	return render_3d_mode;
 }
 
 void drawer_create_mesh_vbo(Mesh *mesh)

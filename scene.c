@@ -41,6 +41,7 @@ static void camera_update_pos(float pos[3]);
 static void finish();
 static void clean_up();
 static void new_game();
+static void draw_scene();
 static void draw_models(enum RenderPass pass);
 static void draw_ceiling(enum RenderPass pass);
 static void draw_floor(enum RenderPass pass);
@@ -51,6 +52,7 @@ void scene_init()
 {
 	reflection_enabled = config_get_value_integer("reflection", 1);
 	postprocess_enabled = config_get_value_integer("postprocess", 1);
+	if(config_get_value_integer("sidebyside", 0) && !postprocess_enabled) drawer_set_3d_mode(DRAWER_3D_SIDEBYSIDE);
 	
 	wall_texture = drawer_load_texture("wall.jpg");
 	ceiling_texture = drawer_load_texture("ceiling.jpg");
@@ -91,10 +93,29 @@ void scene_update(float time_passed)
 }
 
 void scene_draw()
-{	
-	if(reflection_enabled) draw_models(PASS_REFLECTION);
-	draw_models(PASS_FINAL);
-	if(postprocess_enabled) drawer_do_postprocess();
+{
+	drawer_use_rendertarget(postprocess_enabled ? DRAWER_PP_RENDERTARGET : DRAWER_WINDOW_RENDERTARGET, 1);
+	if(drawer_get_3d_mode() == DRAWER_3D_OFF) draw_scene();
+	else
+	{
+		float camera_rot[3], temp[3];
+		camera_get_rotation(camera_rot);
+		
+		drawer_3d_left();
+		copy_v3_v3(temp, camera_rot);
+		temp[0] -= 2.5;
+		camera_set_rotation(temp);
+		draw_scene();
+		
+		drawer_3d_right();
+		copy_v3_v3(temp, camera_rot);
+		temp[0] += 2.5;
+		camera_set_rotation(temp);
+		draw_scene();
+		
+		camera_set_rotation(camera_rot);
+		drawer_3d_reset();
+	}
 }
 
 static void camera_update_pos(float pos[3])
@@ -130,12 +151,20 @@ static void new_game()
 	time_endgame = time = 0.0;
 }
 
+static void draw_scene()
+{	
+	if(reflection_enabled)
+	{
+		drawer_use_rendertarget(reflection_target, 1);
+		draw_models(PASS_REFLECTION);
+	}
+	drawer_use_rendertarget(postprocess_enabled ? DRAWER_PP_RENDERTARGET : DRAWER_WINDOW_RENDERTARGET, drawer_get_3d_mode()==DRAWER_3D_OFF ? 1 : 0);
+	draw_models(PASS_FINAL);
+	if(postprocess_enabled) drawer_do_postprocess();
+}
+
 static void draw_models(enum RenderPass pass)
 {
-	if(pass == PASS_REFLECTION) drawer_use_rendertarget(reflection_target);
-	else if(postprocess_enabled) drawer_use_rendertarget(DRAWER_PP_RENDERTARGET);
-	else drawer_use_rendertarget(DRAWER_WINDOW_RENDERTARGET);
-	
 	float mv[16];
 	camera_get_matrix(mv);
 	if(pass == PASS_REFLECTION) scale_m4(mv, 1.0, -1.0, 1.0);

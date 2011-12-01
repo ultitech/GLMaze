@@ -3,3 +3,4 @@ res_height=800
 fullscreen=0
 reflection=1
 postprocess=1
+sidebyside=0
