@@ -86,47 +86,9 @@ static NSString *getApplicationName(void)
 {
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:resourcePath];
-    /*
-    if (shouldChdir)
-    {
-        char parentdir[MAXPATHLEN];
-		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-		CFURLRef url2 = CFURLCreateCopyDeletingLastPathComponent(0, url);
-		if (CFURLGetFileSystemRepresentation(url2, true, (UInt8 *)parentdir, MAXPATHLEN)) {
-	        assert ( chdir (parentdir) == 0 );
-		}
-		CFRelease(url);
-		CFRelease(url2);
-	}
-*/
 }
 
-#if SDL_USE_NIB_FILE
-
-/* Fix menu to contain the real app name instead of "SDL App" */
-- (void)fixMenu:(NSMenu *)aMenu withAppName:(NSString *)appName
-{
-    NSRange aRange;
-    NSEnumerator *enumerator;
-    NSMenuItem *menuItem;
-
-    aRange = [[aMenu title] rangeOfString:@"SDL App"];
-    if (aRange.length != 0)
-        [aMenu setTitle: [[aMenu title] stringByReplacingRange:aRange with:appName]];
-
-    enumerator = [[aMenu itemArray] objectEnumerator];
-    while ((menuItem = [enumerator nextObject]))
-    {
-        aRange = [[menuItem title] rangeOfString:@"SDL App"];
-        if (aRange.length != 0)
-            [menuItem setTitle: [[menuItem title] stringByReplacingRange:aRange with:appName]];
-        if ([menuItem hasSubmenu])
-            [self fixMenu:[menuItem submenu] withAppName:appName];
-    }
-    [ aMenu sizeToFit ];
-}
-
-#else
+#if !SDL_USE_NIB_FILE
 
 static void setApplicationMenu(void)
 {
@@ -287,18 +249,22 @@ static void CustomApplicationMain (int argc, char **argv)
 }
 
 
+- (void)sendEvent:(NSEvent *)anEvent {
+    if( NSKeyDown == [anEvent type] || NSKeyUp == [anEvent type] ) {
+        if( [anEvent modifierFlags] & NSCommandKeyMask ) 
+            [self sendEvent: anEvent];
+    } else 
+        [self sendEvent: anEvent];
+}
+
+
 /* Called when the internal event loop has just started running */
 - (void) applicationDidFinishLaunching: (NSNotification *) note
 {
+    setenv("SDL_ENABLEAPPEVENTS", "1", 1);
     int status;
-
     /* Set the working directory to the .app's parent directory */
     [self setupWorkingDirectory:gFinderLaunch];
-
-#if SDL_USE_NIB_FILE
-    /* Set the main menu to contain the real app name instead of "SDL App" */
-    //[self fixMenu:[NSApp mainMenu] withAppName:getApplicationName()];
-#endif
 
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
