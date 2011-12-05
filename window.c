@@ -42,7 +42,7 @@ int window_do_events()
 			if(key == SDLK_ESCAPE) return 0;
 			
 			int i;
-			for(i=0; i<keypress_handlers_count; i++) keypress_handlers[i](key);
+			for(i=0; i<keypress_handlers_count; i++) keypress_handlers[i]((enum Key)key);
 		}
 	}
 	return 1;
