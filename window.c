@@ -13,9 +13,6 @@ void window_init()
 	screen_size[1] = config_get_value_integer("res_height", 480);
 	char fullscreen = config_get_value_integer("fullscreen", 0);
 	
-#ifdef __APPLE__
-	putenv("SDL_VIDEODRIVER=x11");
-#endif
 	SDL_Init(SDL_INIT_VIDEO);
 	Uint32 flags = SDL_OPENGL;
 	if(fullscreen) flags |= SDL_FULLSCREEN;
