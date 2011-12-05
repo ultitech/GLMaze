@@ -358,10 +358,7 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = ./;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/lib\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "";
 				PRODUCT_NAME = GLMaze;
@@ -388,10 +385,7 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = ./;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/lib\"",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "";
 				PRODUCT_NAME = GLMaze;
