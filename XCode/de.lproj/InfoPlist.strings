@@ -1,0 +1,6 @@
+﻿/* Localized versions of Info.plist keys */
+
+CFBundleName = "GLMaze";
+CFBundleShortVersionString = "GLMaze version 0.1";
+CFBundleGetInfoString = "GLMaze version 0.1, Copyright © 2006-2011 ultitech.";
+NSHumanReadableCopyright = "Copyright © 2006-2011, ultitech.";
