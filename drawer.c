@@ -5,7 +5,7 @@
 #include "noise.h"
 
 #include <GL/glew.h>
-#include <IL/il.h>
+#include <FreeImage.h>
 #include <MathLib.h>
 
 #include <stdlib.h>
@@ -53,10 +53,7 @@ void drawer_init()
 {
 	window_add_keypress_handler(handle_keypress);
 	
-	ilInit();
-	ilEnable(IL_FILE_OVERWRITE);
-	ilEnable(IL_ORIGIN_SET);
-	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+	FreeImage_Initialise(0);
 	
 	glewInit();
 	
@@ -90,6 +87,7 @@ void drawer_init()
 
 void drawer_quit()
 {
+	FreeImage_DeInitialise();
 }
 
 void drawer_modelview_set(float matrix[16])
@@ -123,22 +121,28 @@ void drawer_use_program(Program program)
 
 Texture drawer_load_texture(char *filename)
 {
-	ILuint image;
-	ilGenImages(1, &image);
-	ilBindImage(image);
-	ilLoadImage(file_resource(filename, RESOURCE_TEXTURE));
+	FIBITMAP *bmp = FreeImage_Load(FIF_JPEG, file_resource(filename, RESOURCE_TEXTURE), 0);
 	
 	int image_size[2];
-	image_size[0] = ilGetInteger(IL_IMAGE_WIDTH);
-	image_size[1] = ilGetInteger(IL_IMAGE_HEIGHT);
+	image_size[0] = FreeImage_GetWidth(bmp);
+	image_size[1] = FreeImage_GetHeight(bmp);
 	
 	GLfloat *image_data = malloc(sizeof(GLfloat) * image_size[0] * image_size[1] * 3);
-	ilCopyPixels(0, 0, 0, image_size[0], image_size[1], 1, IL_RGB, IL_FLOAT, image_data);
+	int x, y;
+	for(x=0; x<image_size[0]; x++) for(y=0; y<image_size[1]; y++)
+	{
+		RGBQUAD color;
+		FreeImage_GetPixelColor(bmp, x, y, &color);
+		GLfloat *pixel = &image_data[(x+y*image_size[0])*3];
+		pixel[0] = color.rgbRed/255.0;
+		pixel[1] = color.rgbGreen/255.0;
+		pixel[2] = color.rgbBlue/255.0;
+	}
 	
 	GLuint texture = create_texture(image_size[0], image_size[1], GL_RGB, image_data);
 	
-	ilDeleteImages(1, &image);
 	free(image_data);
+	FreeImage_Unload(bmp);
 	
 	return texture;
 }
@@ -510,6 +514,7 @@ static void set_viewport(int posx, int posy, int sizex, int sizey)
 
 static void screenshot()
 {
+	/*
 	const unsigned int w = screen_size[0], h = screen_size[1];
 	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
 	
@@ -545,6 +550,7 @@ static void screenshot()
 	
 	ilDeleteImages(1, &image);
 	free(data);
+	*/
 }
 
 static void print_glinfo()
