@@ -514,7 +514,6 @@ static void set_viewport(int posx, int posy, int sizex, int sizey)
 
 static void screenshot()
 {
-	/*
 	const unsigned int w = screen_size[0], h = screen_size[1];
 	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
 	
@@ -539,18 +538,22 @@ static void screenshot()
 		else fclose(f);
 	}
 	
-	ILuint image;
-	ilGenImages(1, &image);
-	ilBindImage(image);
-	ilTexImage(w, h, 1, 3, IL_RGB, IL_FLOAT, data);
+	FIBITMAP *bmp = FreeImage_Allocate(w, h, 24, 0, 0, 0);
+	int x, y;
+	for(x=0; x<w; x++) for(y=0; y<h; y++)
+	{
+		GLfloat *pixel = &data[(x+y*w)*3];
+		RGBQUAD color;
+		color.rgbRed = pixel[0]*255.0;
+		color.rgbGreen = pixel[1]*255.0;
+		color.rgbBlue = pixel[2]*255.0;
+		FreeImage_SetPixelColor(bmp, x, y, &color);
+	}
 	
-	ilDisable(IL_ORIGIN_SET);
-	ilSaveImage(filename);
-	ilEnable(IL_ORIGIN_SET);
+	FreeImage_Save(FIF_JPEG, bmp, filename, 0);
 	
-	ilDeleteImages(1, &image);
 	free(data);
-	*/
+	FreeImage_Unload(bmp);
 }
 
 static void print_glinfo()
