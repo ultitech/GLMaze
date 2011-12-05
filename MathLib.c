@@ -200,7 +200,7 @@ float len_v3v3(const float a[3], const float b[3])
 
 float normalize_v2(float r[2])
 {
-	normalize_v2_v2(r, r);
+	return normalize_v2_v2(r, r);
 }
 float normalize_v3(float r[3])
 {
