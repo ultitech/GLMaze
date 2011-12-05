@@ -1,6 +1,6 @@
 TARGET = GLMaze
 OBJ = main.o scene.o maze.o mesh.o camera.o walker.o drawer.o noise.o file.o window.o config.o
-LIB = -lopengl32 -lglu32 -lDevIL -lSDL -lMathLib -lglew32
+LIB = -lopengl32 -lglu32 -lFreeImage -lmingw32 -lSDLmain -lSDL -lMathLib -lglew32
 FLAGS = -g -Wall
 
 $(TARGET): $(OBJ)

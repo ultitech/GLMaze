@@ -10,7 +10,7 @@
 
 #include <SDL/SDL.h> //for SDL_GetTicks
 
-int main()
+int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 	
