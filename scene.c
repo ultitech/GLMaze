@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-static float time;
+static float global_time;
 static float time_endgame;
 static Maze *maze;
 static Mesh *maze_mesh, *plane, *pyramid;
@@ -84,10 +84,10 @@ void scene_quit()
 
 void scene_update(float time_passed)
 {
-	time += time_passed;
+	global_time += time_passed;
 	
-	if(time > WALL_GROW_TIME && game_state == GAME_STARTING) game_state = GAME_RUNNING;
-	if((time-time_endgame) > WALL_GROW_TIME && game_state == GAME_ENDING) new_game();
+	if(global_time > WALL_GROW_TIME && game_state == GAME_STARTING) game_state = GAME_RUNNING;
+	if((global_time-time_endgame) > WALL_GROW_TIME && game_state == GAME_ENDING) new_game();
 	
 	if(game_state == GAME_RUNNING) walker_step(walker, time_passed);
 }
@@ -126,7 +126,7 @@ static void camera_update_pos(float pos[3])
 
 static void finish()
 {
-	time_endgame = time;
+	time_endgame = global_time;
 	game_state = GAME_ENDING;
 }
 
@@ -148,7 +148,7 @@ static void new_game()
 	int start[2] = {0, 0};
 	walker = walker_create(maze, start, DOWN, camera_update_pos, camera_set_rotation, finish);
 	game_state = GAME_STARTING;
-	time_endgame = time = 0.0;
+	time_endgame = global_time = 0.0;
 }
 
 static void draw_scene()
@@ -214,8 +214,8 @@ static void draw_walls(enum RenderPass pass)
 {
 	float temp[16];
 	drawer_modelview_get(temp);
-	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, time/WALL_GROW_TIME, 1.0);
-	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((time-time_endgame)/WALL_GROW_TIME), 1.0);
+	if(game_state == GAME_STARTING) scale_m4(temp, 1.0, global_time/WALL_GROW_TIME, 1.0);
+	else if(game_state == GAME_ENDING) scale_m4(temp, 1.0, 1.0-((global_time-time_endgame)/WALL_GROW_TIME), 1.0);
 	drawer_modelview_set(temp);
 	
 	drawer_use_program(textured_program);
@@ -238,8 +238,8 @@ static void draw_twisters(enum RenderPass pass)
 		{
 			copy_m4_m4(temp, mv);
 			translate_m4(temp, cell->x+0.5, 0.5, cell->y+0.5);
-			rotate_m4(temp, time*50.0, 0.0, 1.0, 0.0);
-			rotate_m4(temp, time*35, 1.0, 0.0, 0.0);
+			rotate_m4(temp, global_time*50.0, 0.0, 1.0, 0.0);
+			rotate_m4(temp, global_time*35, 1.0, 0.0, 0.0);
 			drawer_modelview_set(temp);
 			drawer_draw_mesh(pyramid);
 		}

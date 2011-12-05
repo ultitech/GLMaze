@@ -20,7 +20,7 @@
 static float mat_projection[16], mat_modelview[16];
 static GLuint current_program;
 static char vbo_bound = 0;
-static float time = 0.0;
+static float global_time = 0.0;
 static int screen_size[2];
 static int viewport_position[2], viewport_size[2];
 enum Drawer3DMode render_3d_mode = DRAWER_3D_OFF;
@@ -336,7 +336,7 @@ void drawer_do_postprocess()
 
 void drawer_begin_scene(float time_passed)
 {
-	time += time_passed;
+	global_time += time_passed;
 }
 
 void drawer_end_scene()
@@ -502,7 +502,7 @@ static void update_uniforms()
 	}
 	if(uniform_exists("GaussValues", &location)) calc_gauss_values(location);
 	if(uniform_exists("Noise", &location)) glUniform1i(location, NOISE_TEXTURE_LAYER);
-	if(uniform_exists("Time", &location)) glUniform1f(location, time);
+	if(uniform_exists("Time", &location)) glUniform1f(location, global_time);
 	if(uniform_exists("ScreenSize", &location)) glUniform2iv(location, 1, screen_size);
 	if(uniform_exists("ViewportPosition", &location)) glUniform2iv(location, 1, viewport_position);
 	if(uniform_exists("ViewportSize", &location)) glUniform2iv(location, 1, viewport_size);
