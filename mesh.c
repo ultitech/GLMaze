@@ -1,9 +1,9 @@
 #include "mesh.h"
 #include "drawer.h"
+#include "MathLib.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <MathLib.h>
 
 static char generate_vbo = 0;
 

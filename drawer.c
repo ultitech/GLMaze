@@ -3,10 +3,10 @@
 #include "file.h"
 #include "window.h"
 #include "noise.h"
+#include "MathLib.h"
 
 #include <GL/glew.h>
 #include <FreeImage.h>
-#include <MathLib.h>
 
 #include <stdlib.h>
 #include <stdio.h>

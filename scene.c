@@ -5,9 +5,9 @@
 #include "drawer.h"
 #include "key.h"
 #include "config.h"
+#include "MathLib.h"
 
 #include <stdlib.h>
-#include <MathLib.h>
 
 static float time;
 static float time_endgame;

@@ -1,8 +1,8 @@
 #include "walker.h"
+#include "MathLib.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <MathLib.h>
 
 static int cell_passage_in_direction(Cell *cell, enum Direction dir);
 static enum Direction rotate_direction_right(enum Direction dir);

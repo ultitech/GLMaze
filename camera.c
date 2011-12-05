@@ -1,7 +1,7 @@
 #include "camera.h"
+#include "MathLib.h"
 
 #include <string.h>
-#include <MathLib.h>
 
 static float camera_position[] = {0.0, 0.0, 0.0};
 static float camera_angle[] = {0.0, 0.0, 0.0};
