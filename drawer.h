@@ -42,5 +42,8 @@ void drawer_set_3d_mode(enum Drawer3DMode mode);
 enum Drawer3DMode drawer_get_3d_mode();
 void drawer_create_mesh_vbo(Mesh *mesh);
 void drawer_free_mesh_vbo(MeshVBO *vbo);
+void drawer_screenshot();
+void drawer_print_glinfo();
+void drawer_write_glinfo();
 
 #endif //H_DRAWER

@@ -49,9 +49,6 @@ static GLuint create_texture(GLsizei width, GLsizei height, GLenum format, GLflo
 static GLuint generate_noise_texture();
 static void calc_gauss_values(GLint location);
 static void set_viewport(int posx, int posy, int sizex, int sizey);
-static void screenshot();
-static void print_glinfo();
-static void write_glinfo();
 static void handle_keypress(enum Key key);
 
 void drawer_init()
@@ -62,7 +59,7 @@ void drawer_init()
 	
 	glewInit();
 	
-	print_glinfo();
+	drawer_print_glinfo();
 	
 	if(GLEW_ARB_vertex_buffer_object) mesh_generate_vbos(1);
 	else mesh_generate_vbos(0);
@@ -392,6 +389,70 @@ void drawer_free_mesh_vbo(MeshVBO *vbo)
 	free(vbo);
 }
 
+void drawer_screenshot()
+{
+	const unsigned int w = screen_size[0], h = screen_size[1];
+	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
+	
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	GLuint read;
+	glGetIntegerv(GL_READ_BUFFER, (GLint*)&read);
+	glReadBuffer(GL_FRONT);
+	
+	glReadPixels(0, 0, w, h, GL_RGB, GL_FLOAT, data);
+	
+	glReadBuffer(read);
+	
+	char filename[1024];
+	int index;
+	for(index=0;;index++)
+	{
+		sprintf(filename, "Screenshot%d.jpg", index);
+		char *filename_dir = file_output(filename);
+		strcpy(filename, filename_dir);
+		FILE *f;
+		if((f = fopen(filename, "r")) == NULL) break;
+		else fclose(f);
+	}
+	
+	FIBITMAP *bmp = FreeImage_Allocate(w, h, 24, 0, 0, 0);
+	int x, y;
+	for(x=0; x<w; x++) for(y=0; y<h; y++)
+	{
+		GLfloat *pixel = &data[(x+y*w)*3];
+		RGBQUAD color;
+		color.rgbRed = pixel[0]*255.0;
+		color.rgbGreen = pixel[1]*255.0;
+		color.rgbBlue = pixel[2]*255.0;
+		FreeImage_SetPixelColor(bmp, x, y, &color);
+	}
+	
+	FreeImage_Save(FIF_JPEG, bmp, filename, 0);
+	
+	free(data);
+	FreeImage_Unload(bmp);
+}
+
+void drawer_print_glinfo()
+{
+	printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+	printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	if(GLEW_ARB_vertex_buffer_object) printf("VBOs are supported. Yeah!\n");
+	else printf("VBOs are not supported.\n");
+}
+
+void drawer_write_glinfo()
+{
+	FILE *file = fopen(file_output("glinfo.txt"), "w");
+	fprintf(file, "OpenGL Info\n");
+	fprintf(file, "Version: %s\n", glGetString(GL_VERSION));
+	fprintf(file, "GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	fprintf(file, "Renderer: %s\n", glGetString(GL_RENDERER));
+	fprintf(file, "Vendor: %s\n", glGetString(GL_VENDOR));
+	fprintf(file, "Extensions: %s\n", glGetString(GL_EXTENSIONS));
+	fclose(file);
+}
+
 static GLuint create_shader(GLenum type, char *filename)
 {
 	GLuint shader = glCreateShader(type);
@@ -517,74 +578,10 @@ static void set_viewport(int posx, int posy, int sizex, int sizey)
 	glViewport(posx, posy, sizex, sizey);
 }
 
-static void screenshot()
-{
-	const unsigned int w = screen_size[0], h = screen_size[1];
-	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
-	
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-	GLuint read;
-	glGetIntegerv(GL_READ_BUFFER, (GLint*)&read);
-	glReadBuffer(GL_FRONT);
-	
-	glReadPixels(0, 0, w, h, GL_RGB, GL_FLOAT, data);
-	
-	glReadBuffer(read);
-	
-	char filename[1024];
-	int index;
-	for(index=0;;index++)
-	{
-		sprintf(filename, "Screenshot%d.jpg", index);
-		char *filename_dir = file_output(filename);
-		strcpy(filename, filename_dir);
-		FILE *f;
-		if((f = fopen(filename, "r")) == NULL) break;
-		else fclose(f);
-	}
-	
-	FIBITMAP *bmp = FreeImage_Allocate(w, h, 24, 0, 0, 0);
-	int x, y;
-	for(x=0; x<w; x++) for(y=0; y<h; y++)
-	{
-		GLfloat *pixel = &data[(x+y*w)*3];
-		RGBQUAD color;
-		color.rgbRed = pixel[0]*255.0;
-		color.rgbGreen = pixel[1]*255.0;
-		color.rgbBlue = pixel[2]*255.0;
-		FreeImage_SetPixelColor(bmp, x, y, &color);
-	}
-	
-	FreeImage_Save(FIF_JPEG, bmp, filename, 0);
-	
-	free(data);
-	FreeImage_Unload(bmp);
-}
-
-static void print_glinfo()
-{
-	printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
-	printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	if(GLEW_ARB_vertex_buffer_object) printf("VBOs are supported. Yeah!\n");
-	else printf("VBOs are not supported.\n");
-}
-
-static void write_glinfo()
-{
-	FILE *file = fopen(file_output("glinfo.txt"), "w");
-	fprintf(file, "OpenGL Info\n");
-	fprintf(file, "Version: %s\n", glGetString(GL_VERSION));
-	fprintf(file, "GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	fprintf(file, "Renderer: %s\n", glGetString(GL_RENDERER));
-	fprintf(file, "Vendor: %s\n", glGetString(GL_VENDOR));
-	fprintf(file, "Extensions: %s\n", glGetString(GL_EXTENSIONS));
-	fclose(file);
-}
-
 static void handle_keypress(enum Key key)
 {
-	if(key == KEY_F5) write_glinfo();
-	else if(key == KEY_F12) screenshot();
+	if(key == KEY_F5) drawer_write_glinfo();
+	else if(key == KEY_F12) drawer_screenshot();
 	int i;
 	for(i=0; i<pp_passes_count; i++)
 	{
