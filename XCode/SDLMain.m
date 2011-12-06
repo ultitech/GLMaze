@@ -5,6 +5,7 @@
     Feel free to customize this file to suit your needs
 */
 
+#import "drawer.h"
 #import "SDL.h"
 #import "SDLMain.h"
 #import <sys/param.h> /* for MAXPATHLEN */
@@ -247,7 +248,13 @@ static void CustomApplicationMain (int argc, char **argv)
     gArgv[gArgc] = NULL;
     return TRUE;
 }
+- (IBAction)ScreenshotPressed:(id)sender {
+    drawer_screenshot();
+}
 
+- (IBAction)OpenGLInfoPressed:(id)sender {
+     drawer_write_glinfo();
+}
 
 - (void)sendEvent:(NSEvent *)anEvent {
     if( NSKeyDown == [anEvent type] || NSKeyUp == [anEvent type] ) {

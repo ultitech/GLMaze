@@ -136,7 +136,7 @@
 					</object>
 					<object class="NSMenuItem" id="827120707">
 						<reference key="NSMenu" ref="766814946"/>
-						<string key="NSTitle">File</string>
+						<string key="NSTitle">View</string>
 						<string key="NSKeyEquiv"/>
 						<int key="NSKeyEquivModMask">1048576</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -144,53 +144,20 @@
 						<reference key="NSMixedImage" ref="355101184"/>
 						<string key="NSAction">submenuAction:</string>
 						<object class="NSMenu" key="NSSubmenu" id="1032690477">
-							<object class="NSMutableString" key="NSTitle">
-								<characters key="NS.bytes">File</characters>
-							</object>
+							<string key="NSTitle">View</string>
 							<array class="NSMutableArray" key="NSMenuItems">
 								<object class="NSMenuItem" id="810036693">
 									<reference key="NSMenu" ref="1032690477"/>
-									<string key="NSTitle">New Game</string>
-									<string key="NSKeyEquiv">n</string>
-									<int key="NSKeyEquivModMask">1048576</int>
+									<string key="NSTitle">Screenshot</string>
+									<string key="NSKeyEquiv"></string>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="781073583"/>
 									<reference key="NSMixedImage" ref="355101184"/>
 								</object>
 								<object class="NSMenuItem" id="233113609">
 									<reference key="NSMenu" ref="1032690477"/>
-									<string key="NSTitle">Open Saved Game...</string>
-									<string key="NSKeyEquiv">o</string>
-									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="781073583"/>
-									<reference key="NSMixedImage" ref="355101184"/>
-								</object>
-								<object class="NSMenuItem" id="324623608">
-									<reference key="NSMenu" ref="1032690477"/>
-									<bool key="NSIsDisabled">YES</bool>
-									<bool key="NSIsSeparator">YES</bool>
-									<string key="NSTitle"/>
-									<string key="NSKeyEquiv"/>
-									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="781073583"/>
-									<reference key="NSMixedImage" ref="355101184"/>
-								</object>
-								<object class="NSMenuItem" id="537773349">
-									<reference key="NSMenu" ref="1032690477"/>
-									<string key="NSTitle">Save Game</string>
-									<string key="NSKeyEquiv">s</string>
-									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="781073583"/>
-									<reference key="NSMixedImage" ref="355101184"/>
-								</object>
-								<object class="NSMenuItem" id="986438380">
-									<reference key="NSMenu" ref="1032690477"/>
-									<string key="NSTitle">Save Game As...</string>
-									<string key="NSKeyEquiv">S</string>
-									<int key="NSKeyEquivModMask">1048576</int>
+									<string key="NSTitle">OpenGL Info</string>
+									<string key="NSKeyEquiv"></string>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="781073583"/>
 									<reference key="NSMixedImage" ref="355101184"/>
@@ -321,38 +288,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">newGame:</string>
-						<reference key="source" ref="853761700"/>
-						<reference key="destination" ref="810036693"/>
-					</object>
-					<int key="connectionID">320</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">openGame:</string>
-						<reference key="source" ref="853761700"/>
-						<reference key="destination" ref="233113609"/>
-					</object>
-					<int key="connectionID">321</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">saveGame:</string>
-						<reference key="source" ref="853761700"/>
-						<reference key="destination" ref="537773349"/>
-					</object>
-					<int key="connectionID">322</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">saveGameAs:</string>
-						<reference key="source" ref="853761700"/>
-						<reference key="destination" ref="986438380"/>
-					</object>
-					<int key="connectionID">323</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">help:</string>
 						<reference key="source" ref="853761700"/>
 						<reference key="destination" ref="640874828"/>
@@ -366,6 +301,22 @@
 						<reference key="destination" ref="178970583"/>
 					</object>
 					<int key="connectionID">325</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">ScreenshotPressed:</string>
+						<reference key="source" ref="853761700"/>
+						<reference key="destination" ref="810036693"/>
+					</object>
+					<int key="connectionID">334</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">OpenGLInfoPressed:</string>
+						<reference key="source" ref="853761700"/>
+						<reference key="destination" ref="233113609"/>
+					</object>
+					<int key="connectionID">335</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -518,9 +469,6 @@
 						<reference key="object" ref="1032690477"/>
 						<array class="NSMutableArray" key="children">
 							<reference ref="233113609"/>
-							<reference ref="324623608"/>
-							<reference ref="537773349"/>
-							<reference ref="986438380"/>
 							<reference ref="810036693"/>
 						</array>
 						<reference key="parent" ref="827120707"/>
@@ -528,21 +476,6 @@
 					<object class="IBObjectRecord">
 						<int key="objectID">302</int>
 						<reference key="object" ref="233113609"/>
-						<reference key="parent" ref="1032690477"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">307</int>
-						<reference key="object" ref="324623608"/>
-						<reference key="parent" ref="1032690477"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">309</int>
-						<reference key="object" ref="537773349"/>
-						<reference key="parent" ref="1032690477"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">311</int>
-						<reference key="object" ref="986438380"/>
 						<reference key="parent" ref="1032690477"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -592,9 +525,6 @@
 				<string key="293.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="302.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="306.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="307.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="309.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="311.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="312.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="314.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="56.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -605,7 +535,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">332</int>
+			<int key="maxID">338</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
