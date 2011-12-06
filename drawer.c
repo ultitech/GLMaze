@@ -179,9 +179,7 @@ Rendertarget drawer_create_rendertarget()
 	
 	glGenTextures(1, &image);
 	glBindTexture(GL_TEXTURE_RECTANGLE, image);
-	GLfloat *img_buffer = malloc(sizeof(GLfloat)*screen_size[0]*screen_size[1]*3);
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, img_buffer);
-	free(img_buffer);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, image, 0);
 	
 	glGenRenderbuffers(1, &depth);
