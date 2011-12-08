@@ -37,6 +37,7 @@ enum RenderPass
 	PASS_REFLECTION
 };
 
+static void parse_pp_pipeline_config();
 static void camera_update_pos(float pos[3]);
 static void finish();
 static void clean_up();
@@ -61,11 +62,7 @@ void scene_init()
 	textured_program = drawer_create_program("textured.glslv", "textured.glslf");
 	twister_program = drawer_create_program("twister.glslv", "twister.glslf");
 	
-	if(postprocess_enabled)
-	{
-		drawer_postprocess_pass_add("pp_radialblur.glslf", KEY_b);
-		drawer_postprocess_pass_add("pp_nightvision.glslf", KEY_n);
-	}
+	if(postprocess_enabled) parse_pp_pipeline_config();
 	
 	if(reflection_enabled)
 	{
@@ -115,6 +112,30 @@ void scene_draw()
 		
 		camera_set_rotation(camera_rot);
 		drawer_3d_reset();
+	}
+}
+
+static void parse_pp_pipeline_config()
+{
+	char *c = (char*)config_get_value("pp_pipeline");
+	if(!c) return;
+	int i;
+	while(1)
+	{
+		char *start = c;
+		while(*c!=';') c++;
+		int length = c - start;
+		char *filename = malloc(length+1);
+		for(i=0; i<length; i++) filename[i] = start[i];
+		filename[length] = '\0';
+		c++;
+		char key = *c;
+		printf("file=%s key=%c\n", filename, key);
+		drawer_postprocess_pass_add(filename, key);
+		free(filename);
+		c++;
+		if(*c=='\0') break;
+		c++;
 	}
 }
 

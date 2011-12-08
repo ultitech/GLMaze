@@ -3,4 +3,5 @@ res_height=800
 fullscreen=0
 reflection=1
 postprocess=1
+pp_pipeline=pp_radialblur.glslf;b;pp_nightvision.glslf;n
 sidebyside=0
