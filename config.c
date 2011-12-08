@@ -13,7 +13,7 @@ struct ConfigEntry
 static struct ConfigEntry *config_first = NULL;
 static struct ConfigEntry *config_last = NULL;
 
-static void set_value_no_copy(char *name, char *value);
+static void set_value_auto_free(char *name, char *value); //sets a config value, does not copy the strings, frees parameter-strings when they are not used
 static struct ConfigEntry* get_config_entry_by_name(char *name);
 static char* string_create_from(char *other, int count);
 static int string_get_char_index(char *str, char c);
@@ -25,7 +25,7 @@ void config_load()
 	while(fgets(str, 128, file) != NULL)
 	{
 		int symbol_index = string_get_char_index(str, '=');
-		set_value_no_copy(string_create_from(str, symbol_index), string_create_from(str+symbol_index+1, strlen(str)-symbol_index-2));
+		set_value_auto_free(string_create_from(str, symbol_index), string_create_from(str+symbol_index+1, strlen(str)-symbol_index-2));
 	}
 }
 
@@ -50,21 +50,25 @@ int config_get_value_integer(char *name, int def)
 	else return def;
 }
 
-static void set_value_no_copy(char *name, char *value)
+static void set_value_auto_free(char *name, char *value)
 {
 	struct ConfigEntry *config = get_config_entry_by_name(name);
 	if(!config) //append new entry
 	{
 		config = malloc(sizeof(struct ConfigEntry));
 		config->name = name;
-		config->value = NULL;
+		config->value = value;
 		config->next = NULL;
 		if(!config_first) config_first = config;
 		if(config_last) config_last->next = config;
 		config_last = config;
 	}
-	free(config->value);
-	config->value = value;
+	else
+	{
+		free(name); //we dont need the name
+		free(config->value);
+		config->value = value;
+	}
 }
 
 static struct ConfigEntry* get_config_entry_by_name(char *name)
