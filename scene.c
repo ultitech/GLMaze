@@ -122,20 +122,24 @@ static void parse_pp_pipeline_config()
 	int i;
 	while(1)
 	{
-		char *start = c;
+		char *filename_start = c;
 		while(*c!=';') c++;
-		int length = c - start;
-		char *filename = malloc(length+1);
-		for(i=0; i<length; i++) filename[i] = start[i];
-		filename[length] = '\0';
-		c++;
+		int filename_length = c - filename_start;
+		
+		char *filename = malloc(filename_length+1);
+		for(i=0; i<filename_length; i++) filename[i] = *(filename_start+i);
+		filename[filename_length] = '\0';
+		
+		c++; //skip ';'
+		
 		char key = *c;
-		printf("file=%s key=%c\n", filename, key);
+		
 		drawer_postprocess_pass_add(filename, key);
 		free(filename);
+		
 		c++;
-		if(*c=='\0') break;
-		c++;
+		if(*c=='\0') break; //check character after key idendifier. if '\0', we finished parsing
+		c++; //skip ';'
 	}
 }
 
