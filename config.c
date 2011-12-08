@@ -50,6 +50,18 @@ int config_get_value_integer(char *name, int def)
 	else return def;
 }
 
+void config_set_value(char *name, char *value)
+{
+	set_value_auto_free(strdup(name), strdup(value));
+}
+
+void config_set_value_integer(char *name, int value)
+{
+	char *value_s = malloc(16);
+	sprintf(value_s, "%d", value);
+	set_value_auto_free(strdup(name), value_s);
+}
+
 static void set_value_auto_free(char *name, char *value)
 {
 	struct ConfigEntry *config = get_config_entry_by_name(name);
