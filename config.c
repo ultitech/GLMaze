@@ -11,7 +11,9 @@ struct ConfigEntry
 };
 
 static struct ConfigEntry *config_first = NULL;
+static struct ConfigEntry *config_last = NULL;
 
+static void set_value_no_copy(char *name, char *value);
 static struct ConfigEntry* get_config_entry_by_name(char *name);
 static char* string_create_from(char *other, int count);
 static int string_get_char_index(char *str, char c);
@@ -19,18 +21,11 @@ static int string_get_char_index(char *str, char c);
 void config_load()
 {
 	FILE *file = fopen("config.txt", "r");
-	struct ConfigEntry *last = NULL;
 	char str[128];
 	while(fgets(str, 128, file) != NULL)
 	{
-		struct ConfigEntry *new_entry = malloc(sizeof(struct ConfigEntry));
 		int symbol_index = string_get_char_index(str, '=');
-		new_entry->name = string_create_from(str, symbol_index);
-		new_entry->value = string_create_from(str+symbol_index+1, strlen(str)-symbol_index-2);
-		new_entry->next = NULL;
-		if(!config_first) config_first = new_entry;
-		if(last) last->next = new_entry;
-		last = new_entry;
+		set_value_no_copy(string_create_from(str, symbol_index), string_create_from(str+symbol_index+1, strlen(str)-symbol_index-2));
 	}
 }
 
@@ -53,6 +48,23 @@ int config_get_value_integer(char *name, int def)
 	const char *value = config_get_value(name);
 	if(value) return atoi(value);
 	else return def;
+}
+
+static void set_value_no_copy(char *name, char *value)
+{
+	struct ConfigEntry *config = get_config_entry_by_name(name);
+	if(!config) //append new entry
+	{
+		config = malloc(sizeof(struct ConfigEntry));
+		config->name = name;
+		config->value = NULL;
+		config->next = NULL;
+		if(!config_first) config_first = config;
+		if(config_last) config_last->next = config;
+		config_last = config;
+	}
+	free(config->value);
+	config->value = value;
 }
 
 static struct ConfigEntry* get_config_entry_by_name(char *name)
