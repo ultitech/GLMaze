@@ -7,6 +7,8 @@
 
 static char generate_vbo = 0;
 
+#define MAZE_Y0_OFFSET -0.2
+
 static Mesh* allocate_mesh();
 static void allocate_data(Mesh *mesh);
 
@@ -26,11 +28,11 @@ Mesh* mesh_create_maze(Maze *maze)
 	{
 		//position:
 		*v++ = x;
-		*v++ = y;
+		*v++ = y==0.0 ? MAZE_Y0_OFFSET : y;
 		*v++ = z;
 		//texcoord:
 		*v++ = x+z;
-		*v++ = y;
+		*v++ = y==0.0 ? MAZE_Y0_OFFSET : y;
 	}
 	
 	unsigned int *i = mesh->data->indices;
