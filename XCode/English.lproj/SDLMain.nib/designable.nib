@@ -80,7 +80,7 @@
 								<object class="NSMenuItem" id="178970583">
 									<reference key="NSMenu" ref="635422412"/>
 									<string key="NSTitle">Preferences...</string>
-									<string key="NSKeyEquiv"/>
+									<string key="NSKeyEquiv">,</string>
 									<int key="NSKeyEquivModMask">1048576</int>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="781073583"/>
@@ -254,7 +254,7 @@
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="530133325">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<array class="NSMutableArray" key="NSSubviews">
 						<object class="NSBox" id="900768919">
@@ -325,7 +325,6 @@
 											<int key="NSvFlags">268</int>
 											<string key="NSFrame">{{16, 6}, {224, 18}}</string>
 											<reference key="NSSuperview" ref="878194236"/>
-											<reference key="NSNextKeyView"/>
 											<bool key="NSEnabled">YES</bool>
 											<object class="NSButtonCell" key="NSCell" id="460089505">
 												<int key="NSCellFlags">-2080244224</int>
@@ -385,7 +384,6 @@
 						</object>
 					</array>
 					<string key="NSFrameSize">{296, 130}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="900768919"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
