@@ -69,6 +69,7 @@ static NSString *getApplicationName(void)
 @end
 
 @implementation SDLApplication
+
 /* Invoked from the Quit menu item */
 - (void)terminate:(id)sender
 {
@@ -77,10 +78,24 @@ static NSString *getApplicationName(void)
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
 }
+
+- (void)sendEvent:(NSEvent *)anEvent {
+	if (NSKeyDown == [anEvent type] || NSKeyUp == [anEvent type]) {
+		if ([anEvent modifierFlags] & NSCommandKeyMask)
+        {
+            [super sendEvent: anEvent];
+        }
+	} else
+    {
+		[super sendEvent: anEvent];
+    }
+}
+
 @end
 
 /* The main class of the application, the application's delegate */
 @implementation SDLMain
+
 
 /* Set the working directory to the .app's parent directory */
 - (void) setupWorkingDirectory:(BOOL)shouldChdir
@@ -136,20 +151,13 @@ static NSString *getApplicationName(void)
     gArgv[gArgc] = NULL;
     return TRUE;
 }
+
 - (IBAction)ScreenshotPressed:(id)sender {
     drawer_screenshot();
 }
 
 - (IBAction)OpenGLInfoPressed:(id)sender {
      drawer_write_glinfo();
-}
-
-- (void)sendEvent:(NSEvent *)anEvent {
-    if( NSKeyDown == [anEvent type] || NSKeyUp == [anEvent type] ) {
-        if( [anEvent modifierFlags] & NSCommandKeyMask ) 
-            [self sendEvent: anEvent];
-    } else 
-        [self sendEvent: anEvent];
 }
 
 
