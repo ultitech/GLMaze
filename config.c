@@ -24,6 +24,8 @@ void config_load()
 	char str[128];
 	while(fgets(str, 128, file) != NULL)
 	{
+		if(strlen(str) == 1) continue; //contains only the newline character
+		if(str[0] == '#') continue; //comment
 		int symbol_index = string_get_char_index(str, '=');
 		set_value_auto_free(string_create_from(str, symbol_index), string_create_from(str+symbol_index+1, strlen(str)-symbol_index-2));
 	}
