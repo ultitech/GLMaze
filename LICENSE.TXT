@@ -1,4 +1,4 @@
-GLMaze (c) by ultitech
+GLMaze (c) by ultitech.de
 
 GLMaze is licensed under a
 Creative Commons Attribution-ShareAlike 3.0 Unported License.
