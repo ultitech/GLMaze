@@ -27,7 +27,7 @@
 	<key>NSPrincipalClass</key>
 	<string>SDLApplication</string>
 	<key>SUFeedURL</key>
-	<string>http://www.ultitech.de/components/com_download/appcast/glmaze.php</string>
+	<string>http://www.ultitech.de/components/com_download/appcast.php</string>
 	<key>SUPublicDSAKeyFile</key>
 	<string>dsa_pub.pem</string>
 </dict>
