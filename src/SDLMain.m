@@ -6,7 +6,7 @@
 */
 
 #import "drawer.h"
-#import "SDL.h"
+#import <SDL/SDL.h>
 #import "SDLMain.h"
 #import <sys/param.h> /* for MAXPATHLEN */
 #import <unistd.h>

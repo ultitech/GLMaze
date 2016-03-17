@@ -1,9 +1,0 @@
-//
-// Prefix header for all source files of the 'SDLOpenGLIntro' target in the 'SDLOpenGLIntro' project
-//
-
-#include "SDL.h"
-
-#ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
-#endif

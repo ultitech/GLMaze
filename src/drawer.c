@@ -10,13 +10,10 @@
 #include "noise.h"
 #include "MathLib.h"
 
-#ifdef __APPLE__
-#include <GLEW/glew.h>
-#include <FreeImage/FreeImage.h>
-#else
+
 #include <GL/glew.h>
 #include <FreeImage.h>
-#endif
+
 
 #include <stdlib.h>
 #include <stdio.h>
