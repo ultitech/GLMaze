@@ -9,22 +9,6 @@ Find_Package ( SDL REQUIRED )
 Find_Package ( GLEW REQUIRED )
 Find_Package ( FreeImage REQUIRED )
 
-if ( NOT OPENGL_FOUND )
-   message ( FATAL_ERROR "OpenGL not found!" )
-endif ( NOT OPENGL_FOUND )
-
-if ( NOT SDL_FOUND )
-   message ( FATAL_ERROR "SDL not found!" )
-endif ( NOT SDL_FOUND )
-
-if ( NOT GLEW_FOUND )
-  message ( FATAL_ERROR "GLEW not found!")
-endif ( NOT GLEW_FOUND )
-
-if ( NOT FREEIMAGE_FOUND )
-  message ( FATAL_ERROR "FreeImage not found!")
-endif ( NOT FREEIMAGE_FOUND )
-
 include_directories(${GLEW_INCLUDE_DIRS})
 
 link_libraries (
