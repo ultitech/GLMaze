@@ -6,7 +6,10 @@
 #include "window.h"
 #include "config.h"
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
+
+static SDL_Window *window;
+static SDL_GLContext context;
 
 static int screen_size[2];
 static KeypressHandler keypress_handlers[16];
@@ -19,10 +22,14 @@ void window_init()
 	char fullscreen = config_get_value_integer("fullscreen", 0);
 	
 	SDL_Init(SDL_INIT_VIDEO);
-	Uint32 flags = SDL_OPENGL;
-	if(fullscreen) flags |= SDL_FULLSCREEN;
-	SDL_SetVideoMode(screen_size[0], screen_size[1], 32, flags);
-	SDL_WM_SetCaption("GLMaze", NULL);
+
+	Uint32 flags = SDL_WINDOW_OPENGL;
+	if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+
+	window = SDL_CreateWindow("GLMaze",
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		screen_size[0], screen_size[1], flags);
+	context = SDL_GL_CreateContext(window);
 }
 
 void window_quit()
@@ -43,11 +50,11 @@ int window_do_events()
 		if(ev.type == SDL_QUIT) return 0;
 		if(ev.type == SDL_KEYDOWN)
 		{
-			SDLKey key = ev.key.keysym.sym;
+			SDL_Keycode key = ev.key.keysym.sym;
 			if(key == SDLK_ESCAPE) return 0;
 			
 			int i;
-			for(i=0; i<keypress_handlers_count; i++) keypress_handlers[i]((enum Key)key);
+			for(i=0; i<keypress_handlers_count; i++) keypress_handlers[i](key);
 		}
 	}
 	return 1;
@@ -55,7 +62,7 @@ int window_do_events()
 
 void window_swap_buffers()
 {
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(window);
 }
 
 void window_get_size(int size[2])

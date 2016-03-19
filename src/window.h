@@ -6,9 +6,9 @@
 #ifndef H_WINDOW
 #define H_WINDOW
 
-#include "key.h"
+#include <SDL2/SDL_keycode.h>
 
-typedef void(*KeypressHandler)(enum Key);
+typedef void(*KeypressHandler)(SDL_Keycode);
 
 void window_init();
 void window_quit();

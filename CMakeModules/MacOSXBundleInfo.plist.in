@@ -29,9 +29,9 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>${MACOSX_BUNDLE_COPYRIGHT}</string>
 	<key>NSMainNibFile</key>
-	<string>SDLMain</string>
+	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
-	<string>SDLApplication</string>
+	<string>NSApplication</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.graphics-design</string>
 	<key>SUFeedURL</key>

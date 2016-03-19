@@ -13,12 +13,29 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <SDL/SDL.h> //for SDL_GetTicks
+#include <SDL2/SDL.h> //for SDL_GetTicks
+#ifdef __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+#endif
 
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 	
+#if defined __APPLE__
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+    char path[PATH_MAX];
+    if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
+    {
+        printf("cannot change working directory, check permissions\n");
+        exit(0);
+    }
+    CFRelease(resourcesURL);
+    
+    chdir(path);
+#endif
+    
 	file_set_resource_dir("./");
 	file_set_output_dir("./");
 	

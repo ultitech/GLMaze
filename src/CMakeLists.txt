@@ -6,7 +6,7 @@ file(GLOB SRC
 
 # Locate required libraries
 Find_Package ( OpenGL REQUIRED )
-Find_Package ( SDL REQUIRED )
+Find_Package ( SDL2 REQUIRED )
 Find_Package ( GLEW REQUIRED )
 Find_Package ( FreeImage REQUIRED )
 
@@ -16,7 +16,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 # Link all libraries
 link_libraries (
   ${OPENGL_LIBRARIES}
-  ${SDL_LIBRARY}
+  ${SDL2_LIBRARY}
   ${GLEW_LIBRARIES}
   ${FREEIMAGE_LIBRARY}
 )
@@ -34,12 +34,12 @@ if(APPLE)
 
   # Get framework/library location to copy into bundle
   #! Cmake adds -framework Cocoa behind SDL framework for Mac
-  string(REPLACE "-framework Cocoa" "" SDL_FRAMEWORK ${SDL_LIBRARY})
+  string(REPLACE "-framework Cocoa" "" SDL2_FRAMEWORK ${SDL2_LIBRARY})
   get_filename_component(GLEW_PATH ${GLEW_LIBRARIES} REALPATH)
   get_filename_component(FREEIMAGE_PATH ${FREEIMAGE_LIBRARY} REALPATH)
 
   # Copy framework/library into bundle
-  set(FRAMEWORKS ${SDL_FRAMEWORK} ${GLEW_PATH} ${FREEIMAGE_PATH})
+  set(FRAMEWORKS ${SDL2_FRAMEWORK} ${GLEW_PATH} ${FREEIMAGE_PATH})
   set_source_files_properties(${FRAMEWORKS} PROPERTIES MACOSX_PACKAGE_LOCATION Frameworks)
 
   # Copy resources into bundle
