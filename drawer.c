@@ -34,7 +34,7 @@ struct PostProcessPass
 {
 	GLuint shader;
 	GLuint program;
-	enum Key key;
+	SDL_Keycode key;
 	unsigned enabled:1;
 };
 static struct PostProcessPass pp_passes[16];
@@ -54,7 +54,7 @@ static GLuint create_texture(GLsizei width, GLsizei height, GLenum format, GLflo
 static GLuint generate_noise_texture();
 static void calc_gauss_values(GLint location);
 static void set_viewport(int posx, int posy, int sizex, int sizey);
-static void handle_keypress(enum Key key);
+static void handle_keypress(SDL_Keycode key);
 
 void drawer_init()
 {
@@ -283,7 +283,7 @@ void drawer_draw_mesh(Mesh *mesh)
 	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, element_pointer);
 }
 
-void drawer_postprocess_pass_add(char *filename, enum Key toggle_key)
+void drawer_postprocess_pass_add(char *filename, SDL_Keycode toggle_key)
 {
 	struct PostProcessPass *pass = &pp_passes[pp_passes_count++];
 	pass->key = toggle_key;
@@ -581,10 +581,10 @@ static void set_viewport(int posx, int posy, int sizex, int sizey)
 	glViewport(posx, posy, sizex, sizey);
 }
 
-static void handle_keypress(enum Key key)
+static void handle_keypress(SDL_Keycode key)
 {
-	if(key == KEY_F5) drawer_write_glinfo();
-	else if(key == KEY_F12) drawer_screenshot();
+	if(key == SDLK_F5) drawer_write_glinfo();
+	else if(key == SDLK_F12) drawer_screenshot();
 	int i;
 	for(i=0; i<pp_passes_count; i++)
 	{

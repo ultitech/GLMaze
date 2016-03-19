@@ -7,7 +7,7 @@
 #define H_DRAWER
 
 #include "mesh.h"
-#include "key.h"
+#include <SDL2/SDL_keycode.h>
 
 enum Drawer3DMode
 {
@@ -36,7 +36,7 @@ void drawer_use_rendertarget(Rendertarget target, char clear);
 void drawer_use_rendertarget_texture(Rendertarget target, unsigned int texture_unit, char *uniform_name);
 void drawer_depth_mask(unsigned char mask);
 void drawer_draw_mesh(Mesh *mesh);
-void drawer_postprocess_pass_add(char *filename, enum Key toggle_key);
+void drawer_postprocess_pass_add(char *filename, SDL_Keycode toggle_key);
 void drawer_do_postprocess();
 void drawer_begin_scene(float time_passed);
 void drawer_end_scene();

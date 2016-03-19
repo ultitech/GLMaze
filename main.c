@@ -13,7 +13,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <SDL/SDL.h> //for SDL_GetTicks
+#include <SDL2/SDL.h> //for SDL_GetTicks
 
 int main(int argc, char *argv[])
 {
