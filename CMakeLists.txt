@@ -27,6 +27,14 @@ set(PROJECT_MAJOR_VERSION 1)
 set(PROJECT_MINOR_VERSION 0)
 set(PROJECT_PATCH_VERSION 0)
 
+find_package(Git)
+if(GIT_FOUND)
+    execute_process(
+            COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+            OUTPUT_VARIABLE PROJECT_REVISION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
 # Define project name and language
 project(${PROJECT_TARGETBIN} C)
 
