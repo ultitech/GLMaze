@@ -56,36 +56,36 @@ static void handle_keypress(SDL_Keycode key);
 void drawer_init()
 {
 	window_add_keypress_handler(handle_keypress);
-	
+
 	FreeImage_Initialise(0);
-	
+
 	glewInit();
-	
+
 	drawer_print_glinfo();
-	
+
 	if(GLEW_ARB_vertex_buffer_object) mesh_generate_vbos(1);
 	else mesh_generate_vbos(0);
-	
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	window_get_size(screen_size);
 	create_perspective_m4(mat_projection, 90.0, (float)screen_size[0]/(float)screen_size[1], 0.1, 100.0);
 	set_viewport(0, 0, screen_size[0], screen_size[1]);
-	
+
 	pp_draw_targets[0] = drawer_create_rendertarget();
 	pp_draw_targets[1] = drawer_create_rendertarget();
-	
+
 	glActiveTexture(GL_TEXTURE0+NOISE_TEXTURE_LAYER);
 	noise_texture = generate_noise_texture();
 	glActiveTexture(GL_TEXTURE0);
-	
+
 	pp_vertex_shader = create_shader(GL_VERTEX_SHADER, "pp.glslv");
 	pp_fragment_shader = create_shader(GL_FRAGMENT_SHADER, "pp.glslf");
 	pp_program = create_program(pp_vertex_shader, pp_fragment_shader);
-	
+
 	screen_square_mesh = mesh_create_screen_square();
 }
 
@@ -108,11 +108,11 @@ void drawer_modelview_get(float matrix[16])
 Program drawer_create_program(char *vertex_filename, char *fragment_filename)
 {
 	GLuint vertex_shader, fragment_shader, program;
-	
+
 	vertex_shader = create_shader(GL_VERTEX_SHADER, vertex_filename);
 	fragment_shader = create_shader(GL_FRAGMENT_SHADER, fragment_filename);
 	program = create_program(vertex_shader, fragment_shader);
-	
+
 	return program;
 }
 
@@ -126,11 +126,11 @@ void drawer_use_program(Program program)
 Texture drawer_load_texture(char *filename)
 {
 	FIBITMAP *bmp = FreeImage_Load(FIF_JPEG, file_resource(filename, RESOURCE_TEXTURE), 0);
-	
+
 	int image_size[2];
 	image_size[0] = FreeImage_GetWidth(bmp);
 	image_size[1] = FreeImage_GetHeight(bmp);
-	
+
 	GLfloat *image_data = malloc(sizeof(GLfloat) * image_size[0] * image_size[1] * 3);
 	int x, y;
 	for(x=0; x<image_size[0]; x++) for(y=0; y<image_size[1]; y++)
@@ -142,12 +142,12 @@ Texture drawer_load_texture(char *filename)
 		pixel[1] = color.rgbGreen/255.0;
 		pixel[2] = color.rgbBlue/255.0;
 	}
-	
+
 	GLuint texture = create_texture(image_size[0], image_size[1], GL_RGB, image_data);
-	
+
 	free(image_data);
 	FreeImage_Unload(bmp);
-	
+
 	return texture;
 }
 
@@ -163,10 +163,10 @@ void drawer_use_rendertarget_texture(Rendertarget target, unsigned int texture_u
 {
 	GLuint texture;
 	GLint location;
-	
+
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, target);
 	glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, (GLint*)&texture);
-	
+
 	glActiveTexture(GL_TEXTURE0+texture_unit);
 	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
 	if(uniform_exists(uniform_name, &location)) glUniform1i(location, texture_unit);
@@ -175,20 +175,20 @@ void drawer_use_rendertarget_texture(Rendertarget target, unsigned int texture_u
 Rendertarget drawer_create_rendertarget()
 {
 	GLuint target, image, depth;
-	
+
 	glGenFramebuffers(1, &target);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
-	
+
 	glGenTextures(1, &image);
 	glBindTexture(GL_TEXTURE_RECTANGLE, image);
 	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, screen_size[0], screen_size[1], 0, GL_RGB, GL_FLOAT, NULL);
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE, image, 0);
-	
+
 	glGenRenderbuffers(1, &depth);
 	glBindRenderbuffer(GL_RENDERBUFFER, depth);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screen_size[0], screen_size[1]);
 	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
-	
+
 	return target;
 }
 
@@ -196,7 +196,7 @@ void drawer_use_rendertarget(Rendertarget target, char clear)
 {
 	if(target == DRAWER_PP_RENDERTARGET) target = pp_draw_targets[0];
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target);
-	
+
 	if(clear) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -225,10 +225,10 @@ void drawer_draw_mesh(Mesh *mesh)
 		stride += 2;
 	}
 	stride *= sizeof(GLfloat);
-	
+
 	GLfloat *position_pointer, *normal_pointer, *texcoord_pointer;
 	GLuint *element_pointer;
-	
+
 	if(mesh->vbo)
 	{
 		MeshVBO *vbo = mesh->vbo;
@@ -254,7 +254,7 @@ void drawer_draw_mesh(Mesh *mesh)
 		texcoord_pointer = data->vertices+texcoord_offset;
 		element_pointer = data->indices;
 	}
-	
+
 	GLint location;
 	if(mesh->vertex_format & VERTEX_POSITION)
 	{
@@ -262,21 +262,21 @@ void drawer_draw_mesh(Mesh *mesh)
 		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, position_pointer);
 		glEnableVertexAttribArray(location);
 	}
-	
+
 	if(mesh->vertex_format & VERTEX_NORMAL)
 	{
 		location = glGetAttribLocation(current_program, "in_normal");
 		glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, stride, normal_pointer);
 		glEnableVertexAttribArray(location);
 	}
-	
+
 	if(mesh->vertex_format & VERTEX_TEXCOORD)
 	{
 		location = glGetAttribLocation(current_program, "in_texcoord");
 		glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, stride, texcoord_pointer);
 		glEnableVertexAttribArray(location);
 	}
-	
+
 	glDrawElements(GL_TRIANGLES, mesh->indices_count, GL_UNSIGNED_INT, element_pointer);
 }
 
@@ -287,31 +287,34 @@ void drawer_postprocess_pass_add(char *filename, SDL_Keycode toggle_key)
 	pass->enabled = 0;
 	pass->shader = create_shader(GL_FRAGMENT_SHADER, filename);
 	pass->program = create_program(pp_vertex_shader, pass->shader);
-	
+
 	drawer_use_program(pass->program);
 }
 
 void drawer_do_postprocess()
 {
 	GLuint read = pp_draw_targets[0], draw = pp_draw_targets[1], window = 0;
-	GLuint enabled_passes[pp_passes_count];
+
+	GLuint *enabled_passes;
+	enabled_passes = (GLuint *)malloc(pp_passes_count * sizeof(GLuint));
+
 	int enabled_passes_count = 0;
 	int pass;
-	
+
 	for(pass=0; pass<pp_passes_count; pass++)
 	{
 		struct PostProcessPass *p = &pp_passes[pass];
 		if(p->enabled) enabled_passes[enabled_passes_count++] = p->program;
 	}
-	
+
 	if(enabled_passes_count == 0)
 	{
 		enabled_passes[0] = pp_program;
 		enabled_passes_count = 1;
 	}
-	
+
 	glActiveTexture(GL_TEXTURE0);
-	
+
 	for(pass=0; pass<enabled_passes_count; pass++)
 	{
 		if(pass != 0) //do not swap on first pass
@@ -322,13 +325,15 @@ void drawer_do_postprocess()
 			read = temp;
 		}
 		if(pass == enabled_passes_count-1) draw = window;
-		
+
 		drawer_use_program(enabled_passes[pass]);
-		
+
 		drawer_use_rendertarget(draw, 1);
 		drawer_use_rendertarget_texture(read, 0, "Image");
 		drawer_draw_mesh(screen_square_mesh);
 	}
+
+	free(enabled_passes);
 }
 
 void drawer_begin_scene(float time_passed)
@@ -369,15 +374,15 @@ enum Drawer3DMode drawer_get_3d_mode()
 void drawer_create_mesh_vbo(Mesh *mesh)
 {
 	MeshVBO *vbo = malloc(sizeof(MeshVBO));
-	
+
 	glGenBuffers(1, &vbo->vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo->vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * mesh_get_vertex_size(mesh->vertex_format) * mesh->vertices_count, mesh->data->vertices, GL_STATIC_DRAW);
-	
+
 	glGenBuffers(1, &vbo->index_buffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->index_buffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh->indices_count, mesh->data->indices, GL_STATIC_DRAW);
-	
+
 	mesh->vbo = vbo;
 	vbo_bound = 1;
 }
@@ -393,16 +398,16 @@ void drawer_screenshot()
 {
 	const unsigned int w = screen_size[0], h = screen_size[1];
 	GLfloat *data = malloc(sizeof(GLfloat) * w * h * 3);
-	
+
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	GLuint read;
 	glGetIntegerv(GL_READ_BUFFER, (GLint*)&read);
 	glReadBuffer(GL_FRONT);
-	
+
 	glReadPixels(0, 0, w, h, GL_RGB, GL_FLOAT, data);
-	
+
 	glReadBuffer(read);
-	
+
 	char filename[1024];
 	int index;
 	for(index=0;;index++)
@@ -414,7 +419,7 @@ void drawer_screenshot()
 		if((f = fopen(filename, "r")) == NULL) break;
 		else fclose(f);
 	}
-	
+
 	FIBITMAP *bmp = FreeImage_Allocate(w, h, 24, 0, 0, 0);
 	int x, y;
 	for(x=0; x<w; x++) for(y=0; y<h; y++)
@@ -426,9 +431,9 @@ void drawer_screenshot()
 		color.rgbBlue = pixel[2]*255.0;
 		FreeImage_SetPixelColor(bmp, x, y, &color);
 	}
-	
+
 	FreeImage_Save(FIF_JPEG, bmp, filename, 0);
-	
+
 	free(data);
 	FreeImage_Unload(bmp);
 }
@@ -459,9 +464,9 @@ static GLuint create_shader(GLenum type, char *filename)
 	GLchar *shader_source = file_text(file_resource(filename, RESOURCE_SHADER));
 	glShaderSource(shader, 1, (const GLchar**)&shader_source, NULL);
 	free(shader_source);
-	
+
 	glCompileShader(shader);
-	
+
 	GLint compiled;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 	if(compiled == GL_FALSE)
@@ -483,7 +488,7 @@ static GLuint create_program(GLuint vertex_shader, GLuint fragment_shader)
 	glAttachShader(program, vertex_shader);
 	glAttachShader(program, fragment_shader);
 	glLinkProgram(program);
-	
+
 	GLint linked;
 	glGetProgramiv(program, GL_LINK_STATUS, &linked);
 	if(linked == GL_FALSE)
@@ -526,11 +531,11 @@ static GLuint generate_noise_texture()
 	noise_generate_texture2d_channel(8, size, size, 4, texture_data+1);
 	noise_generate_texture2d_channel(16, size, size, 4, texture_data+2);
 	noise_generate_texture2d_channel(32, size, size, 4, texture_data+3);
-	
+
 	GLuint texture = create_texture(size, size, GL_RGBA, texture_data);
-	
+
 	free(texture_data);
-	
+
 	return texture;
 }
 
@@ -551,7 +556,7 @@ static void calc_gauss_values(GLint location)
 static void update_uniforms()
 {
 	if(current_program == 0) return;
-	
+
 	GLint location;
 	if(uniform_exists("MVMatrix", &location)) glUniformMatrix4fv(location, 1, GL_FALSE, mat_modelview);
 	if(uniform_exists("MVPMatrix", &location))

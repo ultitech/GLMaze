@@ -6,6 +6,7 @@
 #include "noise.h"
 
 #include <stdlib.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 static float interpolate(float x, float a, float b)
@@ -17,10 +18,16 @@ static float interpolate(float x, float a, float b)
 void noise_generate_texture2d_channel(int gridsize, int width, int height, int stride, float *data)
 {
 	if(stride == 0) stride = 1;
-	float noise_grid[gridsize][gridsize];
+
+	float **noise_grid;
+	noise_grid = (float **)malloc(gridsize * sizeof(float *));
+	for (int i = 0; i<gridsize; i++)
+		noise_grid[i] = (float *)malloc(gridsize * sizeof(float));
+
 	int i, j;
+
 	for(i=0; i<gridsize; i++) for(j=0; j<gridsize; j++) noise_grid[i][j] = rand()/(float)RAND_MAX;
-	
+
 	for(j=0; j<height; j++) for(i=0; i<width; i++)
 	{
 		int x1 = (int)floor(i/(width/gridsize)) % gridsize;
@@ -34,4 +41,5 @@ void noise_generate_texture2d_channel(int gridsize, int width, int height, int s
 		float value = interpolate(yfac, v1, v2);
 		data[(i+j*width)*stride] = value;
 	}
+	free(noise_grid);
 }

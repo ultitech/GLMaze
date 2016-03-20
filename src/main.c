@@ -11,7 +11,11 @@
 
 #include <stdlib.h>
 #include <time.h>
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 #include <SDL2/SDL.h> //for SDL_GetTicks
 #ifdef __APPLE__
@@ -21,7 +25,7 @@
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
-	
+
 #if defined __APPLE__
     CFBundleRef mainBundle = CFBundleGetMainBundle();
     CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
@@ -32,41 +36,41 @@ int main(int argc, char *argv[])
         exit(0);
     }
     CFRelease(resourcesURL);
-    
+
     chdir(path);
 #endif
-    
+
 	file_set_resource_dir("./");
 	file_set_output_dir("./");
-	
+
 	config_load();
 	config_print();
-	
+
 	window_init();
 	drawer_init();
 	scene_init();
-	
+
 	float time_passed = 0.0;
-	
+
 	while(window_do_events())
 	{
 		int start = SDL_GetTicks();
-		
+
 		scene_update(time_passed);
-		
+
 		drawer_begin_scene(time_passed);
 		scene_draw();
 		drawer_end_scene();
-		
+
 		usleep(20000);
-		
+
 		int end = SDL_GetTicks();
 		time_passed = (end-start)/1000.0;
 	}
-	
+
 	scene_quit();
 	drawer_quit();
 	window_quit();
-	
+
 	return 0;
 }
