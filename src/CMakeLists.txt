@@ -27,8 +27,6 @@ IF(WIN32)
 ENDIF(WIN32)
 
 if(APPLE)
-  # Add required SDLMain file
-  file(GLOB MAC_SRC "*.m")
   # Create a .app bundle
   SET(GUI_TYPE MACOSX_BUNDLE)
 
@@ -68,7 +66,7 @@ if(APPLE)
 endif(APPLE)
 
 # Create Executable
-add_executable(${PROJECT_TARGETBIN} ${GUI_TYPE} ${SRC} ${MAC_SRC} ${RESOURCES} ${FRAMEWORKS})
+add_executable(${PROJECT_TARGETBIN} ${GUI_TYPE} ${SRC} ${RESOURCES} ${FRAMEWORKS})
 
 if(APPLE)
   # Set search paths to look for framework inside the bundle
