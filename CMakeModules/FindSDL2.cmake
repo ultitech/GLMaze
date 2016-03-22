@@ -114,7 +114,8 @@ SET(SDL2_SEARCH_PATHS
 	/opt
 )
 
-FIND_PATH(SDL2_INCLUDE_DIR SDL.h
+# Use SDL_assert.h instead of SDL.h to differentiate between SDL1 and SDL2
+FIND_PATH(SDL2_INCLUDE_DIR SDL_assert.h
 	HINTS
 	${SDL2}
 	$ENV{SDL2}
