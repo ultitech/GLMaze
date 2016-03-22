@@ -19,7 +19,7 @@ include_directories(${FREEIMAGE_INCLUDE_PATH})
 link_libraries (
   ${OPENGL_LIBRARIES}
   ${SDL2_LIBRARY}
-  ${GLEW_LIBRARIES}
+  ${GLEW_LIBRARY}
   ${FREEIMAGE_LIBRARY}
 )
 
@@ -35,7 +35,7 @@ if(APPLE)
   # Get framework/library location to copy into bundle
   #! Cmake adds -framework Cocoa behind SDL framework for Mac
   string(REPLACE "-framework Cocoa" "" SDL2_FRAMEWORK ${SDL2_LIBRARY})
-  get_filename_component(GLEW_PATH ${GLEW_LIBRARIES} REALPATH)
+  get_filename_component(GLEW_PATH ${GLEW_LIBRARY} REALPATH)
   get_filename_component(FREEIMAGE_PATH ${FREEIMAGE_LIBRARY} REALPATH)
 
   # Copy framework/library into bundle

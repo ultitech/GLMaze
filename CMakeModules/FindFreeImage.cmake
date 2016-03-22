@@ -11,41 +11,88 @@
 
 OPTION(USE_FREEIMAGE_STATIC "Use Static FreeImage Lib" OFF)
 
-FIND_PATH( FREEIMAGE_INCLUDE_PATH
-    NAMES FreeImage.h
-    HINTS ${PROJECT_SOURCE_DIR}/extern/FreeImage
-    PATHS
-    /usr/include
-    /usr/local/include
-    /sw/include
-    /opt/local/include
-    DOC "The directory where FreeImage.h resides")
+SET(FREEIMAGE_SEARCH_PATHS
+	~/Library/Frameworks
+	/Library/Frameworks
+	/usr/local
+	/usr
+	/sw # Fink
+	/opt/local # DarwinPorts
+	/opt/csw # Blastwave
+	/opt
+)
 
-FIND_LIBRARY( FREEIMAGE_DYNAMIC_LIBRARY
-    NAMES FreeImage freeimage
-    HINTS ${PROJECT_SOURCE_DIR}/FreeImage
-    PATHS
-    /usr/lib64
-    /usr/lib
-    /usr/local/lib64
-    /usr/local/lib
-    /sw/lib
-    /opt/local/lib
-    DOC "The FreeImage library")
+FIND_PATH( FREEIMAGE_INCLUDE_PATH FreeImage.h
+  HINTS
+  ${FREEIMAGE}
+	$ENV{FREEIMAGE}
+  PATH_SUFFIXES include/FreeImage include FreeImage
+  Dist/x32
+  Dist/x64
+  PATHS
+  ${FREEIMAGE_SEARCH_PATHS}
+  DOC "The directory where FreeImage.h resides"
+)
 
 SET(PX ${CMAKE_STATIC_LIBRARY_PREFIX})
 SET(SX ${CMAKE_STATIC_LIBRARY_SUFFIX})
-FIND_LIBRARY( FREEIMAGE_STATIC_LIBRARY
+# Lookup the 64 bit libs on x64
+IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	FIND_LIBRARY(FREEIMAGE_DYNAMIC_LIBRARY
+    NAMES FreeImage freeimage
+		HINTS
+    ${FREEIMAGE}
+  	$ENV{FREEIMAGE}
+		PATH_SUFFIXES lib64 lib
+		lib/x64
+    Dist/x64
+		x86_64-w64-mingw32/lib
+		PATHS ${FREEIMAGE_SEARCH_PATHS}
+    DOC "The FreeImage library 64bit"
+	)
+
+  FIND_LIBRARY( FREEIMAGE_STATIC_LIBRARY
     NAMES ${PX}FreeImageLIB${SX} ${PX}FreeImage${SX} ${PX}freeimage${SX}
-    HINTS ${PROJECT_SOURCE_DIR}/FreeImage
-    PATHS
-    /usr/lib64
-    /usr/lib
-    /usr/local/lib64
-    /usr/local/lib
-    /sw/lib
-    /opt/local/lib
-    DOC "The FreeImage library")
+    HINTS
+    ${FREEIMAGE}
+  	$ENV{FREEIMAGE}
+    PATH_SUFFIXES lib64 lib
+		lib/x64
+    Dist/x64
+		x86_64-w64-mingw32/lib
+    PATHS ${FREEIMAGE_SEARCH_PATHS}
+    DOC "The static FreeImage library 64bit"
+  )
+
+# On 32bit build find the 32bit libs
+ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	FIND_LIBRARY(FREEIMAGE_DYNAMIC_LIBRARY
+    NAMES FreeImage freeimage
+		HINTS
+    ${FREEIMAGE}
+  	$ENV{FREEIMAGE}
+		PATH_SUFFIXES lib
+		lib/x86
+    Dist/x32
+		i686-w64-mingw32/lib
+		PATHS ${FREEIMAGE_SEARCH_PATHS}
+    DOC "The FreeImage library 32bit"
+	)
+
+  FIND_LIBRARY( FREEIMAGE_STATIC_LIBRARY
+    NAMES ${PX}FreeImageLIB${SX} ${PX}FreeImage${SX} ${PX}freeimage${SX}
+    HINTS
+    ${FREEIMAGE}
+  	$ENV{FREEIMAGE}
+    PATH_SUFFIXES lib
+		lib/x86
+    Dist/x32
+		i686-w64-mingw32/lib
+    PATHS ${FREEIMAGE_SEARCH_PATHS}
+    DOC "The static FreeImage library 32bit"
+  )
+ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 8)
+
 UNSET(PX)
 UNSET(SX)
 
