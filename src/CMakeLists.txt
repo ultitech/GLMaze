@@ -11,7 +11,7 @@ Find_Package ( GLEW REQUIRED )
 Find_Package ( FreeImage REQUIRED )
 
 # Include GLEW Headers
-include_directories(${GLEW_INCLUDE_DIRS})
+include_directories(${GLEW_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${FREEIMAGE_INCLUDE_PATH})
 
