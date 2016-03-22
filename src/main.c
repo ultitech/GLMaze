@@ -17,7 +17,7 @@
 #include <unistd.h>
 #endif
 
-#include <SDL2/SDL.h> //for SDL_GetTicks
+#include <SDL.h> //for SDL_GetTicks
 #ifdef __APPLE__
 #include "CoreFoundation/CoreFoundation.h"
 #endif

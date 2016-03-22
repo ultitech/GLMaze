@@ -6,7 +6,7 @@
 #include "window.h"
 #include "config.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 static SDL_Window *window;
 static SDL_GLContext context;
@@ -20,7 +20,7 @@ void window_init()
 	screen_size[0] = config_get_value_integer("res_width", 640);
 	screen_size[1] = config_get_value_integer("res_height", 480);
 	char fullscreen = config_get_value_integer("fullscreen", 0);
-	
+
 	SDL_Init(SDL_INIT_VIDEO);
 
 	Uint32 flags = SDL_WINDOW_OPENGL;
@@ -52,7 +52,7 @@ int window_do_events()
 		{
 			SDL_Keycode key = ev.key.keysym.sym;
 			if(key == SDLK_ESCAPE) return 0;
-			
+
 			int i;
 			for(i=0; i<keypress_handlers_count; i++) keypress_handlers[i](key);
 		}

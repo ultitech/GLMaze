@@ -7,7 +7,7 @@
 #define H_DRAWER
 
 #include "mesh.h"
-#include <SDL2/SDL_keycode.h>
+#include <SDL_keycode.h>
 
 enum Drawer3DMode
 {

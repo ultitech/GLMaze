@@ -6,7 +6,7 @@
 #ifndef H_WINDOW
 #define H_WINDOW
 
-#include <SDL2/SDL_keycode.h>
+#include <SDL_keycode.h>
 
 typedef void(*KeypressHandler)(SDL_Keycode);
 
