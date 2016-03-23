@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 static char *resource_dir, *output_dir;
 static char *prefix_texture = "Textures/";
@@ -16,12 +15,8 @@ static char *prefix_shader = "Shader/";
 
 char* file_text(char *filename)
 {
-	FILE *file;
-	errno_t err;
-	if ((err = fopen_s(&file, filename, "rb")) != 0) {
-		printf("%s could not be opened", filename);
-		return NULL;
-	}
+    FILE *file = fopen(filename, "rb");
+    if(!file) return NULL;
 	
 	fseek(file, 0, SEEK_END);
 	unsigned long length = ftell(file);
