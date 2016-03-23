@@ -27,7 +27,7 @@ Mesh* mesh_create_maze(Maze *maze)
 	
 	allocate_data(mesh);
 	
-	int x, y, z;
+	unsigned int x, y, z;
 	float *v = mesh->data->vertices;
 	for(y=0; y<2; y++) for(z=0; z<(maze->height+1); z++) for(x=0; x<(maze->width+1); x++)
 	{

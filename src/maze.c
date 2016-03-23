@@ -75,7 +75,7 @@ Maze* maze_generate(unsigned int width, unsigned int height)
 	// |
 	// \/
 	//Write Positions
-	int x, y;
+	unsigned int x, y;
 	for(x=0; x<width; x++) for(y=0; y<height; y++)
 	{
 		Cell *cell = maze_get_cell(maze, x, y);
@@ -118,7 +118,7 @@ void maze_print(Maze *maze)
 	char *buf;
 	buf = (char *)malloc((maze->width + 1) * 2 * sizeof(char));
 
-	int x, y;
+	unsigned int x, y;
 
 	strcpy(buf, "+");
 	for(x=0; x<maze->width; x++)

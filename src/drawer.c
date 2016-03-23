@@ -299,7 +299,7 @@ void drawer_do_postprocess()
 	enabled_passes = (GLuint *)malloc(pp_passes_count * sizeof(GLuint));
 
 	int enabled_passes_count = 0;
-	int pass;
+	unsigned int pass;
 
 	for(pass=0; pass<pp_passes_count; pass++)
 	{
@@ -421,7 +421,7 @@ void drawer_screenshot()
 	}
 
 	FIBITMAP *bmp = FreeImage_Allocate(w, h, 24, 0, 0, 0);
-	int x, y;
+	unsigned int x, y;
 	for(x=0; x<w; x++) for(y=0; y<h; y++)
 	{
 		GLfloat *pixel = &data[(x+y*w)*3];
@@ -587,7 +587,7 @@ static void handle_keypress(SDL_Keycode key)
 {
 	if(key == SDLK_F5) drawer_write_glinfo();
 	else if(key == SDLK_F12) drawer_screenshot();
-	int i;
+	unsigned int i;
 	for(i=0; i<pp_passes_count; i++)
 	{
 		struct PostProcessPass *p = &pp_passes[i];

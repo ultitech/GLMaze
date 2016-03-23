@@ -53,7 +53,7 @@ int window_do_events()
 			SDL_Keycode key = ev.key.keysym.sym;
 			if(key == SDLK_ESCAPE) return 0;
 
-			int i;
+			unsigned int i;
 			for(i=0; i<keypress_handlers_count; i++) keypress_handlers[i](key);
 		}
 	}

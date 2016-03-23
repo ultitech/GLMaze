@@ -259,7 +259,7 @@ static void draw_twisters(enum RenderPass pass)
 	
 	drawer_use_program(twister_program);
 	drawer_depth_mask(0);
-	int i;
+	unsigned int i;
 	for(i=0; i<maze->height*maze->width; i++)
 	{
 		Cell *cell = &maze->cells[i];
