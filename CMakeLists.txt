@@ -73,17 +73,17 @@ if(WIN32)
 
   add_definitions(/D _CRT_SECURE_NO_WARNINGS)
 
-  set(PRODUCT_ICON ${PROJECT_SOURCE_DIR}/res/Win/glmaze.ico)
+  set(PRODUCT_ICON ${PROJECT_SOURCE_DIR}/Win/glmaze.ico)
 
   set (_VersionInfoFile ${CMAKE_CURRENT_BINARY_DIR}/VersionInfo.h)
   set (_VersionResourceFile ${CMAKE_CURRENT_BINARY_DIR}/VersionResource.rc)
 
   configure_file(
-        ${PROJECT_SOURCE_DIR}/res/Win/VersionInfo.in
+        ${PROJECT_SOURCE_DIR}/Win/VersionInfo.in
         ${_VersionInfoFile}
         @ONLY)
   configure_file(
-      ${PROJECT_SOURCE_DIR}/res/Win/VersionResource.rc
+      ${PROJECT_SOURCE_DIR}/Win/VersionResource.rc
       ${_VersionResourceFile}
       COPYONLY)
   list(APPEND SRC ${SRC} ${_VersionInfoFile} ${_VersionResourceFile})
@@ -107,10 +107,10 @@ if(APPLE)
   set(RESOURCES ${PROJECT_SOURCE_DIR}/res/config.txt
                 ${PROJECT_SOURCE_DIR}/res/Shader
                 ${PROJECT_SOURCE_DIR}/res/Textures
-                ${PROJECT_SOURCE_DIR}/res/Xcode/glmaze.icns
-                ${PROJECT_SOURCE_DIR}/res/Xcode/English.lproj
-                ${PROJECT_SOURCE_DIR}/res/Xcode/de.lproj
-                ${PROJECT_SOURCE_DIR}/res/Xcode/dsa_pub.pem)
+                ${PROJECT_SOURCE_DIR}/Xcode/glmaze.icns
+                ${PROJECT_SOURCE_DIR}/Xcode/English.lproj
+                ${PROJECT_SOURCE_DIR}/Xcode/de.lproj
+                ${PROJECT_SOURCE_DIR}/Xcode/dsa_pub.pem)
 
   set_source_files_properties(${RESOURCES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
@@ -133,3 +133,9 @@ if(APPLE)
   # Set search paths to look for framework inside the bundle
   set_target_properties(${PROJECT_TARGETBIN} PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@loader_path @loader_path/../Frameworks")
 endif(APPLE)
+
+if(WIN32)
+  add_custom_command(TARGET ${PROJECT_TARGETBIN} POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${PROJECT_SOURCE_DIR}/res $<TARGET_FILE_DIR:${PROJECT_TARGETBIN}>)
+ENDIF(WIN32)
