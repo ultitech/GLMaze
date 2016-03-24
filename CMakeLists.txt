@@ -71,6 +71,8 @@ if(WIN32)
   # Hide console on Windows
   SET(GUI_TYPE WIN32)
 
+  add_definitions(/D _CRT_SECURE_NO_WARNINGS)
+
   set(PRODUCT_ICON ${PROJECT_SOURCE_DIR}/res/Win/glmaze.ico)
 
   set (_VersionInfoFile ${CMAKE_CURRENT_BINARY_DIR}/VersionInfo.h)
