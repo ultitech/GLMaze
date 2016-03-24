@@ -58,6 +58,17 @@ int main(int argc, char *argv[])
     chdir(path);
 #endif
 
+#if defined _WIN32
+	TCHAR dest[MAX_PATH];
+	GetModuleFileName(NULL, dest, MAX_PATH);
+	char drive[_MAX_DRIVE];
+	char dir[_MAX_DIR];
+	char fname[_MAX_FNAME];
+	char ext[_MAX_EXT];
+	_splitpath_s(dest, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME, ext, _MAX_EXT);
+	chdir(dir);
+#endif
+
 	file_set_resource_dir("./");
 	file_set_output_dir("./");
 
