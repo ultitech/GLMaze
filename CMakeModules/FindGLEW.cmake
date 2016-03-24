@@ -61,7 +61,7 @@ ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		$ENV{GLEW}
 		PATH_SUFFIXES lib
 		lib/x86
-    ib/Release/win32
+    lib/Release/Win32
 		i686-w64-mingw32/lib
 		PATHS ${GLEW_SEARCH_PATHS}
 		DOC "The GLEW library 32bit"
