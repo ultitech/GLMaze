@@ -1,5 +1,6 @@
 # GLMaze
 
+[![Build Status](https://travis-ci.org/ultitech/GLMaze.svg?branch=master)](https://travis-ci.org/ultitech/GLMaze)
 [![Release](https://img.shields.io/badge/release-v1.0-blue.svg)](https://github.com/ultitech/GLMaze/releases/latest)
 [![License: zlib](https://img.shields.io/badge/license-zlib-blue.svg)](http://www.zlib.net/zlib_license.html)
 
@@ -13,7 +14,7 @@ Be mesmerized as you walk through the seemingly endless maze, trying to find the
 
 ## Getting Started
 
-This project was created as a graphic demo to test the OpenGL 2.0 pipeline using SDL on Linux, Mac, and Windows. We included several shaders, such as motion blur, night vision as well as a 3D side-by-see mode.
+This project was created as a graphic demo to test the OpenGL 2.0 pipeline using SDL2 on Linux, Mac, and Windows. We included several shaders, such as motion blur, night vision as well as a 3D side-by-see mode.
 
 The latest binary releases can be found [here](https://github.com/ultitech/GLMaze/releases/latest) or you can build the project yourself.
 
@@ -71,7 +72,7 @@ Use [homebrew](http://brew.sh) to install the rest of the libraries, e.g.
 brew install freeimage glew
 ```
 
-Next create your build directory inside the GLMaze folder and run `cmake ..`. This creates a UNIX Makefile, to create a Xcode project file instead use `cmake -G "Xcode" ..`, e.g.
+Next create your build directory inside the GLMaze folder and run `cmake ..`. This creates a UNIX Makefile; to create a Xcode project file instead, use `cmake -G "Xcode" ..`, e.g.
 ```Bash
 mkdir build && cd build && cmake -G "Xcode" ..
 ```
