@@ -1,0 +1,32 @@
+language: c
+
+os:
+  - linux
+  - osx
+sudo: required
+dist: trusty
+
+compiler:
+  - gcc
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update;
+      brew upgrade cmake;
+      brew install freeimage glew;
+      curl -O -L https://www.libsdl.org/release/SDL2-2.0.4.dmg;
+      hdiutil attach SDL2-2.0.4.dmg;
+      sudo cp -a /Volumes/SDL2/SDL2.framework /Library/Frameworks/;
+    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+      sudo apt-get update -qq;
+      sudo apt-get install -y libsdl2-dev libfreeimage-dev libglew-dev;
+    fi
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  - git clean -f
+  - make

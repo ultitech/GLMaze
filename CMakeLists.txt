@@ -126,6 +126,10 @@ if(APPLE)
   set(MACOSX_BUNDLE_COPYRIGHT ${PROJECT_COPYRIGHT})
 endif(APPLE)
 
+if(UNIX AND NOT APPLE)
+  link_libraries(-lm)
+endif()
+
 # Create Executable
 add_executable(${PROJECT_TARGETBIN} ${GUI_TYPE} ${SRC} ${RESOURCES} ${FRAMEWORKS})
 

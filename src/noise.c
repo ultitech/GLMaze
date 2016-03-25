@@ -19,12 +19,12 @@ void noise_generate_texture2d_channel(int gridsize, int width, int height, int s
 {
 	if(stride == 0) stride = 1;
 
+	int i, j;
+
 	float **noise_grid;
 	noise_grid = (float **)malloc(gridsize * sizeof(float *));
-	for (int i = 0; i<gridsize; i++)
+	for (i = 0; i<gridsize; i++)
 		noise_grid[i] = (float *)malloc(gridsize * sizeof(float));
-
-	int i, j;
 
 	for(i=0; i<gridsize; i++) for(j=0; j<gridsize; j++) noise_grid[i][j] = rand()/(float)RAND_MAX;
 
