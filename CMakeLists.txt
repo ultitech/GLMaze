@@ -59,6 +59,21 @@ include_directories(${GLEW_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${FREEIMAGE_INCLUDE_PATH})
 
+# DYLIBS on Mac need to have the right search path set before linking
+if(APPLE)
+  file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/dylibs")
+  get_filename_component(GLEW_PATH ${GLEW_LIBRARY} REALPATH)
+  get_filename_component(FREEIMAGE_PATH ${FREEIMAGE_LIBRARY} REALPATH)
+  file(COPY ${GLEW_PATH} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/dylibs")
+  file(COPY ${FREEIMAGE_PATH} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/dylibs")
+  get_filename_component(GLEW ${GLEW_PATH} NAME)
+  get_filename_component(FREEIMAGE ${FREEIMAGE_PATH} NAME)
+  execute_process(COMMAND "install_name_tool -id @executable_path/../Frameworks/${GLEW}.dylib ${GLEW_LIBRARY}"
+                  COMMAND "install_name_tool -id @executable_path/../Frameworks/${FREEIMAGE}.dylib ${FREEIMAGE_LIBRARY}")
+  set(GLEW_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/dylibs/${GLEW}")
+  set(FREEIMAGE_LIBRARY "${CMAKE_CURRENT_BINARY_DIR}/dylibs/${FREEIMAGE}")
+endif(APPLE)
+
 # Link all libraries
 link_libraries (
   ${OPENGL_LIBRARIES}
@@ -96,11 +111,9 @@ if(APPLE)
   # Get framework/library location to copy into bundle
   #! Cmake adds -framework Cocoa behind SDL framework for Mac
   string(REPLACE "-framework Cocoa" "" SDL2_FRAMEWORK ${SDL2_LIBRARY})
-  get_filename_component(GLEW_PATH ${GLEW_LIBRARY} REALPATH)
-  get_filename_component(FREEIMAGE_PATH ${FREEIMAGE_LIBRARY} REALPATH)
 
   # Copy framework/library into bundle
-  set(FRAMEWORKS ${SDL2_FRAMEWORK} ${GLEW_PATH} ${FREEIMAGE_PATH})
+  set(FRAMEWORKS ${SDL2_FRAMEWORK} ${GLEW_LIBRARY} ${FREEIMAGE_LIBRARY})
   set_source_files_properties(${FRAMEWORKS} PROPERTIES MACOSX_PACKAGE_LOCATION Frameworks)
 
   # Copy resources into bundle
