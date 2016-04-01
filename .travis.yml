@@ -25,8 +25,16 @@ install:
 before_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      cmake -G "Xcode" ..
+    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+      cmake ..
+    fi
 
 script:
   - git clean -f
-  - make
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      xcodebuild -target GLMaze -configuration Release
+    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+      make
+    fi
