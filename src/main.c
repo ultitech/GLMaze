@@ -12,32 +12,12 @@
 #include <stdlib.h>
 #include <time.h>
 #ifdef _WIN32
-#include <io.h>
-#else
-#include <unistd.h>
+#include <windows.h>
 #endif
 
 #include <SDL.h> //for SDL_GetTicks
 #ifdef __APPLE__
 #include "CoreFoundation/CoreFoundation.h"
-#endif
-
-#ifdef _WIN32
-#include <windows.h>
-
-void usleep(__int64 usec)
-{
-	HANDLE timer;
-	LARGE_INTEGER ft;
-
-	ft.QuadPart = -(10 * usec); // Convert to 100 nanosecond interval, negative value indicates relative time
-
-	timer = CreateWaitableTimer(NULL, TRUE, NULL);
-	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-	WaitForSingleObject(timer, INFINITE);
-	CloseHandle(timer);
-}
-
 #endif
 
 int main(int argc, char *argv[])
@@ -90,8 +70,6 @@ int main(int argc, char *argv[])
 		drawer_begin_scene(time_passed);
 		scene_draw();
 		drawer_end_scene();
-
-		usleep(20000);
 
 		int end = SDL_GetTicks();
 		time_passed = (end-start)/1000.0;

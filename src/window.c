@@ -30,6 +30,9 @@ void window_init()
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		screen_size[0], screen_size[1], flags);
 	context = SDL_GL_CreateContext(window);
+
+	char vsync = config_get_value_integer("vsync", 1);
+	SDL_GL_SetSwapInterval(vsync ? 1 : 0);
 }
 
 void window_quit()
