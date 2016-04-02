@@ -52,6 +52,18 @@ IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		PATHS ${GLEW_SEARCH_PATHS}
 		DOC "The GLEW library 64bit"
 	)
+	FIND_FILE(GLEW_DLL
+    NAMES GLEW.dll glew.dll glew32.dll glew32s.dll
+		HINTS
+		${GLEW}
+		$ENV{GLEW}
+		PATH_SUFFIXES bin64 bin
+		bin/x64
+    bin/Release/x64
+		x86_64-w64-mingw32/lib
+		PATHS ${GLEW_SEARCH_PATHS}
+		DOC "The GLEW DLL 64bit"
+	)
 # On 32bit build find the 32bit libs
 ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	FIND_LIBRARY(GLEW_LIBRARY
@@ -65,6 +77,18 @@ ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		i686-w64-mingw32/lib
 		PATHS ${GLEW_SEARCH_PATHS}
 		DOC "The GLEW library 32bit"
+	)
+	FIND_FILE(GLEW_DLL
+    NAMES GLEW.dll glew.dll glew32.dll glew32s.dll
+		HINTS
+		${GLEW}
+		$ENV{GLEW}
+		PATH_SUFFIXES bin
+		bin/x86
+    bin/Release/Win32
+		i686-w64-mingw32/lib
+		PATHS ${GLEW_SEARCH_PATHS}
+		DOC "The GLEW DLL 32bit"
 	)
 ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
