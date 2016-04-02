@@ -64,6 +64,19 @@ IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
     DOC "The static FreeImage library 64bit"
   )
 
+	FIND_FILE(FREEIMAGE_DLL
+    NAMES FreeImage.dll freeimage.dll
+		HINTS
+    ${FREEIMAGE}
+  	$ENV{FREEIMAGE}
+		PATH_SUFFIXES lib64 lib
+		lib/x64
+    Dist/x64
+		x86_64-w64-mingw32/lib
+		PATHS ${FREEIMAGE_SEARCH_PATHS}
+    DOC "The FreeImage DLL 64bit"
+	)
+
 # On 32bit build find the 32bit libs
 ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	FIND_LIBRARY(FREEIMAGE_DYNAMIC_LIBRARY
@@ -91,6 +104,19 @@ ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
     PATHS ${FREEIMAGE_SEARCH_PATHS}
     DOC "The static FreeImage library 32bit"
   )
+
+	FIND_FILE(FREEIMAGE_DLL
+    NAMES FreeImage.dll freeimage.dll
+		HINTS
+    ${FREEIMAGE}
+  	$ENV{FREEIMAGE}
+		PATH_SUFFIXES lib
+		lib/x86
+    Dist/x32
+		i686-w64-mingw32/lib
+		PATHS ${FREEIMAGE_SEARCH_PATHS}
+    DOC "The FreeImage DLL 32bit"
+	)
 ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
 UNSET(PX)

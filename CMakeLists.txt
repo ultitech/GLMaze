@@ -102,6 +102,8 @@ if(WIN32)
       ${_VersionResourceFile}
       COPYONLY)
   list(APPEND SRC ${SRC} ${_VersionInfoFile} ${_VersionResourceFile})
+
+  set(WIN_DLLS ${GLEW_DLL} ${SDL2_DLL} ${FREEIMAGE_DLL})
 ENDIF(WIN32)
 
 if(APPLE)
@@ -155,4 +157,7 @@ if(WIN32)
   add_custom_command(TARGET ${PROJECT_TARGETBIN} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${PROJECT_SOURCE_DIR}/res $<TARGET_FILE_DIR:${PROJECT_TARGETBIN}>)
+ foreach(DLL ${WIN_DLLS})
+ 	add_custom_command(TARGET ${PROJECT_TARGETBIN} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${PROJECT_TARGETBIN}>)
+ endforeach(DLL)
 ENDIF(WIN32)
