@@ -41,5 +41,8 @@ void noise_generate_texture2d_channel(int gridsize, int width, int height, int s
 		float value = interpolate(yfac, v1, v2);
 		data[(i+j*width)*stride] = value;
 	}
-	free(noise_grid);
+    
+    for(i = 0; i < gridsize; i++)
+        free(noise_grid[i]);
+    free(noise_grid);
 }
