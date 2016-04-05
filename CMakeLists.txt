@@ -153,11 +153,18 @@ if(APPLE)
   set_target_properties(${PROJECT_TARGETBIN} PROPERTIES XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@loader_path @loader_path/../Frameworks")
 endif(APPLE)
 
-if(WIN32)
+if(UNIX AND NOT APPLE)
+  set_target_properties(${PROJECT_TARGETBIN} PROPERTIES RUNTIME_OUTPUT_DIRECTORY GLMaze)
+endif(UNIX AND NOT APPLE)
+
+if(UNIX AND NOT APPLE OR WIN32)
   add_custom_command(TARGET ${PROJECT_TARGETBIN} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${PROJECT_SOURCE_DIR}/res $<TARGET_FILE_DIR:${PROJECT_TARGETBIN}>)
+endif(UNIX AND NOT APPLE OR WIN32)
+
+if(WIN32)
  foreach(DLL ${WIN_DLLS})
  	add_custom_command(TARGET ${PROJECT_TARGETBIN} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:${PROJECT_TARGETBIN}>)
  endforeach(DLL)
-ENDIF(WIN32)
+endif(WIN32)
