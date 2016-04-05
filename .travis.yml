@@ -12,7 +12,7 @@ compiler:
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update;
-      brew upgrade cmake;
+      brew outdated cmake || brew upgrade cmake;
       brew install freeimage glew;
       curl -O -L https://www.libsdl.org/release/SDL2-2.0.4.dmg;
       hdiutil attach SDL2-2.0.4.dmg;
@@ -38,3 +38,28 @@ script:
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
       make;
     fi
+
+before_deploy:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      git clone https://github.com/andreyvit/yoursway-create-dmg.git;
+      ./yoursway-create-dmg/create-dmg --volname GLMaze --volicon ../Xcode/glmaze.icns --background ../Xcode/background.png --window-size 650 450 --icon GLMaze.app 180 190 --hide-extension GLMaze.app --app-drop-link 420 190 GLMaze.dmg Release
+    elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      tar -zcvf GLMaze.tar.gz GLMaze
+    fi
+deploy:
+  - provider: releases
+    api_key:
+      secure: "enJjIR0NmY2ZbZ459FB3ZimHYPpDvtQICUevE1FR8WWOjY+cr4jL6RxVyMMzMfDuptCbAUk1cWPY5WaScw5oZ4YsutKsDcMiJI9iq3WzwWpf0xhbmDdSgrIWvrBpSzmQOxs2eLeB3DIvghdVPd5fEHiGzqhMwJqlJW9MyqB4eCPWr+5nej/9ajuiMMAHfuHwEOp4JAtCkHFxMpTM5TQj+BoCcncEQowDVLZwqtBNQh/OyuR7bhbIcalYBUcYM0am585TCnYmDGlwnPcdsjP6L22Bs/Wx+BDMS9VDZTTav29uHp3GIzksDnb5YA9FoxXRmPFetHwXAHnrnP1NhaxsokgvhePwKSnFP3KwrP+/l6P4tFxwoL2LOLknhkOsv5Pp1uA9P2wt92hdQfc1fnAkgMfZYHyG2ogwJ7T4nGTbopBrL9K/lx8ZETLiWq4WJ/5OlOfznQoDNfDsfMhyfD4wm2Um+4jwVx8X3+Mgh/U+XaR/e8yjd5mo8Lmwk+Yt+yx1clGZir0aFzIw0cuqXq6ypXy3PraXWQP16ih8AcKrUFwnxFlF0L4CuvmI7PdS5eWb9exnlmMKlLt4zQ1BxCLxs9/nLoLCe2aeNvlDPYnyipxeyBHdL68rVpCrBjjY5Dc8ojHN1H7fIXMBTVP4Xwmnv1RGYOHmSg22E44kECZX9zY="
+    file: 'GLMaze.dmg'
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = osx
+  - provider: releases
+    api_key:
+      secure: "enJjIR0NmY2ZbZ459FB3ZimHYPpDvtQICUevE1FR8WWOjY+cr4jL6RxVyMMzMfDuptCbAUk1cWPY5WaScw5oZ4YsutKsDcMiJI9iq3WzwWpf0xhbmDdSgrIWvrBpSzmQOxs2eLeB3DIvghdVPd5fEHiGzqhMwJqlJW9MyqB4eCPWr+5nej/9ajuiMMAHfuHwEOp4JAtCkHFxMpTM5TQj+BoCcncEQowDVLZwqtBNQh/OyuR7bhbIcalYBUcYM0am585TCnYmDGlwnPcdsjP6L22Bs/Wx+BDMS9VDZTTav29uHp3GIzksDnb5YA9FoxXRmPFetHwXAHnrnP1NhaxsokgvhePwKSnFP3KwrP+/l6P4tFxwoL2LOLknhkOsv5Pp1uA9P2wt92hdQfc1fnAkgMfZYHyG2ogwJ7T4nGTbopBrL9K/lx8ZETLiWq4WJ/5OlOfznQoDNfDsfMhyfD4wm2Um+4jwVx8X3+Mgh/U+XaR/e8yjd5mo8Lmwk+Yt+yx1clGZir0aFzIw0cuqXq6ypXy3PraXWQP16ih8AcKrUFwnxFlF0L4CuvmI7PdS5eWb9exnlmMKlLt4zQ1BxCLxs9/nLoLCe2aeNvlDPYnyipxeyBHdL68rVpCrBjjY5Dc8ojHN1H7fIXMBTVP4Xwmnv1RGYOHmSg22E44kECZX9zY="
+    file: 'GLMaze.tar.gz'
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = linux
