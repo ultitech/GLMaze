@@ -42,9 +42,9 @@ script:
 before_deploy:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       git clone https://github.com/andreyvit/yoursway-create-dmg.git;
-      ./yoursway-create-dmg/create-dmg --volname GLMaze --volicon ../Xcode/glmaze.icns --background ../Xcode/background.png --window-size 650 450 --icon GLMaze.app 180 190 --hide-extension GLMaze.app --app-drop-link 420 190 GLMaze.dmg Release
+      ./yoursway-create-dmg/create-dmg --volname GLMaze --volicon ../Xcode/glmaze.icns --background ../Xcode/background.png --window-size 650 450 --icon GLMaze.app 180 190 --hide-extension GLMaze.app --app-drop-link 420 190 GLMaze.dmg Release;
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      tar -zcvf GLMaze.tar.gz GLMaze
+      tar -zcvf GLMaze.tar.gz GLMaze;
     fi
 deploy:
   - provider: releases
