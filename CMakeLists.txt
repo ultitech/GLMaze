@@ -147,6 +147,12 @@ endif()
 
 # Create Executable
 add_executable(${PROJECT_TARGETBIN} ${GUI_TYPE} ${SRC} ${RESOURCES} ${FRAMEWORKS})
+if(WIN32)
+  add_executable(${PROJECT_TARGETBIN}_Screensaver ${GUI_TYPE} ${SRC} ${RESOURCES} ${FRAMEWORKS})
+  target_compile_definitions(${PROJECT_TARGETBIN}_Screensaver PRIVATE SCREENSAVER=1)
+  set_target_properties(${PROJECT_TARGETBIN}_Screensaver PROPERTIES OUTPUT_NAME "GLMaze")
+  set_target_properties(${PROJECT_TARGETBIN}_Screensaver PROPERTIES SUFFIX ".scr")
+endif(WIN32)
 
 if(APPLE)
   # Set search paths to look for framework inside the bundle

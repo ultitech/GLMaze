@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <time.h>
 #ifdef _WIN32
+#include <string.h>
 #include <windows.h>
 #endif
 
@@ -49,6 +50,53 @@ int main(int argc, char *argv[])
 	chdir(dir);
 #endif
 
+#if defined SCREENSAVER
+	enum screensaverParameter { NONE=0, CONFIGURATION, PREVIEW, FULLSCREEN};
+	enum screensaverParameter parameter = NONE;
+	if(argc > 1)
+	{
+		char* cmdLine = argv[1];
+		if(cmdLine[0] == '-' || cmdLine[0] == '/')
+		{
+			switch (cmdLine[1])
+			{
+			case 'c':
+				parameter = CONFIGURATION;
+				break;
+			case 'C':
+				parameter = CONFIGURATION;
+				break;
+			case 'p':
+				parameter = PREVIEW;
+				break;
+			case 'P':
+				parameter = PREVIEW;
+				break;
+			case 's':
+				parameter = FULLSCREEN;
+				break;
+			case 'S':
+				parameter = FULLSCREEN;
+				break;
+			default:
+				parameter = NONE;
+			}
+		}
+		printf("Arguments: %d\n", (int)parameter);
+	}
+
+	if(argc == 1 || parameter == CONFIGURATION)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "No configuration", "This screensaver can not be configured.", NULL);
+	}
+	else if(parameter == PREVIEW)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "No preview", "This screensaver can not be previewed.", NULL);
+	}
+	else if(parameter == FULLSCREEN)
+	{
+#endif
+
 	file_set_resource_dir("./");
 	file_set_output_dir("./");
 
@@ -78,6 +126,10 @@ int main(int argc, char *argv[])
 	scene_quit();
 	drawer_quit();
 	window_quit();
+
+#if defined SCREENSAVER
+	}
+#endif
 
 	return 0;
 }

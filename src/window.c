@@ -14,6 +14,7 @@ static SDL_GLContext context;
 static int screen_size[2];
 static KeypressHandler keypress_handlers[16];
 static unsigned int keypress_handlers_count = 0;
+int first = 0;
 
 void window_init()
 {
@@ -22,6 +23,14 @@ void window_init()
 	char fullscreen = config_get_value_integer("fullscreen", 0);
 
 	SDL_Init(SDL_INIT_VIDEO);
+
+#if defined SCREENSAVER
+	fullscreen = 1;
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
+	screen_size[0] = current.w;
+	screen_size[1] = current.h;
+#endif
 
 	Uint32 flags = SDL_WINDOW_OPENGL;
 	if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
@@ -59,6 +68,17 @@ int window_do_events()
 			unsigned int i;
 			for(i=0; i<keypress_handlers_count; i++) keypress_handlers[i](key);
 		}
+#if defined SCREENSAVER
+		if(ev.type == SDL_MOUSEBUTTONDOWN) return 0;
+		if(ev.type == SDL_MOUSEMOTION)
+		{
+			if(ev.motion.xrel > 10 && ev.motion.yrel > 10 && first == 1)
+			{
+				return 0;
+			}
+			first = 1;
+		}
+#endif
 	}
 	return 1;
 }
