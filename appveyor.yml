@@ -1,0 +1,25 @@
+install:
+  - md lib
+  - cd lib
+
+  - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip'
+  - ps: Start-FileDownload 'https://sourceforge.net/projects/freeimage/files/latest/download'
+  - ps: Start-FileDownload 'https://sourceforge.net/projects/glew/files/latest/download'
+
+  - 7z x *.zip
+
+environment:
+  SDL2: $(APPVEYOR_BUILD_FOLDER)\lib\SDL2-2.0.5
+  FREEIMAGE: $(APPVEYOR_BUILD_FOLDER)\lib\FreeImage
+  GLEW: $(APPVEYOR_BUILD_FOLDER)\lib\glew-2.0.0
+
+platform: Any CPU
+configuration: Release
+
+before_build:
+  - md build
+  - cd build
+  - cmake -G "Visual Studio 14 2015" ..
+
+build:
+  project: GLMaze.sln
