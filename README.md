@@ -8,13 +8,13 @@ GLMaze is a cross-platform clone of the classic Windows 95 3D maze screensaver.
 
 Be mesmerized as you walk through the seemingly endless maze, trying to find the exit. Pass a pyramid to turn your world upside down, but watch out for the puddles of water on the ground. You can even enter night vision to make you feel like a real spy.
 
-![Screenshot with Nightvision](http://www.ultitech.de/media/images/glmaze_github1.jpg)
-![Screenshot](http://www.ultitech.de/media/images/glmaze_github2.jpg)
-![Screenshot with Nightvision and Motion Blur](http://www.ultitech.de/media/images/glmaze_github3.jpg)
+![Screenshot with Nightvision](https://images.ulti.tech/glmaze/glmaze_github1.jpg)
+![Screenshot](https://images.ulti.tech/glmaze/glmaze_github2.jpg)
+![Screenshot with Nightvision and Motion Blur](https://images.ulti.tech/glmaze/glmaze_github3.jpg)
 
 ## Getting Started
 
-This project was created as a graphic demo to test the OpenGL 2.0 pipeline using SDL2 on Linux, Mac, and Windows. We included several shaders, such as motion blur, night vision as well as a 3D side-by-see mode.
+This project was created as a graphic demo to test the OpenGL 2.0 pipeline using SDL2 on Linux, Mac, and Windows. We included several shaders, such as motion blur, night vision as well as a 3D side-by-side mode.
 
 The latest binary releases can be found [here](https://github.com/ultitech/GLMaze/releases/latest) or you can build the project yourself.
 
