@@ -16,7 +16,7 @@ static KeypressHandler keypress_handlers[16];
 static unsigned int keypress_handlers_count = 0;
 int first = 0;
 
-void window_init()
+void window_init(int fullscreen_ss)
 {
 	screen_size[0] = config_get_value_integer("res_width", 640);
 	screen_size[1] = config_get_value_integer("res_height", 480);
@@ -25,11 +25,21 @@ void window_init()
 	SDL_Init(SDL_INIT_VIDEO);
 
 #if defined SCREENSAVER
-	fullscreen = 1;
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
-	screen_size[0] = current.w;
-	screen_size[1] = current.h;
+	if(fullscreen_ss)
+	{
+		fullscreen = 1;
+		SDL_DisplayMode current;
+		SDL_GetCurrentDisplayMode(0, &current);
+		screen_size[0] = current.w;
+		screen_size[1] = current.h;
+		SDL_ShowCursor(SDL_DISABLE);
+	}
+	else
+	{
+		fullscreen = 0;
+		screen_size[0] = 800;
+		screen_size[1] = 600;
+	}
 #endif
 
 	Uint32 flags = SDL_WINDOW_OPENGL;

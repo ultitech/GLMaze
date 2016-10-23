@@ -50,15 +50,17 @@ int main(int argc, char *argv[])
 	chdir(dir);
 #endif
 
+	int fullscreen = 0;
+
 #if defined SCREENSAVER
-	enum screensaverParameter { NONE=0, CONFIGURATION, PREVIEW, FULLSCREEN};
+	enum screensaverParameter { NONE=0, CONFIGURATION, PREVIEW, WINDOWED, FULLSCREEN};
 	enum screensaverParameter parameter = NONE;
 	if(argc > 1)
 	{
 		char* cmdLine = argv[1];
 		if(cmdLine[0] == '-' || cmdLine[0] == '/')
 		{
-			switch (cmdLine[1])
+			switch(cmdLine[1])
 			{
 			case 'c':
 				parameter = CONFIGURATION;
@@ -67,22 +69,22 @@ int main(int argc, char *argv[])
 				parameter = CONFIGURATION;
 				break;
 			case 'p':
-				parameter = PREVIEW;
+				parameter = PREVIEW; // Preview in Settings screen
 				break;
 			case 'P':
 				parameter = PREVIEW;
 				break;
 			case 's':
-				parameter = FULLSCREEN;
+				parameter = WINDOWED; // When user clicks Preview button in Settings screen
 				break;
 			case 'S':
 				parameter = FULLSCREEN;
+				fullscreen = 1;
 				break;
 			default:
 				parameter = NONE;
 			}
 		}
-		printf("Arguments: %d\n", (int)parameter);
 	}
 
 	if(argc == 1 || parameter == CONFIGURATION)
@@ -91,9 +93,9 @@ int main(int argc, char *argv[])
 	}
 	else if(parameter == PREVIEW)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "No preview", "This screensaver can not be previewed.", NULL);
+		//SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "No preview", "This screensaver can not be previewed.", NULL);
 	}
-	else if(parameter == FULLSCREEN)
+	else if(parameter == FULLSCREEN || parameter == WINDOWED)
 	{
 #endif
 
@@ -103,7 +105,7 @@ int main(int argc, char *argv[])
 	config_load();
 	config_print();
 
-	window_init();
+	window_init(fullscreen);
 	drawer_init();
 	scene_init();
 
