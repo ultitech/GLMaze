@@ -14,8 +14,8 @@ install:
       brew update;
       brew outdated cmake || brew upgrade cmake;
       brew install freeimage glew;
-      curl -O -L https://www.libsdl.org/release/SDL2-2.0.4.dmg;
-      hdiutil attach SDL2-2.0.4.dmg;
+      curl -O -L https://www.libsdl.org/release/SDL2-2.0.5.dmg;
+      hdiutil attach SDL2-2.0.5.dmg;
       sudo cp -a /Volumes/SDL2/SDL2.framework /Library/Frameworks/;
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
       sudo apt-get update -qq;
