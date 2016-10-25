@@ -14,6 +14,7 @@
 #ifdef _WIN32
 #include <string.h>
 #include <windows.h>
+#include <direct.h>
 #endif
 
 #include <SDL.h> //for SDL_GetTicks
@@ -106,7 +107,7 @@ int main(int argc, char *argv[])
 		char fname[ _MAX_FNAME ];
 		char ext[ _MAX_EXT ];
 		_splitpath_s( dest, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME, ext, _MAX_EXT );
-		chdir( dir );
+		_chdir( dir );
 	}
 #endif
 
