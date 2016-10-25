@@ -14,7 +14,10 @@ static SDL_GLContext context;
 static int screen_size[2];
 static KeypressHandler keypress_handlers[16];
 static unsigned int keypress_handlers_count = 0;
-int first = 0;
+#if defined SCREENSAVER
+static int skip_first_mouse_motion = 1;
+static int total_mouse_delta[2] = {0, 0};
+#endif
 
 void window_init()
 {
@@ -24,17 +27,13 @@ void window_init()
 
 	SDL_Init(SDL_INIT_VIDEO);
 
-#if defined SCREENSAVER
-	fullscreen = 1;
-	SDL_DisplayMode current;
-	SDL_GetCurrentDisplayMode(0, &current);
-	screen_size[0] = current.w;
-	screen_size[1] = current.h;
-	SDL_ShowCursor(SDL_DISABLE);
-#endif
-
 	Uint32 flags = SDL_WINDOW_OPENGL;
+
+#if defined SCREENSAVER
+	flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+#else
 	if(fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+#endif
 
 	window = SDL_CreateWindow("GLMaze",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -43,6 +42,12 @@ void window_init()
 
 	char vsync = config_get_value_integer("vsync", 1);
 	SDL_GL_SetSwapInterval(vsync ? 1 : 0);
+
+#if defined SCREENSAVER
+	SDL_GetWindowSize(window, &screen_size[0], &screen_size[1]);
+
+	SDL_ShowCursor(SDL_DISABLE);
+#endif
 }
 
 void window_quit()
@@ -73,11 +78,18 @@ int window_do_events()
 		if(ev.type == SDL_MOUSEBUTTONDOWN) return 0;
 		if(ev.type == SDL_MOUSEMOTION)
 		{
-			if(ev.motion.xrel > 10 && ev.motion.yrel > 10 && first == 1)
+			if(skip_first_mouse_motion)
+			{
+				skip_first_mouse_motion = 0;
+				continue;
+			}
+
+			total_mouse_delta[0] += ev.motion.xrel;
+			total_mouse_delta[1] += ev.motion.yrel;
+			if(sqrt(total_mouse_delta[0]*total_mouse_delta[0] + total_mouse_delta[1]*total_mouse_delta[1]) >= 20)
 			{
 				return 0;
 			}
-			first = 1;
 		}
 #endif
 	}

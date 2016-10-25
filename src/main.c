@@ -26,31 +26,35 @@ int main(int argc, char *argv[])
 	srand(time(NULL));
 
 #if defined __APPLE__
-    CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-    char path[PATH_MAX];
-    if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
-    {
-        printf("cannot change working directory, check permissions\n");
-        exit(0);
-    }
-    CFRelease(resourcesURL);
+	{
+		CFBundleRef mainBundle = CFBundleGetMainBundle();
+		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+		char path[PATH_MAX];
+		if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
+		{
+			printf("cannot change working directory, check permissions\n");
+			exit(0);
+		}
+		CFRelease(resourcesURL);
 
-    chdir(path);
+		chdir(path);
+	}
 #endif
-
 #if defined _WIN32
-	TCHAR dest[MAX_PATH];
-	GetModuleFileName(NULL, dest, MAX_PATH);
-	char drive[_MAX_DRIVE];
-	char dir[_MAX_DIR];
-	char fname[_MAX_FNAME];
-	char ext[_MAX_EXT];
-	_splitpath_s(dest, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME, ext, _MAX_EXT);
-	chdir(dir);
+	{
+		TCHAR dest[ MAX_PATH ];
+		GetModuleFileName( NULL, dest, MAX_PATH );
+		char drive[ _MAX_DRIVE ];
+		char dir[ _MAX_DIR ];
+		char fname[ _MAX_FNAME ];
+		char ext[ _MAX_EXT ];
+		_splitpath_s( dest, drive, _MAX_DRIVE, dir, _MAX_DIR, fname, _MAX_FNAME, ext, _MAX_EXT );
+		chdir( dir );
+	}
 #endif
+
 #if defined SCREENSAVER
-	enum screensaverParameter { NONE=0, CONFIGURATION, PREVIEW, FULLSCREEN};
+	enum screensaverParameter { NONE, CONFIGURATION, PREVIEW, FULLSCREEN };
 	enum screensaverParameter parameter = NONE;
 	if(argc > 1)
 	{
