@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
 	if(argc == 1 || parameter == CONFIGURATION)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "No configuration", "This screensaver can not be configured.", NULL);
+		system("notepad config.txt");
 	}
 	else if(parameter == PREVIEW)
 	{
