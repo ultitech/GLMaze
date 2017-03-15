@@ -1,6 +1,7 @@
 # GLMaze
 
-[![Build Status](https://travis-ci.org/ultitech/GLMaze.svg?branch=master)](https://travis-ci.org/ultitech/GLMaze)
+[![Travis-CI Status](https://travis-ci.org/ultitech/GLMaze.svg?branch=master)](https://travis-ci.org/ultitech/GLMaze)
+[![AppVeyor Status](https://ci.appveyor.com/api/projects/status/g9hi0c28c5ndv6a2?svg=true)](https://ci.appveyor.com/project/ultitech/glmaze)
 [![Release](https://img.shields.io/badge/release-v1.0-blue.svg)](https://github.com/ultitech/GLMaze/releases/latest)
 [![License: zlib](https://img.shields.io/badge/license-zlib-blue.svg)](http://www.zlib.net/zlib_license.html)
 
