@@ -24,3 +24,8 @@ before_build:
 
 build:
   project: build\GLMaze.sln
+
+artifacts:
+  - path: build\$(configuration)
+    name: GLMaze
+    type: zip
