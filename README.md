@@ -22,7 +22,7 @@ The latest binary releases can be found [here](https://github.com/ultitech/GLMaz
 
 GLMaze requires [cmake](http://cmake.org) for compilation and depends on several third-party open source libraries:
 
-+ [SDL 1.2](https://www.libsdl.org)
++ [SDL2](https://www.libsdl.org)
 + [GLEW](http://glew.sourceforge.net)
 + [FreeImage](http://freeimage.sourceforge.net)
 
@@ -37,7 +37,7 @@ GLMaze requires [cmake](http://cmake.org) for compilation and depends on several
 
 #### Windows
 
-+ [Visual Studio](https://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx) **(recommended)** or
++ [Visual Studio](https://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx) or
 + [MinGW](http://www.mingw.org)
 
 ### Compiling
@@ -97,7 +97,7 @@ You can change the resolution and turn on fullscreen using the [config.txt](res/
 
 ## Authors
 
-Copyright © 2016 by [ultitech](https://www.ulti.tech)
+Copyright © 2017 by [ultitech](https://www.ulti.tech)
 
 * **Lukas Feller** - *Lead Programmer* - [luckyxxl](https://github.com/luckyxxl)
 * **David Greiner** - *Programmer* - [USADavid](https://github.com/USADavid)
