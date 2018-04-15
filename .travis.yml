@@ -19,7 +19,7 @@ install:
       sudo cp -a /Volumes/SDL2/SDL2.framework /Library/Frameworks/;
     elif [ "$TRAVIS_OS_NAME" == "linux" ]; then
       sudo apt-get update -qq;
-      sudo apt-get install -y libsdl2-dev libfreeimage-dev libglew-dev;
+      sudo apt-get install -y libsdl2-dev libegl1-mesa-dev libgles2-mesa-dev libfreeimage-dev libglew-dev;
     fi
 
 before_script:
