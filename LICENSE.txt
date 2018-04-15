@@ -1,6 +1,6 @@
 GLMaze
 
-Copyright (c) 2016 ultitech
+Copyright (c) 2018 ultitech
 
 Lukas Feller <lukas@ulti.tech>
 David Greiner <david@ulti.tech>
