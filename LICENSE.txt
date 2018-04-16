@@ -1,5 +1,3 @@
-GLMaze
-
 Copyright (c) 2018 ultitech
 
 Lukas Feller <lukas@ulti.tech>

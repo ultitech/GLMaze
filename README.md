@@ -86,7 +86,7 @@ Finally run `make` or open up the Xcode project, select the GLMaze target, and h
 ##### Visual Studio
 If you haven't already, install Visual Studio and cmake.
 
-Download the latest libraries, place them in your prefered location, and set their path as environment variables (SDL2, FREEIMAGE, GLEW).
+Download the latest libraries, place them in your preferred location, and set their path as environment variables (SDL2, FREEIMAGE, GLEW).
 
 Next create your build directory inside the GLMaze folder and run `cmake ..`. To [specify](https://cmake.org/cmake/help/v3.0/manual/cmake-generators.7.html#ide-build-tool-generators) the Visual Studio version and build architecture use `cmake -G "Visual Studio ` followed by version, year, and architecture, e.g. `12 2013 Win64" ..`.
 
@@ -98,14 +98,14 @@ You can change the resolution and turn on fullscreen using the [config.txt](res/
 
 ## Authors
 
-Copyright © 2017 by [ultitech](https://www.ulti.tech)
+Copyright © 2018 by [ultitech](https://www.ulti.tech)
 
 * **Lukas Feller** - *Lead Programmer* - [luckyxxl](https://github.com/luckyxxl)
-* **David Greiner** - *Programmer* - [USADavid](https://github.com/USADavid)
+* **David Greiner** - *Programmer* - [davidgreiner](https://github.com/davidgreiner)
 
 ## License
 
-This project is licensed under the zlib License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the zlib License - see the [LICENSE.txt](LICENSE.txt) file for details.
 
 ## Acknowledgments
 
